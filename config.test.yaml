@@ -1,0 +1,35 @@
+#
+# Test configuration for EBDO-FeatureService
+# Copyright (C) 2017 Project-EBDO
+# Author: Joseph Allemandou
+#
+
+# A synthetic domain to test EBDO-FeatureService
+default_project: &default_project
+  x-modules:
+    - path: projects/feature_service_default.yaml
+
+spec_root: &spec_root
+  title: "The EBDO FeatureService root"
+  paths:
+    /{domain:data.ebdo.org}: *default_project
+
+# Finally, a standard service-runner config.
+info:
+  name: feature-service
+
+services:
+  - name: feature-service
+    module: hyperswitch
+    conf:
+      port: 7231
+      spec: *spec_root
+      salt: secret
+      default_page_size: 1
+      user_agent: feature-service-testsuite
+
+logging:
+  name: feature-service
+  level: info
+
+metrics:

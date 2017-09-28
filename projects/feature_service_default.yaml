@@ -1,0 +1,28 @@
+#
+# Hyperswitch configuration for EBDO-FeatureService main project
+# Copyright (C) 2017 Project-EBDO
+# Author: Joseph Allemandou
+#
+paths:
+  /{api:v1}:
+    x-modules:
+      - spec:
+          # Careful - There are 2 indentations here
+          info:
+            version: 1.0.0-beta
+            title: EBDO FeatureService API
+            description: EBDO FeatureService API
+
+          paths:
+            /examples:
+              x-modules:
+                - path: v1/examples.yaml
+
+  /{api:sys}:
+    x-modules:
+      - spec:
+          # Careful - There are 2 indentations here
+          paths:
+            /examples:
+              x-modules:
+                - path: sys/examples.js

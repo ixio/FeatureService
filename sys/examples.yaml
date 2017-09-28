@@ -1,0 +1,10 @@
+#
+# Hyperswitch configuration for EBDO-FeatureService sys:examples endpoints
+# Copyright (C) 2017 Project-EBDO
+# Author: Joseph Allemandou
+#
+paths:
+    /fake-timeserie/{from}/{to}/{step}:
+        get:
+          summary: Get a fake timeserie
+          operationId: fakeTimeserie

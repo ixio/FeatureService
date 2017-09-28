@@ -1,0 +1,39 @@
+#
+# EBDO FeatureService example config
+# Copyright (C) 2017 Project-EBDO
+# Author: Joseph Allemandou
+#
+
+feature_service_project: &feature_service_project
+  x-modules:
+    - path: projects/feature_service_default.yaml
+
+# Swagger spec root.
+spec: &spec_root
+  title: "The EBDO FeatureService root"
+  paths:
+    /{domain:data.ebdo.org}: *feature_service_project
+
+# The main service setup. Each worker can offer one or more services.
+services:
+  - name: feature-service
+    module: hyperswitch
+    conf:
+      port: 7231
+      spec: *spec_root
+      salt: secret
+      default_page_size: 125
+
+logging:
+  name: feature-service
+  level: info
+  #streams:
+  #- type: gelf
+  #  host: <%= @logstash_host %>
+  #  port: <%= @logstash_port %>
+
+metrics:
+  #type: txstatsd
+  #host: localhost
+  #port: 8125
+  #batch: true
