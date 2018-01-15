@@ -41,4 +41,7 @@ paths:
             /examples:
               x-modules:
                 - path: sys/examples.js
+            /authentification:
+              x-modules:
+                - path: sys/authentification.js
         options: '{{options}}'

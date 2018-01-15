@@ -52,6 +52,35 @@ paths:
             $ref: '#/definitions/problem'
       x-monitor: false
 
+  /authenticate/{username}:
+    get:
+      tags:
+        - EBDO FeatureService authentification function
+      summary: Authenticate user
+      description: |
+        Auhtenticate user from credentials
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: path
+          description: User login
+          type: string
+          required: false
+      responses:
+        '200':
+          description: session token
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/authentification/authenticate/{username}
+      x-monitor: false
+
+
   /mean-fake-timeserie/{from}/{to}/{step}:
     get:
       tags:
