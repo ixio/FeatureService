@@ -49,4 +49,7 @@ paths:
                 - path: sys/search.js
                   options:
                     elasticSearch: '{{options.elasticSearch}}'
+            /authentification:
+              x-modules:
+                - path: sys/authentification.js
         options: '{{options}}'
