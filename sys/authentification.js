@@ -30,7 +30,11 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yam
 class DB_from_file {
 
     get_pwd_hash(login) {
-        return 'hash'
+        if (login == 'login') {
+            return 'hash'
+        } else {
+            throw 'Unknown login'
+        }
     }
 
 }
@@ -46,13 +50,21 @@ class Authentification {
     authenticate(hyper, req) {
         var requestParams = req.params;
 
-        var hash = this.database.get_pwd_hash(requestParams.username)
+        try {
+            var hash = this.database.get_pwd_hash(requestParams.username)
+        }
+        catch (e) {
+            if (e != 'Unknown login') {
+                console.log(e) //TODO Check if this is the right channel to log errors
+            }
+            return fsUtil.normalizeResponse({
+                status: 401
+            });
+        }
         if (hash == requestParams.password) {
             return fsUtil.normalizeResponse({
                 status: 200,
-                body: {
-                    items: ['token']
-                }
+                body: 'token'
             });
         } else {
             return fsUtil.normalizeResponse({
