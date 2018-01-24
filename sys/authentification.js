@@ -27,23 +27,39 @@ var fsUtil = require('../lib/FeatureServiceUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
 
+class DB_from_file {
+
+    get_pwd_hash(login) {
+        return 'hash'
+    }
+
+}
 
 class Authentification {
     // Class that handles authentification requests
 
     constructor(options) {
         this.options = options;
+        this.database = new DB_from_file()
     }
 
     authenticate(hyper, req) {
         var requestParams = req.params;
 
-        return fsUtil.normalizeResponse({
-            status: 200,
-            body: {
-                items: [requestParams.username]
-            }
-        });
+        var hash = this.database.get_pwd_hash(requestParams.username)
+        if (hash == requestParams.password) {
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: {
+                    items: ['token']
+                }
+            });
+        } else {
+            return fsUtil.normalizeResponse({
+                status: 401
+            });
+        }
+
     }
 }
 

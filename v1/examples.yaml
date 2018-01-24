@@ -52,7 +52,7 @@ paths:
             $ref: '#/definitions/problem'
       x-monitor: false
 
-  /authenticate/{username}:
+  /authenticate/{username}/{password}:
     get:
       tags:
         - EBDO FeatureService authentification function
@@ -77,7 +77,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/authentification/authenticate/{username}
+              uri: /{domain}/sys/authentification/authenticate/{username}/{password}
       x-monitor: false
 
 

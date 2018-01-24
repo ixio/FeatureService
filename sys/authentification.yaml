@@ -19,7 +19,7 @@
 
 
 paths:
-    /authenticate/{username}:
+    /authenticate/{username}/{password}:
       get:
         summary: Test authentification
         operationId: authenticate
