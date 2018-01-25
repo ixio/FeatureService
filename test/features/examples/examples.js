@@ -168,5 +168,34 @@ describe('examples endpoints', function () {
         });
     });
 
+    // These tests assume an htpasswd file in root project folder
+    // The following command can generate the needed file:
+    // htpasswd -Bb htpasswd login password
+    var endpointAuthenticate = '/examples/authenticate';
+
+    it('should return 200 with a none empty string', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            assert.notDeepStrictEqual(res.body.items[0], '');
+        });
+    });
+
+    it('should return 401', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthenticate + '/alogin/password'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
+
+    it('should return 401', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthenticate + '/login/apassword'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
 
 });
