@@ -20,6 +20,9 @@
  */
 'use strict';
 
+const fs = require('fs');
+const bcrypt = require('bcryptjs'); // Package chosen over bcrypt because it has fewer dependencies
+
 var HyperSwitch = require('hyperswitch');
 const URI = HyperSwitch.URI;
 var path = require('path');
@@ -29,9 +32,23 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yam
 
 class DB_from_file {
 
+    // htpasswd is expected to be created by the htpasswd utility with Bcrypt hashes
+    constructor(filepath = 'htpasswd') {
+        this.filepath = filepath;
+        this.login_to_hash = {}
+        fs.readFile('htpasswd', 'utf8', (err, data) => {
+            for (let line of data.split('\n')) {
+                if (line != '') {
+                    var [login, hash] = line.split(':')
+                    this.login_to_hash[login] = hash
+                };
+            };
+        });
+    }
+
     get_pwd_hash(login) {
-        if (login == 'login') {
-            return 'hash'
+        if (login in this.login_to_hash) {
+            return this.login_to_hash[login]
         } else {
             throw 'Unknown login'
         }
@@ -61,7 +78,7 @@ class Authentification {
                 status: 401
             });
         }
-        if (hash == requestParams.password) {
+        if (bcrypt.compareSync(requestParams.password, hash)) {
             return fsUtil.normalizeResponse({
                 status: 200,
                 body: 'token'
