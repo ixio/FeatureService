@@ -23,7 +23,8 @@
     "bluebird": "^3.5.0",
     "service-runner": "^2.3.0",
     "hyperswitch": "^0.9.1",
-    "bcryptjs": "^2.4.3"
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.1.1"
   },
   "devDependencies": {
     "js-yaml": "^3.8.4",
