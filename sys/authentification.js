@@ -24,33 +24,32 @@ const fs = require('fs');
 const bcrypt = require('bcryptjs'); // Package chosen over bcrypt because it has fewer dependencies
 
 var HyperSwitch = require('hyperswitch');
-const URI = HyperSwitch.URI;
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
 
-class DB_from_file {
+class DBFromFile {
 
     // htpasswd is expected to be created by the htpasswd utility with Bcrypt hashes
     constructor(filepath = 'htpasswd') {
         this.filepath = filepath;
-        this.login_to_hash = {}
+        this.login_to_hash = {};
         fs.readFile('htpasswd', 'utf8', (err, data) => {
             for (let line of data.split('\n')) {
-                if (line != '') {
-                    var [login, hash] = line.split(':')
-                    this.login_to_hash[login] = hash
-                };
-            };
+                if (line !== '') {
+                    var [login, hash] = line.split(':');
+                    this.login_to_hash[login] = hash;
+                }
+            }
         });
     }
 
-    get_pwd_hash(login) {
+    getHash(login) {
         if (login in this.login_to_hash) {
-            return this.login_to_hash[login]
+            return this.login_to_hash[login];
         } else {
-            throw 'Unknown login'
+            throw 'Unknown login';
         }
     }
 
@@ -61,27 +60,30 @@ class Authentification {
 
     constructor(options) {
         this.options = options;
-        this.database = new DB_from_file()
+        this.database = new DBFromFile();
     }
 
     authenticate(hyper, req) {
         var requestParams = req.params;
+        var hash = '';
 
         try {
-            var hash = this.database.get_pwd_hash(requestParams.username)
+            hash = this.database.getHash(requestParams.username);
         }
         catch (e) {
-            if (e != 'Unknown login') {
-                console.log(e) //TODO Check if this is the right channel to log errors
+            if (e === 'Unknown login') {
+                return fsUtil.normalizeResponse({
+                    status: 401
+                });
             }
-            return fsUtil.normalizeResponse({
-                status: 401
-            });
+            // TODO shouldn't we return 401 on other errors and log them for security?
         }
         if (bcrypt.compareSync(requestParams.password, hash)) {
             return fsUtil.normalizeResponse({
                 status: 200,
-                body: 'token'
+                body: {
+                    items: ['token']
+                }
             });
         } else {
             return fsUtil.normalizeResponse({
