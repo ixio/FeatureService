@@ -22,12 +22,17 @@
 
 const fs = require('fs');
 const bcrypt = require('bcryptjs'); // Package chosen over bcrypt because it has fewer dependencies
+const jwt = require('jsonwebtoken');
 
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
+
+// TODO move secret out of code
+const secret = 'a89e5dc64a4cc85d778fb41ec581d0e30424bae32f61756aff87ead116a75a11';
+const tokenLifetime = '1h'
 
 class DBFromFile {
 
@@ -79,10 +84,11 @@ class Authentification {
             // TODO shouldn't we return 401 on other errors and log them for security?
         }
         if (bcrypt.compareSync(requestParams.password, hash)) {
+            var token = jwt.sign({ aud: requestParams.username }, secret, { expiresIn: tokenLifetime });
             return fsUtil.normalizeResponse({
                 status: 200,
                 body: {
-                    items: ['token']
+                    items: token
                 }
             });
         } else {
