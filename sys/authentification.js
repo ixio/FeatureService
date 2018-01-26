@@ -32,7 +32,7 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yam
 
 // TODO move secret out of code
 const secret = 'a89e5dc64a4cc85d778fb41ec581d0e30424bae32f61756aff87ead116a75a11';
-const tokenLifetime = '1h'
+const tokenLifetime = '1h';
 
 class DBFromFile {
 
@@ -40,7 +40,7 @@ class DBFromFile {
     constructor(filepath = 'htpasswd') {
         this.filepath = filepath;
         this.login_to_hash = {};
-        fs.readFile('htpasswd', 'utf8', (err, data) => {
+        fs.readFile(filepath, 'utf8', (err, data) => {
             for (let line of data.split('\n')) {
                 if (line !== '') {
                     var [login, hash] = line.split(':');
@@ -82,11 +82,15 @@ class Authentification {
             // TODO shouldn't we return 401 on other errors and log them for security?
         }
         if (bcrypt.compareSync(requestParams.password, hash)) {
-            var token = jwt.sign({ aud: requestParams.username }, secret, { expiresIn: tokenLifetime });
+            var token = jwt.sign(
+              { aud: requestParams.username },
+              secret,
+              { expiresIn: tokenLifetime }
+            );
             return fsUtil.normalizeResponse({
                 status: 200,
                 body: {
-                    items: token
+                    token: token
                 }
             });
         } else {
@@ -96,23 +100,22 @@ class Authentification {
 
     verifyToken(hyper, req) {
         // Authorization header should be in the form of "Bearer TOKEN", we directly take the token
-        if (hyper._rootReq.headers.authorization) {
-            var token = hyper._rootReq.headers.authorization.split(' ').pop();
-        }
-        else {
+        var token;
+        if (req.headers.authorization) {
+            token = req.headers.authorization.split(' ').pop();
+        } else {
             return fsUtil.authErrorResponse("Authorization header not found");
         }
-        var res = ''
+        var res = '';
         try {
-            res = jwt.verify(token, secret)
-        }
-        catch (err) {
+            res = jwt.verify(token, secret);
+        } catch (err) {
             return fsUtil.authErrorResponse(err);
         }
         return fsUtil.normalizeResponse({
                 status: 200,
                 body: {
-                    items: res
+                    token: res
                 }
             });
     }
