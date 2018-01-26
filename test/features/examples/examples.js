@@ -22,6 +22,8 @@ describe('examples endpoints', function () {
     it('should return 400 when fake-timeserie parameters are wrong', function () {
         return preq.get({
             uri: server.config.fsURL + endpoint + '/2017-wrong-01/2017-02-01/day'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -30,6 +32,8 @@ describe('examples endpoints', function () {
     it('should return 400 when to is before from', function () {
         return preq.get({
             uri: server.config.fsURL + endpoint + '/2017-03-01/2017-02-01/day'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -38,6 +42,8 @@ describe('examples endpoints', function () {
     it('should return 400 when date-time is invalid', function () {
         return preq.get({
             uri: server.config.fsURL + endpoint + '/2017-01-01/2017-02-35/day'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -97,6 +103,8 @@ describe('examples endpoints', function () {
     it('should return 400 when to is before from', function () {
         return preq.get({
             uri: server.config.fsURL + endpointMean + '/2017-03-01/2017-02-01/day'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -105,6 +113,8 @@ describe('examples endpoints', function () {
     it('should return 400 when date-time is invalid', function () {
         return preq.get({
             uri: server.config.fsURL + endpointMean + '/2017-01-01/2017-02-35/day'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 400);
         });
@@ -178,13 +188,15 @@ describe('examples endpoints', function () {
             uri: server.config.fsURL + endpointAuthenticate + '/login/password'
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
-            assert.notDeepStrictEqual(res.body.items[0], '');
+            assert.notDeepStrictEqual(res.body.token, '');
         });
     });
 
     it('should return 401', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAuthenticate + '/alogin/password'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
@@ -193,9 +205,101 @@ describe('examples endpoints', function () {
     it('should return 401', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAuthenticate + '/login/apassword'
+        }).then(function(res) {
+          throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
     });
+
+    var endpointToken = '/examples/verify-token';
+
+    it('should return 401 without token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointToken
+        }).then(function(res) {
+          throw 'Should not succeed'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
+
+    it('should return 401 with a wrong token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointToken,
+            headers: {
+              authorization: 'Bearer WrongBearer'
+            }
+        }).then(function(res) {
+          throw 'Should not succeed'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
+
+    it('should return 200 with a correct token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            preq.get({
+                uri: server.config.fsURL + endpointToken,
+                headers: {
+                  authorization: 'Bearer ' + res.body.token
+                }
+            }).then(function(res) {
+              assert.deepEqual(res.status, 200);
+            });
+        });
+    });
+
+    var endpointAuthTS = '/examples/authentified-fake-timeserie/2017-01-01/2017-02-01/day';
+
+    it('should return 401 without token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthTS
+        }).then(function(res) {
+          throw 'Should not succeed'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
+
+    it('should return 401 with a wrong token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthTS,
+            headers: {
+              authorization: 'Bearer WrongBearer'
+            }
+        }).then(function(res) {
+          throw 'Should not succeed'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 401);
+        });
+    });
+
+    it('should return 200 with a correct token', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            preq.get({
+                uri: server.config.fsURL + endpointAuthTS,
+                headers: {
+                  authorization: 'Bearer ' + res.body.token
+                }
+            }).then(function(res) {
+                assert.deepEqual(res.status, 200);
+                assert.deepEqual(res.status, 200);
+                assert.deepEqual(res.body.items.length, 31);
+                // checking first and last timestamps
+                assert.deepStrictEqual(res.body.items[0].ts, '2017-01-01T00:00:00.000Z');
+                assert.deepStrictEqual(res.body.items[30].ts, '2017-01-31T00:00:00.000Z');
+            });
+        });
+    });
+
+
+
 
 });
