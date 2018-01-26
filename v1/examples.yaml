@@ -107,6 +107,7 @@ paths:
         - get_from_backend:
             request:
               uri: /{domain}/sys/authentification/verify-token
+              headers: '{{request.headers}}'
       x-monitor: false
 
 
@@ -231,16 +232,18 @@ paths:
         - verify_token:
             request:
               uri: /{domain}/sys/authentification/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: 401
         - get_from_backend:
             request:
               uri: /{domain}/sys/examples/fake-timeserie/{from}/{to}/{step}
-        - return_step:
             return:
-              status: 202
+              status: 200
               headers: '{{get_from_backend.headers}}'
               body: '{{get_from_backend.body}}'
-            return_if: false
       x-monitor: false
+
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
