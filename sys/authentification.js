@@ -75,11 +75,9 @@ class Authentification {
         try {
             hash = this.database.getHash(requestParams.username);
         }
-        catch (e) {
-            if (e === 'Unknown login') {
-                return fsUtil.normalizeResponse({
-                    status: 401
-                });
+        catch (err) {
+            if (err === 'Unknown login') {
+                return fsUtil.authErrorResponse();
             }
             // TODO shouldn't we return 401 on other errors and log them for security?
         }
@@ -92,11 +90,31 @@ class Authentification {
                 }
             });
         } else {
-            return fsUtil.normalizeResponse({
-                status: 401
-            });
+            return fsUtil.authErrorResponse();
         }
+    }
 
+    verifyToken(hyper, req) {
+        // Authorization header should be in the form of "Bearer TOKEN", we directly take the token
+        if (hyper._rootReq.headers.authorization) {
+            var token = hyper._rootReq.headers.authorization.split(' ').pop();
+        }
+        else {
+            return fsUtil.authErrorResponse("Authorization header not found");
+        }
+        var res = ''
+        try {
+            res = jwt.verify(token, secret)
+        }
+        catch (err) {
+            return fsUtil.authErrorResponse(err);
+        }
+        return fsUtil.normalizeResponse({
+                status: 200,
+                body: {
+                    items: res
+                }
+            });
     }
 }
 
@@ -106,7 +124,8 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            authenticate: tst.authenticate.bind(tst)
+            authenticate: tst.authenticate.bind(tst),
+            verifyToken: tst.verifyToken.bind(tst)
         }
     };
 };

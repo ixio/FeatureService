@@ -23,3 +23,7 @@ paths:
       get:
         summary: Test authentification
         operationId: authenticate
+    /verify-token:
+      get:
+        summary: Return true if token is valid, false otherwise
+        operationId: verifyToken
