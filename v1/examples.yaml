@@ -52,8 +52,8 @@ paths:
             $ref: '#/definitions/problem'
       x-monitor: false
 
-  /authenticate/{username}/{password}:
-    get:
+  /authenticate:
+    post:
       tags:
         - EBDO FeatureService authentification function
       summary: Authenticate user
@@ -63,12 +63,12 @@ paths:
         - application/json
       parameters:
         - name: username
-          in: path
+          in: formData
           description: User login
           type: string
           required: true
         - name: password
-          in: path
+          in: formData
           description: User password
           type: string
           required: true
@@ -80,9 +80,15 @@ paths:
           schema:
             $ref: '#/definitions/problem'
       x-request-handler:
-        - get_from_backend:
+        - post_to_backend:
             request:
-              uri: /{domain}/sys/authentification/authenticate/{username}/{password}
+              method: post
+              uri: /{domain}/sys/authentification/authenticate
+              headers:
+                content-type: multipart/form-data
+              body:
+                username: '{{username}}'
+                password: '{{password}}'
       x-monitor: false
 
   /verify-token:

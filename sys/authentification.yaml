@@ -19,8 +19,8 @@
 
 
 paths:
-    /authenticate/{username}/{password}:
-      get:
+    /authenticate:
+      post:
         summary: Test authentification
         operationId: authenticate
     /verify-token:

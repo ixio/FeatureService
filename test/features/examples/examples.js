@@ -184,8 +184,10 @@ describe('examples endpoints', function () {
     var endpointAuthenticate = '/examples/authenticate';
 
     it('should return 200 with a none empty string', function () {
-        return preq.get({
-            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'login', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             assert.notDeepStrictEqual(res.body.token, '');
@@ -193,8 +195,10 @@ describe('examples endpoints', function () {
     });
 
     it('should return 401', function () {
-        return preq.get({
-            uri: server.config.fsURL + endpointAuthenticate + '/alogin/password'
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'alogin', password: 'password' }
         }).then(function(res) {
           throw 'Should not succeed'
         }).catch(function(res) {
@@ -203,8 +207,10 @@ describe('examples endpoints', function () {
     });
 
     it('should return 401', function () {
-        return preq.get({
-            uri: server.config.fsURL + endpointAuthenticate + '/login/apassword'
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'login', password: 'apassword' }
         }).then(function(res) {
           throw 'Should not succeed'
         }).catch(function(res) {
@@ -238,8 +244,10 @@ describe('examples endpoints', function () {
     });
 
     it('should return 200 with a correct token', function () {
-        return preq.get({
-            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'login', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             preq.get({
@@ -279,8 +287,10 @@ describe('examples endpoints', function () {
     });
 
     it('should return 200 with a correct token', function () {
-        return preq.get({
-            uri: server.config.fsURL + endpointAuthenticate + '/login/password'
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'login', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             preq.get({

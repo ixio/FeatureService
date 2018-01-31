@@ -69,7 +69,7 @@ class Authentification {
     }
 
     authenticate(hyper, req) {
-        var requestParams = req.params;
+        var requestParams = req.body;
         var hash = '';
 
         try {
