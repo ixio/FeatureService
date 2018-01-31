@@ -11,7 +11,7 @@ require('mocha-jshint')();
 require('mocha-jscs')();
 // Run eslint as part of normal testing
 require('mocha-eslint')(
-    ['sys','lib','test','projects'],
+    ['sys','lib','projects'],
     {
         formatter: 'compact',
         alwaysWarn: false,
