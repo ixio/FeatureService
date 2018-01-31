@@ -30,10 +30,6 @@ var fsUtil = require('../lib/FeatureServiceUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
 
-// TODO move secret out of code
-const secret = 'a89e5dc64a4cc85d778fb41ec581d0e30424bae32f61756aff87ead116a75a11';
-const tokenLifetime = '1h';
-
 class DBFromFile {
 
     // htpasswd is expected to be created by the htpasswd utility with Bcrypt hashes
@@ -65,12 +61,14 @@ class Authentification {
 
     constructor(options) {
         this.options = options;
-        this.database = new DBFromFile();
+        this.database = new DBFromFile(options.db_file);
+        this.secret = options.secret;
+        this.tokenLifetime = options.token_lifetime;
     }
 
     authenticate(hyper, req) {
         var requestParams = req.body;
-        var hash = '';
+        var hash;
 
         try {
             hash = this.database.getHash(requestParams.username);
@@ -84,8 +82,8 @@ class Authentification {
         if (bcrypt.compareSync(requestParams.password, hash)) {
             var token = jwt.sign(
               { aud: requestParams.username },
-              secret,
-              { expiresIn: tokenLifetime }
+              this.secret,
+              { expiresIn: this.tokenLifetime }
             );
             return fsUtil.normalizeResponse({
                 status: 200,
@@ -106,9 +104,9 @@ class Authentification {
         } else {
             return fsUtil.authErrorResponse("Authorization header not found");
         }
-        var res = '';
+        var res;
         try {
-            res = jwt.verify(token, secret);
+            res = jwt.verify(token, this.secret);
         } catch (err) {
             return fsUtil.authErrorResponse(err);
         }

@@ -178,9 +178,6 @@ describe('examples endpoints', function () {
         });
     });
 
-    // These tests assume an htpasswd file in root project folder
-    // The following command can generate the needed file:
-    // htpasswd -Bb htpasswd login password
     var endpointAuthenticate = '/examples/authenticate';
 
     it('should return 200 with a none empty string', function () {

@@ -28,6 +28,10 @@ default_project: &default_project
           path: /data.ebdo.org/sys/fake-es/es
           maximumSize: 10000
           index: ebdo_data
+        authentification:
+          db_file: test/htpasswd
+          secret: HhIeCXynWjZvSa5S2jflOzr81NUxHg6waiPVPuw3YeZNFtCmVbr1fRtx2A6gnGn56lMNgtlICGAn8sepbjDjAm8XsLgZ2Xcry9Dtld4Jkb2I3uzidaicU3tRuB3vDWjx
+          token_lifetime: 1h
 
 
 spec_root: &spec_root

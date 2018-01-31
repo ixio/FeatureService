@@ -52,4 +52,5 @@ paths:
             /authentification:
               x-modules:
                 - path: sys/authentification.js
+                  options: '{{options.authentification}}'
         options: '{{options}}'
