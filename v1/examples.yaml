@@ -52,71 +52,6 @@ paths:
             $ref: '#/definitions/problem'
       x-monitor: false
 
-  /authenticate:
-    post:
-      tags:
-        - EBDO FeatureService authentification function
-      summary: Authenticate user
-      description: |
-        Auhtenticate user from credentials
-      produces:
-        - application/json
-      parameters:
-        - name: username
-          in: formData
-          description: User login
-          type: string
-          required: true
-        - name: password
-          in: formData
-          description: User password
-          type: string
-          required: true
-      responses:
-        '200':
-          description: session token
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/problem'
-      x-request-handler:
-        - post_to_backend:
-            request:
-              method: post
-              uri: /{domain}/sys/authentification/authenticate
-              headers:
-                content-type: multipart/form-data
-              body:
-                username: '{{username}}'
-                password: '{{password}}'
-      x-monitor: false
-
-  /verify-token:
-    get:
-      tags:
-        - EBDO FeatureService authentification function
-      summary: Authenticate user
-      description: |
-        Auhtenticate user from credentials
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: session token
-        '401':
-          description: session token error
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/problem'
-      x-request-handler:
-        - get_from_backend:
-            request:
-              uri: /{domain}/sys/authentification/verify-token
-              headers: '{{request.headers}}'
-      x-monitor: false
-
-
   /mean-fake-timeserie/{from}/{to}/{step}:
     get:
       tags:
@@ -248,6 +183,31 @@ paths:
               status: 200
               headers: '{{get_from_backend.headers}}'
               body: '{{get_from_backend.body}}'
+      x-monitor: false
+
+  /verify-token:
+    get:
+      tags:
+        - EBDO FeatureService decrypt token function
+      summary: Example function that returns a decrypted authentification token
+      description: |
+        Takes a authentication token in header and returns it decrypted
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: decrypted session token
+        '401':
+          description: session token error
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/authentification/verify-token
+              headers: '{{request.headers}}'
       x-monitor: false
 
 

@@ -1,0 +1,97 @@
+# Copyright (C) 2017 Project-EBDO
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Hyperswitch configuration for EBDO-FeatureService api:authentification endpoints
+# Author: Erwan Keribin
+
+
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: EBDO FeatureService Examples API
+  description: EBDO FeatureService Examples API
+  termsofservice: TBD
+  contact:
+    name: EBDO-Project Team
+    email: TBD
+    url: TBD
+  license:
+    name: GNU General Public Licence, v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+paths:
+  /authenticate:
+    post:
+      tags:
+        - EBDO FeatureService authentification function
+      summary: Authenticate user
+      description: |
+        Auhtenticate user from credentials
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: formData
+          description: User login
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: User password
+          type: string
+          required: true
+      responses:
+        '200':
+          description: session token
+          schema:
+            $ref: '#/definitions/token'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/authentification/authenticate
+              headers:
+                content-type: multipart/form-data
+              body:
+                username: '{{username}}'
+                password: '{{password}}'
+      x-monitor: false
+
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+
+  token:
+    properties:
+      token:
+        type: string
+        items:
+          type: string

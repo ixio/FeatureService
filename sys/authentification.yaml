@@ -21,9 +21,9 @@
 paths:
     /authenticate:
       post:
-        summary: Test authentification
+        summary: Return authentification token if given correct username/password in post form
         operationId: authenticate
     /verify-token:
       get:
-        summary: Return true if token is valid, false otherwise
+        summary: Return decrypted token from request with token in header
         operationId: verifyToken
