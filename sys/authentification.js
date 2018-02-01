@@ -19,49 +19,23 @@
  * Author: Erwan Keribin
  */
 'use strict';
-
-const fs = require('fs');
 const bcrypt = require('bcryptjs'); // Package chosen over bcrypt because it has fewer dependencies
 const jwt = require('jsonwebtoken');
 
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
+var AuthFromHTPasswdFile = require('../lib/AuthFromHTPasswdFile');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
 
-class DBFromFile {
-
-    // htpasswd is expected to be created by the htpasswd utility with Bcrypt hashes
-    constructor(filepath = 'htpasswd') {
-        this.filepath = filepath;
-        this.login_to_hash = {};
-        fs.readFile(filepath, 'utf8', (err, data) => {
-            for (let line of data.split('\n')) {
-                if (line !== '') {
-                    var [login, hash] = line.split(':');
-                    this.login_to_hash[login] = hash;
-                }
-            }
-        });
-    }
-
-    getHash(login) {
-        if (login in this.login_to_hash) {
-            return this.login_to_hash[login];
-        } else {
-            throw 'Unknown login';
-        }
-    }
-
-}
 
 class Authentification {
     // Class that handles authentification requests
 
     constructor(options) {
         this.options = options;
-        this.database = new DBFromFile(options.db_file);
+        this.database = new AuthFromHTPasswdFile(options.db_file);
         this.secret = options.secret;
         this.tokenLifetime = options.token_lifetime;
     }

@@ -53,7 +53,7 @@ describe('authentification-related endpoints', function () {
         });
     });
 
-    var endpointToken = '/examples/verify-token';
+    var endpointToken = '/authentification/verify-token';
 
     it('should return 401 without token', function () {
         return preq.get({

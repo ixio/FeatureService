@@ -165,6 +165,10 @@ paths:
           description: The list of timestamps and generated random values
           schema:
             $ref: '#/definitions/fake-timeserie'
+        '401':
+          description: session token error
+          schema:
+            $ref: '#/definitions/problem'
         default:
           description: Error
           schema:
@@ -175,7 +179,7 @@ paths:
               uri: /{domain}/sys/authentification/verify-token
               headers: '{{request.headers}}'
             return_if:
-              status: 401
+              status: ['4xx', '5xx']
         - get_from_backend:
             request:
               uri: /{domain}/sys/examples/fake-timeserie/{from}/{to}/{step}
@@ -183,31 +187,6 @@ paths:
               status: 200
               headers: '{{get_from_backend.headers}}'
               body: '{{get_from_backend.body}}'
-      x-monitor: false
-
-  /verify-token:
-    get:
-      tags:
-        - EBDO FeatureService decrypt token function
-      summary: Example function that returns a decrypted authentification token
-      description: |
-        Takes a authentication token in header and returns it decrypted
-      produces:
-        - application/json
-      responses:
-        '200':
-          description: decrypted session token
-        '401':
-          description: session token error
-        default:
-          description: Error
-          schema:
-            $ref: '#/definitions/problem'
-      x-request-handler:
-        - get_from_backend:
-            request:
-              uri: /{domain}/sys/authentification/verify-token
-              headers: '{{request.headers}}'
       x-monitor: false
 
 
