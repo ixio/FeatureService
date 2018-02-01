@@ -31,7 +31,7 @@ feature_service_project: &feature_service_project
         authentification:
           # You can generate a new password file with htpasswd utility:
           # htpasswd -cBC 10 htpasswd login
-          db_file: test/htpasswd
+          db_file: /your/htpasswd/file/path
           # You can generate a new secret on a linux system for example with the following command:
           # cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 128 ; echo ''
           secret: GENERATE NEW SECRET PLEASE

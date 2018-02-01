@@ -19,7 +19,6 @@
  * Author: Erwan Keribin
  */
 'use strict';
-const bcrypt = require('bcryptjs'); // Package chosen over bcrypt because it has fewer dependencies
 const jwt = require('jsonwebtoken');
 
 var HyperSwitch = require('hyperswitch');
@@ -42,10 +41,10 @@ class Authentification {
 
     authenticate(hyper, req) {
         var requestParams = req.body;
-        var hash;
+        var authorized;
 
         try {
-            hash = this.database.getHash(requestParams.username);
+            authorized = this.database.authorize(requestParams.username, requestParams.password);
         }
         catch (err) {
             if (err === 'Unknown login') {
@@ -53,7 +52,7 @@ class Authentification {
             }
             // TODO shouldn't we return 401 on other errors and log them for security?
         }
-        if (bcrypt.compareSync(requestParams.password, hash)) {
+        if (authorized) {
             var token = jwt.sign(
               { aud: requestParams.username },
               this.secret,
