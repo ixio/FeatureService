@@ -138,7 +138,7 @@ paths:
     get:
       tags:
         - EBDO FeatureService Examples
-      summary: Get a fake timeserie
+      summary: Get a fake timeserie protected with token
       description: |
         Get a fake timeserie with random [0, 1[ values in [from, to[ interval by step
       produces:
@@ -176,7 +176,7 @@ paths:
       x-request-handler:
         - verify_token:
             request:
-              uri: /{domain}/sys/authentification/verify-token
+              uri: /{domain}/sys/authentication/verify-token
               headers: '{{request.headers}}'
             return_if:
               status: ['4xx', '5xx']

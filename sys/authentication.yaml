@@ -14,14 +14,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Hyperswitch configuration for EBDO-FeatureService sys/authentification endpoints
+# Hyperswitch configuration for EBDO-FeatureService sys/authentication endpoints
 # Author: Erwan Keribin
 
 
 paths:
     /authenticate:
       post:
-        summary: Return authentification token if given correct username/password in post form
+        summary: Return authentication token if given correct username/password in post form
         operationId: authenticate
     /verify-token:
       get:
