@@ -1,0 +1,127 @@
+# Copyright (C) 2017 Project-EBDO
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Hyperswitch configuration for EBDO-FeatureService api:authentication endpoints
+# Author: Erwan Keribin
+
+
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: EBDO FeatureService Authentication API
+  description: EBDO FeatureService Authentication API
+  termsofservice: TBD
+  contact:
+    name: EBDO-Project Team
+    email: TBD
+    url: TBD
+  license:
+    name: GNU General Public Licence, v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+paths:
+  /authenticate:
+    post:
+      tags:
+        - EBDO FeatureService authentication function
+      summary: Authenticate user
+      description: |
+        Authenticate user from credentials, returning a JWT token on authentication success
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: formData
+          description: User login
+          type: string
+          required: true
+        - name: password
+          in: formData
+          description: User password
+          type: string
+          required: true
+      responses:
+        '200':
+          description: session token
+          schema:
+            $ref: '#/definitions/token'
+        '401':
+          description:  authentication problem
+          schema:
+            $ref: '#/definitions/problem'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/authentication/authenticate
+              headers:
+                content-type: multipart/form-data
+              body:
+                username: '{{username}}'
+                password: '{{password}}'
+      x-monitor: false
+
+  /verify-token:
+    get:
+      tags:
+        - EBDO FeatureService decrypt token function
+      summary: Example function that returns a decrypted authentication token
+      description: |
+        Takes a authentication token in header and returns it decrypted
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: decrypted session token
+        '401':
+          description: session token error
+          schema:
+            $ref: '#/definitions/problem'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+      x-monitor: false
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string
+
+  token:
+    properties:
+      token:
+        type: string
+        items:
+          type: string

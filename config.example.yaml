@@ -28,6 +28,14 @@ feature_service_project: &feature_service_project
           port: 9200
           maximumSize: 1000
           index: ebdo_data
+        authentication:
+          # You can generate a new password file with htpasswd utility:
+          # htpasswd -cBC 10 htpasswd login
+          htpasswd: /your/htpasswd/file/path
+          # You can generate a new secret on a linux system for example with the following command:
+          # cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 128 ; echo ''
+          secret: GENERATE NEW SECRET PLEASE
+          token_lifetime: 1h
 
 # Swagger spec root.
 spec: &spec_root

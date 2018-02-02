@@ -39,6 +39,8 @@ cp config.example.yaml config.yaml
 You can also pass in the path to another file with the `-c` commandline option
 to `server.js`.
 
+To use authentication features, you can use the `login`/`password` default user in tests, or create a new `htpasswd` file and reference it in the yaml config file for production deployments.
+
 ### Testing
 
 To run all the tests from a clean slate:
