@@ -15,7 +15,7 @@
  */
 
 /*
- * EBDO-FeatureService authentification functions
+ * EBDO-FeatureService authentication functions
  * Author: Erwan Keribin
  */
 'use strict';
@@ -26,32 +26,23 @@ var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
 var AuthFromHTPasswdFile = require('../lib/AuthFromHTPasswdFile');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentification.yaml'));
+var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentication.yaml'));
 
 
-class Authentification {
+class Authentication {
     // Class that handles authentification requests
 
     constructor(options) {
         this.options = options;
-        this.database = new AuthFromHTPasswdFile(options.db_file);
+        this.authService = new AuthFromHTPasswdFile(options.htpasswd);
         this.secret = options.secret;
         this.tokenLifetime = options.token_lifetime;
     }
 
     authenticate(hyper, req) {
         var requestParams = req.body;
-        var authorized;
+        var authorized = this.authService.authorize(requestParams.username, requestParams.password);
 
-        try {
-            authorized = this.database.authorize(requestParams.username, requestParams.password);
-        }
-        catch (err) {
-            if (err === 'Unknown login') {
-                return fsUtil.authErrorResponse();
-            }
-            // TODO shouldn't we return 401 on other errors and log them for security?
-        }
         if (authorized) {
             var token = jwt.sign(
               { aud: requestParams.username },
@@ -93,7 +84,7 @@ class Authentification {
 }
 
 module.exports = function(options) {
-    var tst = new Authentification(options);
+    var tst = new Authentication(options);
 
     return {
         spec: spec,

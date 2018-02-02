@@ -14,15 +14,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Hyperswitch configuration for EBDO-FeatureService api:authentification endpoints
+# Hyperswitch configuration for EBDO-FeatureService api:authentication endpoints
 # Author: Erwan Keribin
 
 
 swagger: '2.0'
 info:
   version: '1.0.0-beta'
-  title: EBDO FeatureService Examples API
-  description: EBDO FeatureService Examples API
+  title: EBDO FeatureService Authentication API
+  description: EBDO FeatureService Authentication API
   termsofservice: TBD
   contact:
     name: EBDO-Project Team
@@ -35,7 +35,7 @@ paths:
   /authenticate:
     post:
       tags:
-        - EBDO FeatureService authentification function
+        - EBDO FeatureService authentication function
       summary: Authenticate user
       description: |
         Authenticate user from credentials, returning a JWT token on authentication success
@@ -58,7 +58,7 @@ paths:
           schema:
             $ref: '#/definitions/token'
         '401':
-          description:  authentification problem
+          description:  authentication problem
           schema:
             $ref: '#/definitions/problem'
         default:
@@ -69,7 +69,7 @@ paths:
         - post_to_backend:
             request:
               method: post
-              uri: /{domain}/sys/authentification/authenticate
+              uri: /{domain}/sys/authentication/authenticate
               headers:
                 content-type: multipart/form-data
               body:
@@ -81,7 +81,7 @@ paths:
     get:
       tags:
         - EBDO FeatureService decrypt token function
-      summary: Example function that returns a decrypted authentification token
+      summary: Example function that returns a decrypted authentication token
       description: |
         Takes a authentication token in header and returns it decrypted
       produces:
@@ -100,7 +100,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/authentification/verify-token
+              uri: /{domain}/sys/authentication/verify-token
               headers: '{{request.headers}}'
       x-monitor: false
 

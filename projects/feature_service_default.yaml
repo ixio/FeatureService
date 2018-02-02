@@ -29,9 +29,9 @@ paths:
             description: EBDO FeatureService API
 
           paths:
-            /authentification:
+            /authentication:
               x-modules:
-                - path: v1/authentification.yaml
+                - path: v1/authentication.yaml
             /examples:
               x-modules:
                 - path: v1/examples.yaml
@@ -44,10 +44,10 @@ paths:
       - spec:
           # Careful - There are 2 indentations here
           paths:
-            /authentification:
+            /authentication:
               x-modules:
-                - path: sys/authentification.js
-                  options: '{{options.authentification}}'
+                - path: sys/authentication.js
+                  options: '{{options.authentication}}'
             /examples:
               x-modules:
                 - path: sys/examples.js
