@@ -59,3 +59,16 @@ npm run-script coverage
 
 The coverage report can now be found in *&lt;project&gt;/coverage/lcov-report/index.html*.
 
+### Database management
+
+This project uses db-migrate (https://github.com/db-migrate/node-db-migrate), when in the project folder you might want to run:
+```
+alias db-migrate="node_modules/db-migrate/bin/db-migrate"
+```
+
+You can then use db-migrate to set up the database:
+```
+db-migrate up
+```
+
+Configuration for database settings is in database.json and migration files in migration folder
