@@ -38,6 +38,9 @@ paths:
             /search:
               x-modules:
                 - path: v1/search.yaml
+            /test/sound:
+              x-modules:
+                - path: v1/sound.yaml
 
   /{api:sys}:
     x-modules:
@@ -56,4 +59,7 @@ paths:
                 - path: sys/search.js
                   options:
                     elasticSearch: '{{options.elasticSearch}}'
+            /test/sound:
+              x-modules:
+                - path: sys/sound.js
         options: '{{options}}'
