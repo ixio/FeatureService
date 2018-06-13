@@ -24,9 +24,22 @@ exports.up = function(db, callback) {
     }),
     db.createTable.bind(db, 'datasets', {
       id: { type: 'int', primaryKey: true },
-      HDFS_location: 'string',
+      name: 'string',
+      storage_backend: 'string',
+      storage_location: 'string',
       ES_location: 'string',
-      owner: { type: 'int', foreignKey: { table: 'user' }}
+      owner: {
+        type: 'int',
+        foreignKey: {
+          name: 'datasets_owner_fk',
+          table: 'users',
+          rules: {
+            onDelete: 'CASCADE',
+            onUpdate: 'RESTRICT'
+          },
+          mapping: 'id'
+        }
+      }
     }),
     db.createTable.bind(db, 'jobs', {
       id: { type: 'int', primaryKey: true },
