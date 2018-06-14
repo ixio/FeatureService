@@ -248,4 +248,6 @@ describe('examples endpoints', function () {
         });
     });
 
+    after(function() { return server.stop(); });
+
 });

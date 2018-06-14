@@ -96,4 +96,6 @@ describe('authentication-related endpoints', function () {
         });
     });
 
+    after(function() { return server.stop(); });
+
 });
