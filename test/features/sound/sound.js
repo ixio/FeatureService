@@ -55,4 +55,6 @@ describe('sound endpoints', function() {
             assert.deepEqual(soundList.includes("spectrogram_demo_doorknock_mono.wav"), true);
         });
     });
+
+    after(function() { return server.stop(); });
 });

@@ -56,7 +56,7 @@ function start(_options) {
                 function () {
                     console.log('stopping FeatureService');
                     isRunning = false;
-                    server.close();
+                    runner.stop();
                     stop = function () {};
                 };
             return true;
