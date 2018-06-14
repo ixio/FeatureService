@@ -1,0 +1,316 @@
+'use strict';
+
+exports.up = knex => {
+    return knex.schema
+        .createTable('users', table => {
+            table.increments('id').primary();
+            table.string('email');
+            table.string('password');
+        })
+        .createTable('dataset_types', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+        })
+        .createTable('geo_metadata', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+            table.specificType('location', 'point');
+            table.specificType('region', 'geography');
+        })
+        .createTable('tabular_metadata', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+            table.integer('dimension_count');
+            table.integer('variable_count');
+        })
+        .createTable('tabular_metadata_variables', table => {
+            table.increments('id').primary();
+            table
+                .integer('tabular_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('tabular_metadata')
+                .onDelete('CASCADE');
+            table.string('name');
+            table.text('desc');
+            table.string('data_type');
+            table.integer('dimension_size');
+            table.integer('variable_position');
+        })
+        .createTable('tabular_metadata_shapes', table => {
+            table.increments('id').primary();
+            table
+                .integer('tabular_metadata_variable_id')
+                .unsigned()
+                .references('id')
+                .inTable('tabular_metadata_variables')
+                .onDelete('CASCADE');
+            table
+                .integer('tabular_metadata_dimension_id')
+                .unsigned()
+                .references('id')
+                .inTable('tabular_metadata_variables')
+                .onDelete('CASCADE');
+            table.integer('dimension_position');
+        })
+        .createTable('audio_metadata', table => {
+            table.increments('id').primary();
+            table.dateTime('start');
+            table.dateTime('end');
+            table.integer('num_channels');
+            table.double('sample_rate_khz');
+            table.integer('total_samples');
+            table.integer('sample_bits');
+            table.double('gain_db');
+            table.double('gain_rel');
+            table.double('dutycycle_rdm');
+            table.double('dutycycle_rim');
+        })
+        .createTable('datasets', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.string('dataset_path');
+            table.integer('status');
+            table
+                .integer('dataset_type_id')
+                .unsigned()
+                .references('id')
+                .inTable('dataset_types')
+                .onDelete('CASCADE');
+            table.string('files_type');
+            table.date('start_date');
+            table.date('end_date');
+            table
+                .integer('geo_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('geo_metadata')
+                .onDelete('CASCADE');
+            table
+                .integer('tabular_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('tabular_metadata')
+                .onDelete('CASCADE');
+            table
+                .integer('audio_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('audio_metadata')
+                .onDelete('CASCADE');
+            table
+                .integer('owner_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('dataset_files', table => {
+            table.increments('id').primary();
+            table
+                .integer('dataset_id')
+                .unsigned()
+                .references('id')
+                .inTable('datasets')
+                .onDelete('CASCADE');
+            table.string('filename');
+            table.string('filepath');
+            table.bigInteger('size');
+            table
+                .integer('tabular_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('tabular_metadata')
+                .onDelete('CASCADE');
+            table
+                .integer('audio_metadata_id')
+                .unsigned()
+                .references('id')
+                .inTable('audio_metadata')
+                .onDelete('CASCADE');
+        })
+        .createTable('collections', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+            table
+                .integer('owner_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('collection_datasets', table => {
+            table.increments('id').primary();
+            table
+                .integer('collection_id')
+                .unsigned()
+                .references('id')
+                .inTable('collections')
+                .onDelete('CASCADE');
+            table
+                .integer('dataset_id')
+                .unsigned()
+                .references('id')
+                .inTable('datasets')
+                .onDelete('CASCADE');
+        })
+        .createTable('teams', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+        })
+        .createTable('team_users', table => {
+            table.increments('id').primary();
+            table
+                .integer('team_id')
+                .unsigned()
+                .references('id')
+                .inTable('teams')
+                .onDelete('CASCADE');
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('permissions', table => {
+            table.increments('id').primary();
+            table
+                .integer('collection_id')
+                .unsigned()
+                .references('id')
+                .inTable('collections')
+                .onDelete('CASCADE');
+            table
+                .integer('dataset_id')
+                .unsigned()
+                .references('id')
+                .inTable('datasets')
+                .onDelete('CASCADE');
+            table.integer('permission_level');
+            table
+                .integer('team_id')
+                .unsigned()
+                .references('id')
+                .inTable('teams')
+                .onDelete('CASCADE');
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+            table.boolean('public');
+        })
+        .createTable('annotation_sets', table => {
+            table.increments('id').primary();
+            table.json('tags');
+        })
+        .createTable('annotation_campaigns', table => {
+            table.increments('id').primary();
+            table.string('name');
+            table.text('desc');
+            table.dateTime('start');
+            table.dateTime('end');
+            table
+                .integer('annotation_set_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotations')
+                .onDelete('CASCADE');
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('annotation_campaign_datasets', table => {
+            table.increments('id').primary();
+            table
+                .integer('annotation_campaign_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_campaigns')
+                .onDelete('CASCADE');
+            table
+                .integer('dataset_id')
+                .unsigned()
+                .references('id')
+                .inTable('datasets')
+                .onDelete('CASCADE');
+        })
+        .createTable('datasetfile_annotations', table => {
+            table.increments('id').primary();
+            table
+                .integer('annotation_campaign_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_campaigns')
+                .onDelete('CASCADE');
+            table
+                .integer('dataset_file_id')
+                .unsigned()
+                .references('id')
+                .inTable('dataset_files')
+                .onDelete('CASCADE');
+            table.json('annotation');
+            table.integer('status');
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('annotation_sessions', table => {
+            table.increments('id').primary();
+            table.dateTime('start');
+            table.dateTime('end');
+            table.json('session_output');
+            table
+                .integer('datasetfile_annotation_id')
+                .unsigned()
+                .references('id')
+                .inTable('datasetfile_annotations')
+                .onDelete('CASCADE');
+        })
+        .createTable('jobs', table => {
+            table.increments('id').primary();
+            table.text('to_execute');
+            table.dateTime('locked_at');
+            table.string('locked_by');
+            table.integer('status');
+            table.text('result');
+            table.string('queue');
+        });
+};
+
+exports.down = knex => {
+    return knex.schema
+        .dropTableIfExists('jobs')
+        .dropTableIfExists('annotation_sessions')
+        .dropTableIfExists('datasetfile_annotations')
+        .dropTableIfExists('annotation_campaign_datasets')
+        .dropTableIfExists('annotation_campaigns')
+        .dropTableIfExists('annotation_sets')
+        .dropTableIfExists('permissions')
+        .dropTableIfExists('team_users')
+        .dropTableIfExists('teams')
+        .dropTableIfExists('collection_datasets')
+        .dropTableIfExists('collections')
+        .dropTableIfExists('dataset_files')
+        .dropTableIfExists('datasets')
+        .dropTableIfExists('audio_metadata')
+        .dropTableIfExists('tabular_metadata_shapes')
+        .dropTableIfExists('tabular_metadata_variables')
+        .dropTableIfExists('tabular_metadata')
+        .dropTableIfExists('geo_metadata')
+        .dropTableIfExists('dataset_types')
+        .dropTableIfExists('users');
+};

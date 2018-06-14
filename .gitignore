@@ -59,3 +59,5 @@ typings/
 # dotenv environment variables file
 .env
 
+# dev sqlite3 files
+*.sqlite3
