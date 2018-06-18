@@ -189,6 +189,60 @@ paths:
               body: '{{get_from_backend.body}}'
       x-monitor: false
 
+  /list-teams:
+    get:
+      tags:
+        - ODE FeatureService Examples
+      summary: List the teams of ODE users
+      description: |
+        Get a JSON list with caracteristics of ODE teams
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The list of ODE teams with ID, name and description of each team.
+          schema:
+            $ref: '#/definitions/team-list'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/examples/list-teams
+      x-monitor: false
+
+  /list-team-users/{teamID}:
+    get:
+      tags:
+        - ODE FeatureService Examples
+      summary: Get the list of users of a specific ODE team
+      description: |
+        Get the list of users (id and email) of a specific ODE team
+      produces:
+        - application/json
+      parameters:
+        - name: teamID
+          in: path
+          description: ID of the team from which we want all users.
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: The list of users of an ODE team with id and email
+          schema:
+            $ref: '#/definitions/user-list'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/examples/list-team-users/{teamID}
+      x-monitor: false
+
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
@@ -240,3 +294,27 @@ definitions:
             mean:
               type: number
               format: double
+
+  team-list:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+            desc:
+              type: string
+
+  user-list:
+    properties:
+      items:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+            email:
+              type: string
