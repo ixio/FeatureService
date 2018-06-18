@@ -11,7 +11,7 @@ istanbul="$mod_dir"/istanbul/lib/cli.js
 
 
 if [ "$1" = "test" ]; then
-    "${mocha}"
+    NODE_ENV=test "${mocha}"
 elif [ "$1" = "coverage" ]; then
     "${istanbul}" cover node_modules/.bin/_mocha -- -R spec
 fi

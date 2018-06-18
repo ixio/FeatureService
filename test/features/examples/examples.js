@@ -28,13 +28,14 @@
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
+var db     = require('../../../db');
 
 
 describe('examples endpoints', function () {
     this.timeout(20000);
 
     //Start server before running tests
-    before(function () { return server.start(); });
+    before(function () { console.log('testStart'); return Promise.all([db.init(), server.start()]); });
 
     var endpoint = '/examples/fake-timeserie';
 
@@ -248,6 +249,7 @@ describe('examples endpoints', function () {
         });
     });
 
-    after(function() { return server.stop(); });
+    after(function() { console.log('testStop'); return db.close().then(function() { return console.log('dbStop'); server.stop(); })  });
+    //after(function() { console.log('testStop'); return Promise.all([db.close(), server.stop()]); });
 
 });
