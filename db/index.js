@@ -24,9 +24,25 @@
 const Knex = require('knex');
 const { Model } = require('objection');
 
+// Setting Knex config and binding it to objection.js
 const knexConfig = require('../knexfile');
-const knex = new Knex(knexConfig.development);
+const knexEnv = process.env.NODE_ENV ? process.env.NODE_ENV : 'development';
+var knex = new Knex(knexConfig[knexEnv]);
 Model.knex(knex);
+
+// DB utils
+exports.knex = knex;
+exports.init = () => {
+    knex = new Knex(knexConfig[knexEnv]);
+    Model.knex(knex);
+    return knex.migrate.latest()
+    .then(function() {
+        return knex.seed.run();
+    });
+};
+exports.close = () => {
+    return knex.destroy();
+};
 
 // Annotation models
 exports.AnnotationCampaign = require('./models/annotation-models/AnnotationCampaign');
