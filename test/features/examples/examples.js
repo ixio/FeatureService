@@ -28,13 +28,19 @@
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
+var db     = require('../../../db');
 
 
 describe('examples endpoints', function () {
     this.timeout(20000);
 
-    //Start server before running tests
-    before(function () { return server.start(); });
+    //Start server and DB before running tests
+    before(function () {
+        server.start()
+        .then(async function () {
+            await db.init();
+        });
+    });
 
     var endpoint = '/examples/fake-timeserie';
 
@@ -248,6 +254,54 @@ describe('examples endpoints', function () {
         });
     });
 
-    after(function() { return server.stop(); });
+    var endpointListTeams = '/examples/list-teams';
+
+    it('should return 200 with the list of teams', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointListTeams
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            // checking we have the right number of teams
+            assert.deepEqual(res.body.items.length, 3);
+            // checking first team info
+            var team = res.body.items[0];
+            assert.deepStrictEqual(team.id, 1);
+            assert.deepStrictEqual(team.name, 'ode');
+            assert.deepStrictEqual(team.desc, 'all of ode');
+        });
+    });
+
+    var endpointListTeamUsers = '/examples/list-team-users/';
+
+    it('should return 200 with the list of users of team 2', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointListTeamUsers + '2'
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            // checking we have the right number of users
+            assert.deepEqual(res.body.items.length, 3);
+            // checking first user info
+            var team = res.body.items[0];
+            assert.deepStrictEqual(team.id, 3);
+            assert.deepStrictEqual(team.email, 'ek@test.ode');
+        });
+    });
+
+    it('should return 404 for team 7', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointListTeamUsers + '7'
+        }).then(function() {
+          throw 'Should not succeed'
+        }).catch(function(res) {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    after(function() {
+        db.close()
+        .then(function() {
+            server.stop();
+        });
+    });
 
 });
