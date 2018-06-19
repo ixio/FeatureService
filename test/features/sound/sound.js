@@ -16,7 +16,7 @@ describe('sound endpoints', function() {
     this.timeout(20000);
 
     //Start server before running tests
-    before(function() { return server.start(); });
+    before(function() { server.start(); });
 
     var endpoint = '/test/sound';
 
@@ -56,5 +56,5 @@ describe('sound endpoints', function() {
         });
     });
 
-    after(function() { return server.stop(); });
+    after(function() { server.stop(); });
 });

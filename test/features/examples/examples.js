@@ -35,7 +35,12 @@ describe('examples endpoints', function () {
     this.timeout(20000);
 
     //Start server before running tests
-    before(function () { console.log('testStart'); return Promise.all([db.init(), server.start()]); });
+    before(function () {
+      server.start()
+      .then(function () {
+        db.init();
+      });
+    });
 
     var endpoint = '/examples/fake-timeserie';
 
@@ -249,7 +254,13 @@ describe('examples endpoints', function () {
         });
     });
 
-    after(function() { console.log('testStop'); return db.close().then(function() { return console.log('dbStop'); server.stop(); })  });
+    after(function() {
+      db.close()
+      .then(function() {
+        // Not a promise
+        server.stop();
+      });
+    });
     //after(function() { console.log('testStop'); return Promise.all([db.close(), server.stop()]); });
 
 });
