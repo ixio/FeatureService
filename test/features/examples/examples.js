@@ -35,11 +35,9 @@ describe('examples endpoints', function () {
     this.timeout(20000);
 
     //Start server and DB before running tests
-    before(function () {
-        server.start()
-        .then(async function () {
-            await db.init();
-        });
+    before(async function () {
+        await server.start();
+        await db.init();
     });
 
     var endpoint = '/examples/fake-timeserie';
@@ -298,10 +296,8 @@ describe('examples endpoints', function () {
     });
 
     after(function() {
-        db.close()
-        .then(function() {
-            server.stop();
-        });
+        db.close();
+        server.stop();
     });
 
 });
