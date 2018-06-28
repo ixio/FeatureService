@@ -221,7 +221,7 @@ exports.up = knex => {
                 .integer('annotation_set_id')
                 .unsigned()
                 .references('id')
-                .inTable('annotations')
+                .inTable('annotation_sets')
                 .onDelete('CASCADE');
             table
                 .integer('user_id')
