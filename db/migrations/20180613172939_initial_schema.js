@@ -210,6 +210,12 @@ exports.up = knex => {
         .createTable('annotation_sets', table => {
             table.increments('id').primary();
             table.json('tags');
+            table
+                .integer('user_id')
+                .unsigned()
+                .references('id')
+                .inTable('users')
+                .onDelete('CASCADE');
         })
         .createTable('annotation_campaigns', table => {
             table.increments('id').primary();
