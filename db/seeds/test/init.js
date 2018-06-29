@@ -189,4 +189,26 @@ exports.seed = async function(knex, Promise) {
     await knex('jobs').insert([
         { id: 1, to_execute: 'pwd; ls', status: 0, queue: 'test' }
     ]);
+    // The following lines set index autoincrement counter to 10
+    // We have to do this since previous inserts don't change increment counter on PGSQL
+    await knex.raw('ALTER SEQUENCE users_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE dataset_types_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE geo_metadata_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE tabular_metadata_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE tabular_metadata_variables_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE tabular_metadata_shapes_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE audio_metadata_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE datasets_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE dataset_files_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE collections_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE collection_datasets_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE teams_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE team_users_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE permissions_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE annotation_sets_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE annotation_campaigns_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE annotation_campaign_datasets_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE datasetfile_annotations_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE annotation_sessions_id_seq RESTART WITH 10');
+    await knex.raw('ALTER SEQUENCE jobs_id_seq RESTART WITH 10');
 };
