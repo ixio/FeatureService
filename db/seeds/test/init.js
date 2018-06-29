@@ -100,7 +100,7 @@ exports.seed = async function(knex, Promise) {
     ]);
     await knex('collections').del();
     await knex('collections').insert([
-        { id: 1, name: 'SPM', desc: 'Saint Pierre & Miquelon PAM and aux data' }
+        { id: 1, name: 'SPM', desc: 'Saint Pierre & Miquelon PAM and aux data', owner_id: 5 }
     ]);
     await knex('collection_datasets').del();
     await knex('collection_datasets').insert([
@@ -129,14 +129,15 @@ exports.seed = async function(knex, Promise) {
     ]);
     await knex('permissions').del();
     await knex('permissions').insert([
-        { id: 1, collection_id: 1, permission_level: 0, team_id: 1, public: false }
+        { id: 1, collection_id: 1, permission_level: 0, team_id: 1, public: false },
+        { id: 2, dataset_id: 1, permission_level: 1, user_id: 3, public: false }
     ]);
     await knex('annotation_sets').del();
     await knex('annotation_sets').insert([
         {
             id: 1, tags: '{ "annotationTag": ["Mysticète", "Humpback Whale", "Minke Whale", ' +
             '"Odontocète", "Killer Whale", "Beluga", "Sperm Whale", "Common Dolphin", ' +
-            '"Striped Dolphin", "Pilot Whale", "Rain", "Vessel", "Chain"] }'
+            '"Striped Dolphin", "Pilot Whale", "Rain", "Vessel", "Chain"] }', user_id: 5
         }
     ]);
     await knex('annotation_campaigns').del();
