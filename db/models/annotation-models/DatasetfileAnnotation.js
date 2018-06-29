@@ -37,8 +37,8 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.HasManyRelation,
                 modelClass: __dirname + '/AnnotationSession',
                 join: {
-                    from: 'datasetfile_annotations.annotation_session_id',
-                    to: 'annotation_sessions.id'
+                    from: 'datasetfile_annotations.id',
+                    to: 'annotation_sessions.datasetfile_annotation_id'
                 }
             }
         };

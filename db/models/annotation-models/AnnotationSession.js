@@ -9,12 +9,12 @@ class AnnotationSession extends Model {
 
     static get relationMappings() {
         return {
-            owner: {
+            datasetfile_annotation: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: __dirname + '/../user-models/User',
+                modelClass: __dirname + '/DatasetfileAnnotation',
                 join: {
-                    from: 'annotation_sessions.user_id',
-                    to: 'users.id'
+                    from: 'annotation_sessions.datasetfile_annotation_id',
+                    to: 'datasetfile_annotations.id'
                 }
             }
         };

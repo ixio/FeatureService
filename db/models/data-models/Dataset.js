@@ -72,6 +72,14 @@ class Dataset extends Model {
                     from: 'datasets.owner_id',
                     to: 'users.id'
                 }
+            },
+            files: {
+                relation: Model.HasManyRelation,
+                modelClass: __dirname + '/DatasetFile',
+                join: {
+                    from: 'datasets.id',
+                    to: 'dataset_files.dataset_id'
+                }
             }
         };
     }

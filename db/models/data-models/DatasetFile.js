@@ -32,14 +32,6 @@ class DatasetFile extends Model {
                     from: 'dataset_files.audio_metadata_id',
                     to: 'audio_metadata.id'
                 }
-            },
-            owner: {
-                relation: Model.BelongsToOneRelation,
-                modelClass: __dirname + '/../user-models/User',
-                join: {
-                    from: 'dataset_files.owner_id',
-                    to: 'users.id'
-                }
             }
         };
     }
