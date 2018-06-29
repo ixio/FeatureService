@@ -28,7 +28,7 @@ Set up dev & test databases with docker:
 ```sh
 docker pull mdillon/postgis
 docker run --name devdb -p 127.0.0.1:5432:5432 -d mdillon/postgis
-docker run --name testdb -e POSTGRES_DB=test -p 127.0.0.1:5433:5432 -d mdillon/postgis
+docker run --name testdb -e POSTGRES_USER=test -p 127.0.0.1:5433:5432 -d mdillon/postgis
 ```
 
 Use knex to set up dev database

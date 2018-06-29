@@ -1,7 +1,24 @@
 language: node_js
 node_js:
-  - '6'
+  - '9'
 sudo: false
+addons:
+  postgresql: "10"
+  apt:
+    packages:
+    - postgresql-10
+    - postgresql-client-10
+    - postgresql-10-postgis-2.4 
+    - postgresql-10-postgis-scripts
+env:
+  global:
+  - PGPORT=5433
+services:
+  - postgresql
+before_script:
+  - psql -U travis -c "CREATE USER test WITH PASSWORD 'password';"
+  - psql -U travis -c "CREATE DATABASE test OWNER test;"
+  - psql -U travis -d test -c "CREATE EXTENSION postgis;"
 script: sh test/utils/run_tests.sh coverage all && (npm run-script coveralls || exit 0)
 notifications:
   slack:
