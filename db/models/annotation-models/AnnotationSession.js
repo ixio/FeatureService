@@ -13,7 +13,7 @@ class AnnotationSession extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'datasets.owner_id',
+                    from: 'annotation_sessions.user_id',
                     to: 'users.id'
                 }
             }

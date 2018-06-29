@@ -14,7 +14,7 @@ class TabularMetadataVariable extends Model {
                 modelClass: __dirname + '/TabularMetadata',
                 join: {
                     from: 'tabular_metadata_variables.tabular_metadata_id',
-                    to: 'tabular_metadatas.id'
+                    to: 'tabular_metadata.id'
                 }
             },
             shape: {

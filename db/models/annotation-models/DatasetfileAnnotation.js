@@ -13,7 +13,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/AnnotationCampaign',
                 join: {
-                    from: 'dataset_annotations.annotation_campaign_id',
+                    from: 'datasetfile_annotations.annotation_campaign_id',
                     to: 'annotation_campaigns.id'
                 }
             },
@@ -21,7 +21,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../data-models/DatasetFile',
                 join: {
-                    from: 'dataset_annotations.dataset_file_id',
+                    from: 'datasetfile_annotations.dataset_file_id',
                     to: 'dataset_files.id'
                 }
             },
@@ -29,7 +29,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'dataset_annotations.user_id',
+                    from: 'datasetfile_annotations.user_id',
                     to: 'users.id'
                 }
             },

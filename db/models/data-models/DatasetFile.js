@@ -21,7 +21,7 @@ class DatasetFile extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../metadata-models/TabularMetadata',
                 join: {
-                    from: 'datasets.tabular_metadata_id',
+                    from: 'dataset_files.tabular_metadata_id',
                     to: 'tabular_metadata.id'
                 }
             },
@@ -29,7 +29,7 @@ class DatasetFile extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../metadata-models/AudioMetadata',
                 join: {
-                    from: 'datasets.audio_metadata_id',
+                    from: 'dataset_files.audio_metadata_id',
                     to: 'audio_metadata.id'
                 }
             },
@@ -37,7 +37,7 @@ class DatasetFile extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'datasets.owner_id',
+                    from: 'dataset_files.owner_id',
                     to: 'users.id'
                 }
             }
