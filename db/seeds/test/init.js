@@ -189,6 +189,7 @@ exports.seed = async function(knex, Promise) {
     await knex('jobs').insert([
         { id: 1, to_execute: 'pwd; ls', status: 0, queue: 'test' }
     ]);
+    // The following lines set index autoincrement counter to 10, since previous inserts don't change counter on PGSQL
     await knex.raw('ALTER SEQUENCE users_id_seq RESTART WITH 10');
     await knex.raw('ALTER SEQUENCE dataset_types_id_seq RESTART WITH 10');
     await knex.raw('ALTER SEQUENCE geo_metadata_id_seq RESTART WITH 10');
