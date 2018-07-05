@@ -21,11 +21,11 @@ class AnnotationCampaign extends Model {
                     to: 'datasets.id'
                 }
             },
-            user: {
+            owner: {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'annotation_campaigns.user_id',
+                    from: 'annotation_campaigns.owner_id',
                     to: 'users.id'
                 }
             },

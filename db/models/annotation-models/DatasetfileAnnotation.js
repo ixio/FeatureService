@@ -25,11 +25,11 @@ class DatasetfileAnnotation extends Model {
                     to: 'dataset_files.id'
                 }
             },
-            user: {
+            annotator: {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'datasetfile_annotations.user_id',
+                    from: 'datasetfile_annotations.annotator_id',
                     to: 'users.id'
                 }
             },

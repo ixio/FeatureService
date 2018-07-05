@@ -24,10 +24,10 @@ describe('model relationships tests', function () {
                     assert.deepEqual(datasets[0].name, 'SPMAuralA2010');
                     assert.deepEqual(datasets[1].name, 'SPMAuralB2010');
                 }),
-                // Testing user relationship
-                annotation_campaign.$relatedQuery('user')
-                .then((user) => {
-                    assert.deepEqual(user.email, 'pnhd@test.ode');
+                // Testing owner relationship
+                annotation_campaign.$relatedQuery('owner')
+                .then((owner) => {
+                    assert.deepEqual(owner.email, 'pnhd@test.ode');
                 }),
                 // Testing datasetfile_annotations relationship
                 annotation_campaign.$relatedQuery('datasetfile_annotations')
@@ -51,9 +51,9 @@ describe('model relationships tests', function () {
     it('annotation set should have the right relationships', async function () {
         var annotation_set = await db.AnnotationSet.query().first();
 
-        // Testing user relationship
-        var user = await annotation_set.$relatedQuery('user');
-        assert.deepEqual(user.email, 'pnhd@test.ode');
+        // Testing owner relationship
+        var owner = await annotation_set.$relatedQuery('owner');
+        assert.deepEqual(owner.email, 'pnhd@test.ode');
 
         // Testing annotation_campaigns relationship
         var annotation_campaigns = await annotation_set.$relatedQuery('annotation_campaigns');
@@ -72,9 +72,9 @@ describe('model relationships tests', function () {
         var dataset_file = await datasetfile_annotation.$relatedQuery('dataset_file');
         assert.deepEqual(dataset_file.filename, 'A32C0000.WAV');
 
-        // Testing user relationship
-        var user = await datasetfile_annotation.$relatedQuery('user');
-        assert.deepEqual(user.email, 'ek@test.ode');
+        // Testing annotator relationship
+        var annotator = await datasetfile_annotation.$relatedQuery('annotator');
+        assert.deepEqual(annotator.email, 'ek@test.ode');
 
         // Testing annotation_sessions relationship
         var annotation_sessions = await datasetfile_annotation.$relatedQuery('annotation_sessions');

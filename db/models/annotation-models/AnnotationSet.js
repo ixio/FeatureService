@@ -9,11 +9,11 @@ class AnnotationSet extends Model {
 
     static get relationMappings() {
         return {
-            user: {
+            owner: {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'annotation_sets.user_id',
+                    from: 'annotation_sets.owner_id',
                     to: 'users.id'
                 }
             },

@@ -211,7 +211,7 @@ exports.up = knex => {
             table.increments('id').primary();
             table.json('tags');
             table
-                .integer('user_id')
+                .integer('owner_id')
                 .unsigned()
                 .references('id')
                 .inTable('users')
@@ -230,7 +230,7 @@ exports.up = knex => {
                 .inTable('annotation_sets')
                 .onDelete('CASCADE');
             table
-                .integer('user_id')
+                .integer('owner_id')
                 .unsigned()
                 .references('id')
                 .inTable('users')
@@ -268,7 +268,7 @@ exports.up = knex => {
             table.json('annotation');
             table.integer('status');
             table
-                .integer('user_id')
+                .integer('annotator_id')
                 .unsigned()
                 .references('id')
                 .inTable('users')

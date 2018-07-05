@@ -162,7 +162,7 @@ exports.seed = function(knex, Promise) {
             {
                 id: 1, tags: '{ "annotationTag": ["Mysticète", "Humpback Whale", "Minke Whale", ' +
                 '"Odontocète", "Killer Whale", "Beluga", "Sperm Whale", "Common Dolphin", ' +
-                '"Striped Dolphin", "Pilot Whale", "Rain", "Vessel", "Chain"] }', user_id: 5
+                '"Striped Dolphin", "Pilot Whale", "Rain", "Vessel", "Chain"] }', owner_id: 5
             }
         ]);
     }).then(() => {
@@ -170,7 +170,7 @@ exports.seed = function(knex, Promise) {
     }).then(() => {
         return knex('annotation_campaigns').insert([
             { id: 1, name: 'SPM whale annotation', start: '2018-06-01', end: '2018-12-30',
-                annotation_set_id: 1, user_id: 5 }
+                annotation_set_id: 1, owner_id: 5 }
         ]);
     }).then(() => {
         return knex('annotation_campaign_datasets').del();
@@ -189,7 +189,7 @@ exports.seed = function(knex, Promise) {
                 '"end":2.136391899848815,"annotation":"Humpback Whale"},{"id":' +
                 '"wavesurfer_joce511pet4","start":3.4582705746225595,"end":3.956049155081292' +
                 ',"annotation":"Sperm Whale"}]',
-                status: 1, user_id: 3
+                status: 1, annotator_id: 3
             }
         ]);
     }).then(() => {
