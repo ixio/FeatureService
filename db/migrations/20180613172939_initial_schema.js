@@ -6,6 +6,8 @@ exports.up = knex => {
             table.increments('id').primary();
             table.string('email');
             table.string('password');
+            table.boolean('enabled').defaultTo(true);
+            table.dateTime('valid_until');
         })
         .createTable('dataset_types', table => {
             table.increments('id').primary();
