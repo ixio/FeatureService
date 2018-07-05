@@ -35,6 +35,9 @@ paths:
             /examples:
               x-modules:
                 - path: v1/examples.yaml
+            /front_manager:
+              x-modules:
+                - path: v1/front_manager.yaml
             /search:
               x-modules:
                 - path: v1/search.yaml
@@ -54,6 +57,9 @@ paths:
             /examples:
               x-modules:
                 - path: sys/examples.js
+            /front_manager:
+              x-modules:
+                - path: sys/front_manager.js
             /search:
               x-modules:
                 - path: sys/search.js
