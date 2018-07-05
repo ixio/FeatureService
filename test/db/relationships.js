@@ -6,29 +6,38 @@ var db     = require('../../db');
 describe('model relationships tests', function () {
     this.timeout(20000);
 
-    before(async function () {
-        await db.init();
+    before(() => {
+      return db.init();
     });
 
     // Tests for annotation-related models relationships
 
-    it('annotation campaign should have the right relationships', async function () {
-        var annotation_campaign = await db.AnnotationCampaign.query().first();
+    it('annotation campaign should have the right relationships', function () {
+        // Example using promises
+        return db.AnnotationCampaign.query().first()
+        .then((annotation_campaign) => {
+            return Promise.all([
+                // Testing datasets relationship
+                annotation_campaign.$relatedQuery('datasets')
+                .then((datasets) => {
+                    assert.deepEqual(datasets.length, 2);
+                    assert.deepEqual(datasets[0].name, 'SPMAuralA2010');
+                    assert.deepEqual(datasets[1].name, 'SPMAuralB2010');
+                }),
+                // Testing user relationship
+                annotation_campaign.$relatedQuery('user')
+                .then((user) => {
+                    assert.deepEqual(user.email, 'pnhd@test.ode');
+                }),
+                // Testing datasetfile_annotations relationship
+                annotation_campaign.$relatedQuery('datasetfile_annotations')
+                .then((datasetfile_annotations) => {
+                    assert.deepEqual(datasetfile_annotations.length, 1);
+                    assert.deepEqual(datasetfile_annotations[0].status, 1);
+                })
+            ]);
 
-        // Testing datasets relationship
-        var datasets = await annotation_campaign.$relatedQuery('datasets');
-        assert.deepEqual(datasets.length, 2);
-        assert.deepEqual(datasets[0].name, 'SPMAuralA2010');
-        assert.deepEqual(datasets[1].name, 'SPMAuralB2010');
-
-        // Testing user relationship
-        var user = await annotation_campaign.$relatedQuery('user');
-        assert.deepEqual(user.email, 'pnhd@test.ode');
-
-        // Testing datasetfile_annotations relationship
-        var datasetfile_annotations = await annotation_campaign.$relatedQuery('datasetfile_annotations');
-        assert.deepEqual(datasetfile_annotations.length, 1);
-        assert.deepEqual(datasetfile_annotations[0].status, 1);
+        });
     });
 
     it('annotation session should have the right relationships', async function () {
