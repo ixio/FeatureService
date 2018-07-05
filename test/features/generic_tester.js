@@ -61,8 +61,7 @@ describe('search endpoints', function () {
     this.timeout(20000);
 
     //Start server before running tests
-    before(function () { return server.start(); });
-
+    before(function () { server.start(); });
 
     var makeTest = function(fixture) {
         it(fixture.describe, () => {
@@ -89,5 +88,7 @@ describe('search endpoints', function () {
     for (var i in fixtures) {
         makeTest(fixtures[i]);
     }
+
+    after(function() { server.stop(); });
 
 });

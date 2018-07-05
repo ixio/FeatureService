@@ -28,3 +28,13 @@ paths:
         get:
           summary: Get the mean of a fake timeserie
           operationId: meanTimeserie
+
+    /list-teams:
+        get:
+          summary: Get the list of ODE teams
+          operationId: listTeams
+
+    /list-team-users/{teamID}:
+        get:
+          summary: Get the list of users of a specific ODE team
+          operationId: listTeamUsers

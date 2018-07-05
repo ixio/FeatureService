@@ -23,6 +23,22 @@ From the `FeatureService` directory, install node dependencies:
 npm install
 ```
 
+Set up dev & test databases with docker:
+
+```sh
+docker pull mdillon/postgis
+docker run --name devdb -p 127.0.0.1:5432:5432 -d mdillon/postgis
+docker run --name testdb -e POSTGRES_USER=test -p 127.0.0.1:5433:5432 -d mdillon/postgis
+```
+
+Use knex to set up dev database
+
+```sh
+alias knex=node_modules/knex/bin/cli.js
+knex migrate:latest
+knex seed:run
+```
+
 Start FeatureService:
 
 ```sh

@@ -24,6 +24,7 @@ var HyperSwitch = require('hyperswitch');
 const URI = HyperSwitch.URI;
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
+const db = require('../db');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'examples.yaml'));
 
@@ -97,7 +98,42 @@ class Example {
                     return res;
                 }
             );
+    }
 
+    listTeams() {
+        // Returns list of teams in ODE
+        return db.Team.query().then(teams => {
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: {
+                    items: teams
+                }
+            });
+        });
+    }
+
+    listTeamUsers(hyper, req) {
+        // Returns list of users per given team ID
+        var teamID = req.params.teamID;
+        return db.Team.query().where('id', teamID).first().then(team => {
+            if (team) {
+                return team.$relatedQuery('users').omit(['password']).then(users => {
+                    return fsUtil.normalizeResponse({
+                        status: 200,
+                        body: {
+                            items: users
+                        }
+                    });
+                });
+            } else {
+                return fsUtil.normalizeResponse({
+                    status: 404,
+                    body: {
+                        detail: 'Team ' + teamID + ' does not exist'
+                    }
+                });
+            }
+        });
     }
 }
 
@@ -108,7 +144,9 @@ module.exports = function(options) {
         spec: spec,
         operations: {
             fakeTimeserie: tst.fakeTimeserie.bind(tst),
-            meanTimeserie: tst.meanTimeserie.bind(tst)
+            meanTimeserie: tst.meanTimeserie.bind(tst),
+            listTeams: tst.listTeams.bind(tst),
+            listTeamUsers: tst.listTeamUsers.bind(tst)
         }
     };
 };
