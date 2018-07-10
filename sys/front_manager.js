@@ -51,6 +51,26 @@ class FrontManager {
             });
         });
     }
+
+    annotation_campaigns(hyper, req) {
+        return db.AnnotationCampaign.query()
+        .select(
+            'id',
+            'name',
+            'start',
+            'end',
+            db.AnnotationCampaign.relatedQuery('annotation_set').select('id').as('annotation_set'),
+            db.AnnotationCampaign.relatedQuery('datasets').count().as('datasets_count')
+        ).then(annotation_campaigns => {
+            for (var annotation_campaign of annotation_campaigns) {
+                annotation_campaign['annotation_link'] = '#';
+            }
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: annotation_campaigns
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -59,7 +79,8 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            datasets: tst.datasets.bind(tst)
+            datasets: tst.datasets.bind(tst),
+            annotation_campaigns: tst.annotation_campaigns.bind(tst)
         }
     };
 };

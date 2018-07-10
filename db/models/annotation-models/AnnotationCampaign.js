@@ -9,6 +9,14 @@ class AnnotationCampaign extends Model {
 
     static get relationMappings() {
         return {
+            annotation_set: {
+                relation: Model.BelongsToOneRelation,
+                modelClass: __dirname + '/AnnotationSet',
+                join: {
+                    from: 'annotation_campaigns.annotation_set_id',
+                    to: 'annotation_sets.id'
+                }
+            },
             datasets: {
                 relation: Model.ManyToManyRelation,
                 modelClass: __dirname + '/../data-models/Dataset',

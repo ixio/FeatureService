@@ -54,6 +54,28 @@ paths:
               uri: /{domain}/sys/front_manager/datasets
       x-monitor: false
 
+  /annotation_campaigns:
+    get:
+      tags:
+        - ODE FeatureService authentication function
+      summary: Authenticate user
+      description: |
+        Authenticate user from credentials, returning a JWT token on authentication success
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: session token
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/front_manager/annotation_campaigns
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
