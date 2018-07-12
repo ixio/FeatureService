@@ -76,6 +76,92 @@ paths:
               uri: /{domain}/sys/front_manager/annotation_campaigns
       x-monitor: false
 
+  /create_annotation_campaign:
+    get:
+      tags:
+        - ODE FeatureService authentication function
+      summary: Authenticate user
+      description: |
+        Authenticate user from credentials, returning a JWT token on authentication success
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: session token
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/front_manager/create_annotation_campaign
+      x-monitor: false
+    post:
+      tags:
+        - ODE FeatureService authentication function
+      summary: Authenticate user
+      description: |
+        Authenticate user from credentials, returning a JWT token on authentication success
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: User login
+          type: string
+          required: true
+        - name: desc
+          in: formData
+          description: User password
+          type: string
+          required: true
+        - name: datasets
+          in: formData
+          description: User password
+          required: true
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: start
+          in: formData
+          description: User password
+          type: string
+          required: true
+        - name: end
+          in: formData
+          description: User password
+          type: string
+          required: true
+        - name: annotation_set
+          in: formData
+          description: User password
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: session token
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/front_manager/create_annotation_campaign
+              headers:
+                content-type: multipart/form-data
+              body:
+                name: '{{name}}'
+                desc: '{{desc}}'
+                start: '{{start}}'
+                end: '{{end}}'
+                annotation_set_id: '{{annotation_set}}'
+                datasets: '{{datasets}}'
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:

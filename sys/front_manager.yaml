@@ -27,3 +27,10 @@ paths:
       get:
         summary: Return authentication token if given correct username/password in post form
         operationId: annotation_campaigns
+    /create_annotation_campaign:
+      get:
+        summary: Return authentication token if given correct username/password in post form
+        operationId: get_create_annotation_campaign
+      post:
+        summary: Return authentication token if given correct username/password in post form
+        operationId: post_create_annotation_campaign
