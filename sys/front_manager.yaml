@@ -34,3 +34,7 @@ paths:
       post:
         summary: Return authentication token if given correct username/password in post form
         operationId: post_create_annotation_campaign
+    /annotation_tasks/{annotation_campaign_id}:
+        get:
+          summary: Get a fake timeserie
+          operationId: annotation_tasks

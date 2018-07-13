@@ -63,7 +63,7 @@ class FrontManager {
             db.AnnotationCampaign.relatedQuery('datasets').count().as('datasets_count')
         ).then(annotation_campaigns => {
             for (var annotation_campaign of annotation_campaigns) {
-                annotation_campaign['annotation_link'] = '#';
+                annotation_campaign['annotation_link'] = '/annotation_tasks/' + annotation_campaign.id;
             }
             return fsUtil.normalizeResponse({
                 status: 200,
@@ -114,6 +114,40 @@ class FrontManager {
             });
         });
     }
+
+    annotation_tasks(hyper, req) {
+        let campaign_id = req.params.annotation_campaign_id;
+        return db.AnnotationCampaign.query().where('id', campaign_id).first()
+        .then(annotation_campaign => {
+            return annotation_campaign.$relatedQuery('datasets')
+        }).then(datasets => {
+            return Promise.all(
+                datasets.map(dataset => {
+                    return dataset.$relatedQuery('files').then(files => {
+                        return Promise.all(files.map(file => {
+                            return db.DatasetfileAnnotation.query()
+                            .where('dataset_file_id', file.id)
+                            .where('annotation_campaign_id', campaign_id)
+                            .first().then(annotation => {
+                                if (annotation) {
+                                    return {filename: file.filename, status: annotation.status, link: '#'}
+                                } else {
+                                    return {filename: file.filename, status: -1, link: '#'}
+                                }
+                            })
+                        }));
+                    });
+                })
+            );
+        }).then(files_array => {
+            let files = files_array.reduce((acc, val) => acc.concat(val), []);
+            let res = files.map((file, id) => { file['id'] = id; return file });
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: res
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -125,7 +159,8 @@ module.exports = function(options) {
             datasets: tst.datasets.bind(tst),
             annotation_campaigns: tst.annotation_campaigns.bind(tst),
             get_create_annotation_campaign: tst.get_create_annotation_campaign.bind(tst),
-            post_create_annotation_campaign: tst.post_create_annotation_campaign.bind(tst)
+            post_create_annotation_campaign: tst.post_create_annotation_campaign.bind(tst),
+            annotation_tasks: tst.annotation_tasks.bind(tst)
         }
     };
 };
