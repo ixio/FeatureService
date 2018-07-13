@@ -38,3 +38,7 @@ paths:
         get:
           summary: Get a fake timeserie
           operationId: annotation_tasks
+    /audio_annotator/{annotation_campaign_id}/{file_id}:
+        get:
+          summary: Get a fake timeserie
+          operationId: audio_annotator

@@ -190,6 +190,39 @@ paths:
               uri: /{domain}/sys/front_manager/annotation_tasks/{annotation_campaign_id}
       x-monitor: false
 
+  /audio_annotator/{annotation_campaign_id}/{file_id}:
+    get:
+      tags:
+        - ODE FeatureService authentication function
+      summary: Authenticate user
+      description: |
+        Authenticate user from credentials, returning a JWT token on authentication success
+      produces:
+        - application/json
+      parameters:
+        - name: annotation_campaign_id
+          in: path
+          description: Starting date-time of the timeserie, inclusive. Expecting YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS formats.
+          type: integer
+          required: true
+        - name: file_id
+          in: path
+          description: Starting date-time of the timeserie, inclusive. Expecting YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS formats.
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: session token
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/front_manager/audio_annotator/{annotation_campaign_id}/{file_id}
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:

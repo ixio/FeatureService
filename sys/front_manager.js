@@ -129,10 +129,11 @@ class FrontManager {
                             .where('dataset_file_id', file.id)
                             .where('annotation_campaign_id', campaign_id)
                             .first().then(annotation => {
+                                let link = '/audio-annotator/' + campaign_id + '/' + file.id;
                                 if (annotation) {
-                                    return {filename: file.filename, status: annotation.status, link: '#'}
+                                    return {filename: file.filename, status: annotation.status, link: link}
                                 } else {
-                                    return {filename: file.filename, status: -1, link: '#'}
+                                    return {filename: file.filename, status: -1, link: link}
                                 }
                             })
                         }));
@@ -148,6 +149,32 @@ class FrontManager {
             });
         });
     }
+
+    audio_annotator(hyper, req) {
+        let campaign_id = req.params.annotation_campaign_id;
+        let file_id = req.params.file_id;
+        return Promise.all([
+            db.AnnotationCampaign.query()
+            .select(db.AnnotationCampaign.relatedQuery('annotation_set').select('tags').as('tags'))
+            .where('id', campaign_id).first(),
+            db.DatasetFile.query().select('filename').where('id', file_id).first()
+        ]).then(([annotation_campaign, file]) => {
+            let res = {
+                "task": {
+                    "feedback": "none",
+                    "visualization": "spectrogram",
+                    "proximityTag": [],
+                    "annotationTag": annotation_campaign.tags.annotationTag,
+                    "url": "http://localhost:7231/data.ebdo.org/v1/test/sound/" + file.filename + "/play",
+                    "alwaysShowTags": true
+                }
+            };
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: res
+            });
+        })
+    }
 }
 
 module.exports = function(options) {
@@ -160,7 +187,8 @@ module.exports = function(options) {
             annotation_campaigns: tst.annotation_campaigns.bind(tst),
             get_create_annotation_campaign: tst.get_create_annotation_campaign.bind(tst),
             post_create_annotation_campaign: tst.post_create_annotation_campaign.bind(tst),
-            annotation_tasks: tst.annotation_tasks.bind(tst)
+            annotation_tasks: tst.annotation_tasks.bind(tst),
+            audio_annotator: tst.audio_annotator.bind(tst)
         }
     };
 };
