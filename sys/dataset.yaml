@@ -14,12 +14,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Hyperswitch configuration for ODE-FeatureService sys/authentication endpoints
+# Hyperswitch configuration for ODE-FeatureService sys/dataset endpoints
 # Author: Erwan Keribin
 
 
 paths:
     /list:
       get:
-        summary: Return authentication token if given correct username/password in post form
+        summary: Returns a list of all datasets with relevant information
         operationId: list

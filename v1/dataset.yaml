@@ -14,15 +14,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Hyperswitch configuration for ODE-FeatureService api:authentication endpoints
+# Hyperswitch configuration for ODE-FeatureService api:dataset endpoints
 # Author: Erwan Keribin
 
 
 swagger: '2.0'
 info:
   version: '1.0.0-beta'
-  title: ODE FeatureService Authentication API
-  description: ODE FeatureService Authentication API
+  title: ODE FeatureService Dataset API
+  description: ODE FeatureService Dataset API
   termsofservice: TBD
   contact:
     name: ODE-Project Team
@@ -35,15 +35,17 @@ paths:
   /list:
     get:
       tags:
-        - ODE FeatureService authentication function
-      summary: Authenticate user
+        - ODE FeatureService dataset listing function
+      summary: Lists all datasets
       description: |
-        Authenticate user from credentials, returning a JWT token on authentication success
+        Returns a list of all datasets with relevant information
       produces:
         - application/json
       responses:
         '200':
-          description: session token
+          description: list of all datasets
+          schema:
+            $ref: '#/definitions/dataset-list'
         default:
           description: Error
           schema:
@@ -68,3 +70,22 @@ definitions:
         type: string
       instance:
         type: string
+
+  dataset-list:
+    type: array
+    items:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        files_type:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        type:
+          type: string
+        files_count:
+          type: integer

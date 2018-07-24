@@ -15,7 +15,7 @@
  */
 
 /*
- * ODE-FeatureService authentication functions
+ * ODE-FeatureService dataset-related functions
  * Author: Erwan Keribin
  */
 'use strict';
@@ -28,8 +28,6 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'dataset.yaml'));
 const db = require('../db');
 
 class Dataset {
-    // Class that handles authentification requests
-
     constructor(options) {
         this.options = options;
     }
