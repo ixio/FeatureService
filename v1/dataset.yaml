@@ -32,7 +32,7 @@ info:
     name: GNU General Public Licence, v3
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 paths:
-  /datasets:
+  /list:
     get:
       tags:
         - ODE FeatureService authentication function
@@ -51,7 +51,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/front_manager/datasets
+              uri: /{domain}/sys/dataset/list
       x-monitor: false
 
 definitions:

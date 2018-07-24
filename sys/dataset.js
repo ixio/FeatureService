@@ -23,18 +23,18 @@ var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
 
-var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'front_manager.yaml'));
+var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'dataset.yaml'));
 
 const db = require('../db')
 
-class FrontManager {
+class Dataset {
     // Class that handles authentification requests
 
     constructor(options) {
         this.options = options;
     }
 
-    datasets(hyper, req) {
+    list(hyper, req) {
         return db.Dataset.query()
         .select(
             'id',
@@ -54,12 +54,12 @@ class FrontManager {
 }
 
 module.exports = function(options) {
-    var tst = new FrontManager(options);
+    var tst = new Dataset(options);
 
     return {
         spec: spec,
         operations: {
-            datasets: tst.datasets.bind(tst)
+            list: tst.list.bind(tst)
         }
     };
 };

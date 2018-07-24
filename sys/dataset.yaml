@@ -19,7 +19,7 @@
 
 
 paths:
-    /datasets:
+    /list:
       get:
         summary: Return authentication token if given correct username/password in post form
-        operationId: datasets
+        operationId: list
