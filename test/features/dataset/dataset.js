@@ -50,8 +50,8 @@ describe('dataset endpoints', function () {
             assert.deepStrictEqual(dataset.id, 1);
             assert.deepStrictEqual(dataset.name, 'SPMAuralA2010');
             assert.deepStrictEqual(dataset.files_type, '.wav');
-            assert.deepStrictEqual(dataset.start_date, '2010-08-18T22:00:00.000Z');
-            assert.deepStrictEqual(dataset.end_date, '2010-11-01T23:00:00.000Z');
+            assert.deepStrictEqual(new Date(dataset.start_date), new Date(2010, 7, 19));
+            assert.deepStrictEqual(new Date(dataset.end_date), new Date(2010, 10, 2));
             assert.deepStrictEqual(dataset.type, 'PAM');
             assert.deepStrictEqual(dataset.files_count, 2);
         });
