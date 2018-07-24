@@ -25,7 +25,7 @@ var fsUtil = require('../lib/FeatureServiceUtil');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'dataset.yaml'));
 
-const db = require('../db')
+const db = require('../db');
 
 class Dataset {
     // Class that handles authentification requests
@@ -34,7 +34,7 @@ class Dataset {
         this.options = options;
     }
 
-    list(hyper, req) {
+    list() {
         return db.Dataset.query()
         .select(
             'id',
