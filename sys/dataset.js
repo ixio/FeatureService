@@ -43,6 +43,11 @@ class Dataset {
             db.Dataset.relatedQuery('dataset_type').select('name').as('type'),
             db.Dataset.relatedQuery('files').count().as('files_count')
         ).then(datasets => {
+            for (let dataset of datasets) {
+                // Since PGSQL can return a bigint on count, knex will return a string
+                // cf https://knexjs.org/#Builder-count
+                dataset.files_count = parseInt(dataset.files_count);
+            }
             return fsUtil.normalizeResponse({
                 status: 200,
                 body: datasets
