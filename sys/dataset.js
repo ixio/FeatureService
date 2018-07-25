@@ -57,12 +57,12 @@ class Dataset {
 }
 
 module.exports = function(options) {
-    var tst = new Dataset(options);
+    var dataset = new Dataset(options);
 
     return {
         spec: spec,
         operations: {
-            list: tst.list.bind(tst)
+            list: dataset.list.bind(dataset)
         }
     };
 };
