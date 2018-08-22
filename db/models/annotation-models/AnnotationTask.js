@@ -2,9 +2,9 @@
 
 const Model = require('objection').Model;
 
-class DatasetfileAnnotation extends Model {
+class AnnotationTask extends Model {
     static get tableName() {
-        return 'datasetfile_annotations';
+        return 'annotation_tasks';
     }
 
     static get relationMappings() {
@@ -13,7 +13,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/AnnotationCampaign',
                 join: {
-                    from: 'datasetfile_annotations.annotation_campaign_id',
+                    from: 'annotation_tasks.annotation_campaign_id',
                     to: 'annotation_campaigns.id'
                 }
             },
@@ -21,7 +21,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../data-models/DatasetFile',
                 join: {
-                    from: 'datasetfile_annotations.dataset_file_id',
+                    from: 'annotation_tasks.dataset_file_id',
                     to: 'dataset_files.id'
                 }
             },
@@ -29,7 +29,7 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.BelongsToOneRelation,
                 modelClass: __dirname + '/../user-models/User',
                 join: {
-                    from: 'datasetfile_annotations.annotator_id',
+                    from: 'annotation_tasks.annotator_id',
                     to: 'users.id'
                 }
             },
@@ -37,12 +37,20 @@ class DatasetfileAnnotation extends Model {
                 relation: Model.HasManyRelation,
                 modelClass: __dirname + '/AnnotationSession',
                 join: {
-                    from: 'datasetfile_annotations.id',
-                    to: 'annotation_sessions.datasetfile_annotation_id'
+                    from: 'annotation_tasks.id',
+                    to: 'annotation_sessions.annotation_task_id'
+                }
+            },
+            results: {
+                relation: Model.HasManyRelation,
+                modelClass: __dirname + '/AnnotationResult',
+                join: {
+                    from: 'annotation_tasks.id',
+                    to: 'annotation_results.annotation_task_id'
                 }
             }
         };
     }
 }
 
-module.exports = DatasetfileAnnotation;
+module.exports = AnnotationTask;

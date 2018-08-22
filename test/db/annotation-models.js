@@ -34,40 +34,69 @@ describe('annotation-related models tests', function () {
             start: new Date('2018-06-01 19:15:00'),
             end: new Date('2018-06-01 19:20:00'),
             session_output: { "test": "this is a test" },
-            datasetfile_annotation_id: 1
+            annotation_task_id: 1
         }
         await db.AnnotationSession.query().insert(annotation_session);
         var new_session = await db.AnnotationSession.query().orderBy('id', 'desc').first();
         assert.deepEqual(new_session.start, annotation_session['start']);
         assert.deepEqual(new_session.end, annotation_session['end']);
         assert.deepEqual(new_session.session_output, annotation_session['session_output']);
-        assert.deepEqual(new_session.datasetfile_annotation_id, annotation_session['datasetfile_annotation_id']);
+        assert.deepEqual(new_session.annotation_task_id, annotation_session['annotation_task_id']);
     });
 
     it('newly created annotation set should have the right info', async function () {
-        var tags = { "test": "this is a test" }
-        var owner_id = 2
-        await db.AnnotationSet.query().insert({ tags: tags, owner_id: owner_id });
+        var annotation_set = {
+            name: 'test',
+            desc: 'this is a test',
+            tags: [{ id: 2 }, { id: 4 }, { id: 7 }],
+            owner_id: 2
+        }
+        await db.AnnotationSet.query().insertGraph(annotation_set, { relate: true });
         var new_annotation_set = await db.AnnotationSet.query().orderBy('id', 'desc').first();
-        assert.deepEqual(new_annotation_set.tags, tags);
-        assert.deepEqual(new_annotation_set.owner_id, owner_id);
+        assert.deepEqual(new_annotation_set.name, annotation_set.name);
+        assert.deepEqual(new_annotation_set.desc, annotation_set.desc);
+        assert.deepEqual(new_annotation_set.owner_id, annotation_set.owner_id);
+        var tags = await new_annotation_set.$relatedQuery('tags');
+        var tag_ids = tags.map(tag => { return { id: tag.id }; });
+        assert.deepEqual(tag_ids, annotation_set.tags);
     });
 
-    it('newly created datasetfile annotation should have the right info', async function () {
-        var datasetfile_annotation = {
+    it('newly created annotation tag should have the right info', async function () {
+        var tag_name = 'test';
+        await db.AnnotationSet.query().insert({name: tag_name});
+        var new_annotation_tag = await db.AnnotationSet.query().orderBy('id', 'desc').first();
+        assert.deepEqual(new_annotation_tag.name, tag_name);
+    });
+
+    it('newly created annotation task should have the right info', async function () {
+        var annotation_task = {
             annotation_campaign_id: 1,
             dataset_file_id: 1,
-            annotation: { "test": "this is a test" },
             status: 1,
             annotator_id: 4
         }
-        await db.DatasetfileAnnotation.query().insert(datasetfile_annotation);
-        var new_df_annotation = await db.DatasetfileAnnotation.query().orderBy('id', 'desc').first();
-        assert.deepEqual(new_df_annotation.annotation_campaign_id, datasetfile_annotation['annotation_campaign_id']);
-        assert.deepEqual(new_df_annotation.dataset_file_id, datasetfile_annotation['dataset_file_id']);
-        assert.deepEqual(new_df_annotation.annotation, datasetfile_annotation['annotation']);
-        assert.deepEqual(new_df_annotation.status, datasetfile_annotation['status']);
-        assert.deepEqual(new_df_annotation.annotator_id, datasetfile_annotation['annotator_id']);
+        await db.AnnotationTask.query().insert(annotation_task);
+        var new_df_annotation = await db.AnnotationTask.query().orderBy('id', 'desc').first();
+        assert.deepEqual(new_df_annotation.annotation_campaign_id, annotation_task['annotation_campaign_id']);
+        assert.deepEqual(new_df_annotation.dataset_file_id, annotation_task['dataset_file_id']);
+        assert.deepEqual(new_df_annotation.annotation, annotation_task['annotation']);
+        assert.deepEqual(new_df_annotation.status, annotation_task['status']);
+        assert.deepEqual(new_df_annotation.annotator_id, annotation_task['annotator_id']);
+    });
+
+    it('newly created annotation result should have the right info', async function () {
+        var annotation_result = {
+            annotation_tag_id: 5,
+            start: 2.2549841651658,
+            end: 5.1919416519871,
+            annotation_task_id: 1
+        }
+        await db.AnnotationResult.query().insert(annotation_result);
+        var new_annotation_result = await db.AnnotationResult.query().orderBy('id', 'desc').first();
+        assert.deepEqual(new_annotation_result.annotation_tag_id, annotation_result.annotation_tag_id);
+        assert.deepEqual(new_annotation_result.start, annotation_result.start);
+        assert.deepEqual(new_annotation_result.end, annotation_result.end);
+        assert.deepEqual(new_annotation_result.annotation_task_id, annotation_result.annotation_task_id);
     });
 
     after(function() {

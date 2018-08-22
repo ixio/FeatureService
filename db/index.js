@@ -48,7 +48,9 @@ exports.close = () => {
 exports.AnnotationCampaign = require('./models/annotation-models/AnnotationCampaign');
 exports.AnnotationSession = require('./models/annotation-models/AnnotationSession');
 exports.AnnotationSet = require('./models/annotation-models/AnnotationSet');
-exports.DatasetfileAnnotation = require('./models/annotation-models/DatasetfileAnnotation');
+exports.AnnotationTag = require('./models/annotation-models/AnnotationTag');
+exports.AnnotationTask = require('./models/annotation-models/AnnotationTask');
+exports.AnnotationResult = require('./models/annotation-models/AnnotationResult');
 // Backend models
 exports.Job = require('./models/backend-models/Job');
 // Data models

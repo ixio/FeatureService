@@ -211,12 +211,32 @@ exports.up = knex => {
         })
         .createTable('annotation_sets', table => {
             table.increments('id').primary();
-            table.json('tags');
+            table.string('name');
+            table.text('desc');
             table
                 .integer('owner_id')
                 .unsigned()
                 .references('id')
                 .inTable('users')
+                .onDelete('CASCADE');
+        })
+        .createTable('annotation_tags', table => {
+            table.increments('id').primary();
+            table.string('name');
+        })
+        .createTable('annotation_set_tags', table => {
+            table.increments('id').primary();
+            table
+                .integer('annotation_set_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_sets')
+                .onDelete('CASCADE');
+            table
+                .integer('annotation_tag_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_tags')
                 .onDelete('CASCADE');
         })
         .createTable('annotation_campaigns', table => {
@@ -253,7 +273,7 @@ exports.up = knex => {
                 .inTable('datasets')
                 .onDelete('CASCADE');
         })
-        .createTable('datasetfile_annotations', table => {
+        .createTable('annotation_tasks', table => {
             table.increments('id').primary();
             table
                 .integer('annotation_campaign_id')
@@ -267,7 +287,6 @@ exports.up = knex => {
                 .references('id')
                 .inTable('dataset_files')
                 .onDelete('CASCADE');
-            table.json('annotation');
             table.integer('status');
             table
                 .integer('annotator_id')
@@ -276,16 +295,33 @@ exports.up = knex => {
                 .inTable('users')
                 .onDelete('CASCADE');
         })
+        .createTable('annotation_results', table => {
+            table.increments('id').primary();
+            table
+                .integer('annotation_tag_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_tags')
+                .onDelete('CASCADE');
+            table.double('start').unsigned();
+            table.double('end').unsigned();
+            table
+                .integer('annotation_task_id')
+                .unsigned()
+                .references('id')
+                .inTable('annotation_tasks')
+                .onDelete('CASCADE');
+        })
         .createTable('annotation_sessions', table => {
             table.increments('id').primary();
             table.dateTime('start');
             table.dateTime('end');
             table.json('session_output');
             table
-                .integer('datasetfile_annotation_id')
+                .integer('annotation_task_id')
                 .unsigned()
                 .references('id')
-                .inTable('datasetfile_annotations')
+                .inTable('annotation_tasks')
                 .onDelete('CASCADE');
         })
         .createTable('jobs', table => {
@@ -303,9 +339,12 @@ exports.down = knex => {
     return knex.schema
         .dropTableIfExists('jobs')
         .dropTableIfExists('annotation_sessions')
-        .dropTableIfExists('datasetfile_annotations')
+        .dropTableIfExists('annotation_results')
+        .dropTableIfExists('annotation_tasks')
         .dropTableIfExists('annotation_campaign_datasets')
         .dropTableIfExists('annotation_campaigns')
+        .dropTableIfExists('annotation_set_tags')
+        .dropTableIfExists('annotation_tag')
         .dropTableIfExists('annotation_sets')
         .dropTableIfExists('permissions')
         .dropTableIfExists('team_users')
