@@ -17,6 +17,11 @@ describe('model relationships tests', function () {
         return db.AnnotationCampaign.query().first()
         .then((annotation_campaign) => {
             return Promise.all([
+                // Testing annotation_set relationship
+                annotation_campaign.$relatedQuery('annotation_set')
+                .then((annotation_set) => {
+                    assert.deepEqual(annotation_set.name, 'SPM annotation set');
+                }),
                 // Testing datasets relationship
                 annotation_campaign.$relatedQuery('datasets')
                 .then((datasets) => {
@@ -29,11 +34,11 @@ describe('model relationships tests', function () {
                 .then((owner) => {
                     assert.deepEqual(owner.email, 'pnhd@test.ode');
                 }),
-                // Testing datasetfile_annotations relationship
-                annotation_campaign.$relatedQuery('datasetfile_annotations')
-                .then((datasetfile_annotations) => {
-                    assert.deepEqual(datasetfile_annotations.length, 1);
-                    assert.deepEqual(datasetfile_annotations[0].status, 1);
+                // Testing annotation_tasks relationship
+                annotation_campaign.$relatedQuery('annotation_tasks')
+                .then((annotation_tasks) => {
+                    assert.deepEqual(annotation_tasks.length, 1);
+                    assert.deepEqual(annotation_tasks[0].status, 1);
                 })
             ]);
 
@@ -43,9 +48,9 @@ describe('model relationships tests', function () {
     it('annotation session should have the right relationships', async function () {
         var annotation_session = await db.AnnotationSession.query().first();
 
-        // Testing datasetfile_annotation relationship
-        var datasetfile_annotation = await annotation_session.$relatedQuery('datasetfile_annotation');
-        assert.deepEqual(datasetfile_annotation.id, 1);
+        // Testing annotation_task relationship
+        var annotation_task = await annotation_session.$relatedQuery('annotation_task');
+        assert.deepEqual(annotation_task.id, 1);
     });
 
     it('annotation set should have the right relationships', async function () {
@@ -59,27 +64,62 @@ describe('model relationships tests', function () {
         var annotation_campaigns = await annotation_set.$relatedQuery('annotation_campaigns');
         assert.deepEqual(annotation_campaigns.length, 1);
         assert.deepEqual(annotation_campaigns[0].name, 'SPM whale annotation');
+
+        // Testing tags relationship
+        var tags = await annotation_set.$relatedQuery('tags');
+        assert.deepEqual(tags.length, 13);
+        assert.deepEqual(tags[0].name, 'Mysticète');
     });
 
-    it('datasetfile annotation should have the right relationships', async function () {
-        var datasetfile_annotation = await db.DatasetfileAnnotation.query().first();
+    it('annotation tag should have the right relationships', async function () {
+        var annotation_tag = await db.AnnotationTag.query().first();
+
+        // Testing annotation_sets relationship
+        var annotation_sets = await annotation_tag.$relatedQuery('annotation_sets');
+        assert.deepEqual(annotation_sets.length, 1);
+        assert.deepEqual(annotation_sets[0].name, 'SPM annotation set');
+
+        // Testing annotation_results relationship
+        var annotation_results = await annotation_tag.$relatedQuery('annotation_results');
+        assert.deepEqual(annotation_results.length, 0);
+    });
+
+    it('annotation task should have the right relationships', async function () {
+        var annotation_task = await db.AnnotationTask.query().first();
 
         // Testing annotation_campaign relationship
-        var annotation_campaign = await datasetfile_annotation.$relatedQuery('annotation_campaign');
+        var annotation_campaign = await annotation_task.$relatedQuery('annotation_campaign');
         assert.deepEqual(annotation_campaign.name, 'SPM whale annotation');
 
         // Testing dataset_file relationship
-        var dataset_file = await datasetfile_annotation.$relatedQuery('dataset_file');
+        var dataset_file = await annotation_task.$relatedQuery('dataset_file');
         assert.deepEqual(dataset_file.filename, 'A32C0000.WAV');
 
         // Testing annotator relationship
-        var annotator = await datasetfile_annotation.$relatedQuery('annotator');
+        var annotator = await annotation_task.$relatedQuery('annotator');
         assert.deepEqual(annotator.email, 'ek@test.ode');
 
+        // Testing annotation_results relationship
+        var annotation_results = await annotation_task.$relatedQuery('results');
+        assert.deepEqual(annotation_results.length, 2);
+        assert.deepEqual(annotation_results[0].annotation_tag_id, 2);
+
         // Testing annotation_sessions relationship
-        var annotation_sessions = await datasetfile_annotation.$relatedQuery('annotation_sessions');
+        var annotation_sessions = await annotation_task.$relatedQuery('annotation_sessions');
         assert.deepEqual(annotation_sessions.length, 1);
         assert.deepEqual(annotation_sessions[0].id, 1);
+    });
+
+    it('annotation results should have the right relationships', async function () {
+        var annotation_result = await db.AnnotationResult.query().first();
+
+        // Testing tag relationship
+        var tag = await annotation_result.$relatedQuery('tag');
+        assert.deepEqual(tag.name, 'Humpback Whale');
+
+        // Testing annotation_task relationship
+        var annotation_task = await annotation_result.$relatedQuery('annotation_task');
+        assert.deepEqual(annotation_task.id, 1);
     });
 
     // Tests for data-related models relationships

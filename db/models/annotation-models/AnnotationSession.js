@@ -9,12 +9,12 @@ class AnnotationSession extends Model {
 
     static get relationMappings() {
         return {
-            datasetfile_annotation: {
+            annotation_task: {
                 relation: Model.BelongsToOneRelation,
-                modelClass: __dirname + '/DatasetfileAnnotation',
+                modelClass: __dirname + '/AnnotationTask',
                 join: {
-                    from: 'annotation_sessions.datasetfile_annotation_id',
-                    to: 'datasetfile_annotations.id'
+                    from: 'annotation_sessions.annotation_task_id',
+                    to: 'annotation_tasks.id'
                 }
             }
         };

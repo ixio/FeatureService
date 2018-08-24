@@ -159,11 +159,44 @@ exports.seed = function(knex, Promise) {
         return knex('annotation_sets').del();
     }).then(() => {
         return knex('annotation_sets').insert([
-            {
-                id: 1, tags: '{ "annotationTag": ["Mysticète", "Humpback Whale", "Minke Whale", ' +
-                '"Odontocète", "Killer Whale", "Beluga", "Sperm Whale", "Common Dolphin", ' +
-                '"Striped Dolphin", "Pilot Whale", "Rain", "Vessel", "Chain"] }', owner_id: 5
-            }
+            { id: 1, name: 'SPM annotation set', desc: 'Annotation set made for the SPM collection',
+                owner_id: 5 }
+        ]);
+    }).then(() => {
+        return knex('annotation_tags').del();
+    }).then(() => {
+        return knex('annotation_tags').insert([
+            { id: 1, name: 'Mysticète' },
+            { id: 2, name: 'Humpback Whale' },
+            { id: 3, name: 'Minke Whale' },
+            { id: 4, name: 'Odontocète' },
+            { id: 5, name: 'Killer Whale' },
+            { id: 6, name: 'Beluga' },
+            { id: 7, name: 'Sperm Whale' },
+            { id: 8, name: 'Common Dolphin' },
+            { id: 9, name: 'Striped Dolphin' },
+            { id: 10, name: 'Pilot Whale' },
+            { id: 11, name: 'Rain' },
+            { id: 12, name: 'Vessel' },
+            { id: 13, name: 'Chain' }
+        ]);
+    }).then(() => {
+        return knex('annotation_set_tags').del();
+    }).then(() => {
+        return knex('annotation_set_tags').insert([
+            { id: 1, annotation_set_id: 1, annotation_tag_id: 1 },
+            { id: 2, annotation_set_id: 1, annotation_tag_id: 2 },
+            { id: 3, annotation_set_id: 1, annotation_tag_id: 3 },
+            { id: 4, annotation_set_id: 1, annotation_tag_id: 4 },
+            { id: 5, annotation_set_id: 1, annotation_tag_id: 5 },
+            { id: 6, annotation_set_id: 1, annotation_tag_id: 6 },
+            { id: 7, annotation_set_id: 1, annotation_tag_id: 7 },
+            { id: 8, annotation_set_id: 1, annotation_tag_id: 8 },
+            { id: 9, annotation_set_id: 1, annotation_tag_id: 9 },
+            { id: 10, annotation_set_id: 1, annotation_tag_id: 10 },
+            { id: 11, annotation_set_id: 1, annotation_tag_id: 11 },
+            { id: 12, annotation_set_id: 1, annotation_tag_id: 12 },
+            { id: 13, annotation_set_id: 1, annotation_tag_id: 13 }
         ]);
     }).then(() => {
         return knex('annotation_campaigns').del();
@@ -180,16 +213,25 @@ exports.seed = function(knex, Promise) {
             { id: 2, annotation_campaign_id: 1, dataset_id: 2 }
         ]);
     }).then(() => {
-        return knex('datasetfile_annotations').del();
+        return knex('annotation_tasks').del();
     }).then(() => {
-        return knex('datasetfile_annotations').insert([
+        return knex('annotation_tasks').insert([
             {
                 id: 1, annotation_campaign_id: 1, dataset_file_id: 1,
-                annotation: '[{"id":"wavesurfer_heanet5g5hg","start":1.7215764161332052,' +
-                '"end":2.136391899848815,"annotation":"Humpback Whale"},{"id":' +
-                '"wavesurfer_joce511pet4","start":3.4582705746225595,"end":3.956049155081292' +
-                ',"annotation":"Sperm Whale"}]',
                 status: 1, annotator_id: 3
+            }
+        ]);
+    }).then(() => {
+        return knex('annotation_results').del();
+    }).then(() => {
+        return knex('annotation_results').insert([
+            {
+                id: 1, annotation_tag_id: 2, start: 1.7215764161332052, end: 2.136391899848815,
+                annotation_task_id: 1
+            },
+            {
+                id: 2, annotation_tag_id: 7, start: 3.4582705746225595, end: 3.956049155081292,
+                annotation_task_id: 1
             }
         ]);
     }).then(() => {
@@ -197,7 +239,7 @@ exports.seed = function(knex, Promise) {
     }).then(() => {
         return knex('annotation_sessions').insert([
             {
-                id: 1, datasetfile_annotation_id: 1, start: '2018-06-28 9:31:42',
+                id: 1, annotation_task_id: 1, start: '2018-06-28 9:31:42',
                 end: '2018-06-28 9:31:52',
                 session_output: '{"task_start_time":1530178302136,"task_end_time":' +
                 '1530178311689,"visualization":"spectrogram","annotations":[{"id":' +
@@ -225,7 +267,7 @@ exports.seed = function(knex, Promise) {
             { id: 1, to_execute: 'pwd; ls', status: 0, queue: 'test' }
         ]);
     }).then(() => {
-        // The following lines set index autoincrement counter to 10
+        // The following lines set index autoincrement counter to 10 or 20
         // We have to do this since previous inserts don't change increment counter on PGSQL
         return Promise.all([
             knex.raw('ALTER SEQUENCE users_id_seq RESTART WITH 10'),
@@ -243,9 +285,12 @@ exports.seed = function(knex, Promise) {
             knex.raw('ALTER SEQUENCE team_users_id_seq RESTART WITH 10'),
             knex.raw('ALTER SEQUENCE permissions_id_seq RESTART WITH 10'),
             knex.raw('ALTER SEQUENCE annotation_sets_id_seq RESTART WITH 10'),
+            knex.raw('ALTER SEQUENCE annotation_tags_id_seq RESTART WITH 20'),
+            knex.raw('ALTER SEQUENCE annotation_set_tags_id_seq RESTART WITH 20'),
             knex.raw('ALTER SEQUENCE annotation_campaigns_id_seq RESTART WITH 10'),
             knex.raw('ALTER SEQUENCE annotation_campaign_datasets_id_seq RESTART WITH 10'),
-            knex.raw('ALTER SEQUENCE datasetfile_annotations_id_seq RESTART WITH 10'),
+            knex.raw('ALTER SEQUENCE annotation_tasks_id_seq RESTART WITH 10'),
+            knex.raw('ALTER SEQUENCE annotation_results_id_seq RESTART WITH 10'),
             knex.raw('ALTER SEQUENCE annotation_sessions_id_seq RESTART WITH 10'),
             knex.raw('ALTER SEQUENCE jobs_id_seq RESTART WITH 10')
         ]);
