@@ -233,7 +233,7 @@ describe('examples endpoints', function () {
         return preq.post({
             uri: server.config.fsURL + endpointAuthenticate,
             headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'login', password: 'password' }
+            body: { username: 'admin@test.ode', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             preq.get({

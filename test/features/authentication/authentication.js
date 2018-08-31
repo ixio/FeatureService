@@ -8,13 +8,17 @@
 var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
+var db     = require('../../../db');
 
 
 describe('authentication-related endpoints', function () {
     this.timeout(20000);
 
-    //Start server before running tests
-    before(function () { return server.start(); });
+    // Start server and DB before running tests
+    before(async function () {
+        await server.start();
+        await db.init();
+    });
 
     var endpointAuthenticate = '/authentication/authenticate';
 
@@ -22,7 +26,7 @@ describe('authentication-related endpoints', function () {
         return preq.post({
             uri: server.config.fsURL + endpointAuthenticate,
             headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'login', password: 'password' }
+            body: { username: 'admin@test.ode', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             assert.notDeepStrictEqual(res.body.token, '');
@@ -33,7 +37,7 @@ describe('authentication-related endpoints', function () {
         return preq.post({
             uri: server.config.fsURL + endpointAuthenticate,
             headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'alogin', password: 'password' }
+            body: { username: 'aadmin@test.ode', password: 'password' }
         }).then(function() {
           throw 'Should not succeed'
         }).catch(function(res) {
@@ -45,7 +49,7 @@ describe('authentication-related endpoints', function () {
         return preq.post({
             uri: server.config.fsURL + endpointAuthenticate,
             headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'login', password: 'apassword' }
+            body: { username: 'admin@test.ode', password: 'apassword' }
         }).then(function() {
           throw 'Should not succeed'
         }).catch(function(res) {
@@ -82,7 +86,7 @@ describe('authentication-related endpoints', function () {
         return preq.post({
             uri: server.config.fsURL + endpointAuthenticate,
             headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'login', password: 'password' }
+            body: { username: 'admin@test.ode', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             preq.get({
@@ -96,6 +100,9 @@ describe('authentication-related endpoints', function () {
         });
     });
 
-    after(function() { return server.stop(); });
+    after(function() {
+        db.close();
+        server.stop();
+    });
 
 });
