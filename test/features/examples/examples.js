@@ -236,13 +236,12 @@ describe('examples endpoints', function () {
             body: { username: 'admin@test.ode', password: 'password' }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
-            preq.get({
+            return preq.get({
                 uri: server.config.fsURL + endpointAuthTS,
                 headers: {
                   authorization: 'Bearer ' + res.body.token
                 }
             }).then(function(res) {
-                assert.deepEqual(res.status, 200);
                 assert.deepEqual(res.status, 200);
                 assert.deepEqual(res.body.items.length, 31);
                 // checking first and last timestamps
@@ -292,6 +291,27 @@ describe('examples endpoints', function () {
           throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 404);
+        });
+    });
+
+    var endpointAuthMyTeams = '/examples/authentified-my-teams'
+
+    it('should return a list of two teams for dc@test.ode', function () {
+        return preq.post({
+            uri: server.config.fsURL + endpointAuthenticate,
+            headers: { 'content-type': 'multipart/form-data'},
+            body: { username: 'dc@test.ode', password: 'password' }
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            return preq.get({
+                uri: server.config.fsURL + endpointAuthMyTeams,
+                headers: {
+                  authorization: 'Bearer ' + res.body.token
+                }
+            }).then(function(res) {
+                assert.deepEqual(res.status, 200);
+                assert.deepEqual(res.body.items.length, 2);
+            });
         });
     });
 

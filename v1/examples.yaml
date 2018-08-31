@@ -247,6 +247,37 @@ paths:
               uri: /{domain}/sys/examples/list-team-users/{teamID}
       x-monitor: false
 
+  /authentified-my-teams:
+    get:
+      tags:
+        - ODE FeatureService Examples
+      summary: List the teams of ODE users
+      description: |
+        Get a JSON list the list of teams of the token user
+      produces:
+        - application/json
+      responses:
+        '200':
+          description: The list of ODE teams of the user
+          schema:
+            $ref: '#/definitions/team-list'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/examples/authentified-my-teams
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
 
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem

@@ -38,3 +38,8 @@ paths:
         get:
           summary: Get the list of users of a specific ODE team
           operationId: listTeamUsers
+
+    /authentified-my-teams:
+        get:
+          summary: Get the list of teams for authentified user
+          operationId: authentifiedMyTeams

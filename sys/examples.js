@@ -135,6 +135,19 @@ class Example {
             }
         });
     }
+
+    authentifiedMyTeams(hyper, req) {
+        return db.User.query().findOne('email', req.current_user).then(currentUser => {
+            return currentUser.$relatedQuery('teams').then(teams => {
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: {
+                        items: teams
+                    }
+                });
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -146,7 +159,8 @@ module.exports = function(options) {
             fakeTimeserie: tst.fakeTimeserie.bind(tst),
             meanTimeserie: tst.meanTimeserie.bind(tst),
             listTeams: tst.listTeams.bind(tst),
-            listTeamUsers: tst.listTeamUsers.bind(tst)
+            listTeamUsers: tst.listTeamUsers.bind(tst),
+            authentifiedMyTeams: tst.authentifiedMyTeams.bind(tst)
         }
     };
 };
