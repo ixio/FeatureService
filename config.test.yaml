@@ -29,7 +29,6 @@ default_project: &default_project
           maximumSize: 10000
           index: ode_data
         authentication:
-          htpasswd: test/htpasswd
           secret: fake-test-secret
           token_lifetime: 1h
 

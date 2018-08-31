@@ -6,7 +6,7 @@ Adapted from [Restbase](https://github.com/wikimedia/restbase)
 
 ## Installation
 
-Make sure you have node 6+ installed
+Make sure you have node 9+ installed
 
 ### Debian / ubuntu
 
@@ -14,7 +14,7 @@ Make sure you have node 6+ installed
 sudo apt-get update
 sudo apt-get upgrade
 sudo apt-get install curl
-curl -sL https://deb.nodesource.com/setup_6.x | bash - && apt-get install -y nodejs
+curl -sL https://deb.nodesource.com/setup_9.x | bash - && apt-get install -y nodejs
 ```
 
 From the `FeatureService` directory, install node dependencies:
@@ -54,8 +54,6 @@ cp config.example.yaml config.yaml
 
 You can also pass in the path to another file with the `-c` commandline option
 to `server.js`.
-
-To use authentication features, you can use the `login`/`password` default user in tests, or create a new `htpasswd` file and reference it in the yaml config file for production deployments.
 
 ### Testing
 
