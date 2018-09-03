@@ -29,9 +29,6 @@ feature_service_project: &feature_service_project
           maximumSize: 1000
           index: ode_data
         authentication:
-          # You can generate a new password file with htpasswd utility:
-          # htpasswd -cBC 10 htpasswd login
-          htpasswd: /your/htpasswd/file/path
           # You can generate a new secret on a linux system for example with the following command:
           # cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 128 ; echo ''
           secret: GENERATE NEW SECRET PLEASE

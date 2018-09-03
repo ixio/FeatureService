@@ -24,7 +24,7 @@ const jwt = require('jsonwebtoken');
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
-var AuthFromHTPasswdFile = require('../lib/AuthFromHTPasswdFile');
+var AuthFromDB = require('../lib/AuthFromDB');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'authentication.yaml'));
 
@@ -34,30 +34,31 @@ class Authentication {
 
     constructor(options) {
         this.options = options;
-        this.authService = new AuthFromHTPasswdFile(options.htpasswd);
+        this.authService = new AuthFromDB();
         this.secret = options.secret;
         this.tokenLifetime = options.token_lifetime;
     }
 
     authenticate(hyper, req) {
         var requestParams = req.body;
-        var authorized = this.authService.authorize(requestParams.username, requestParams.password);
-
-        if (authorized) {
-            var token = jwt.sign(
-              { aud: requestParams.username },
-              this.secret,
-              { expiresIn: this.tokenLifetime }
-            );
-            return fsUtil.normalizeResponse({
-                status: 200,
-                body: {
-                    token: token
-                }
-            });
-        } else {
-            return fsUtil.authErrorResponse();
-        }
+        var auth = this.authService.authorize(requestParams.username, requestParams.password);
+        return auth.then(authorized => {
+            if (authorized) {
+                var token = jwt.sign(
+                  { aud: requestParams.username },
+                  this.secret,
+                  { expiresIn: this.tokenLifetime }
+                );
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: {
+                        token: token
+                    }
+                });
+            } else {
+                return fsUtil.authErrorResponse();
+            }
+        });
     }
 
     verifyToken(hyper, req) {

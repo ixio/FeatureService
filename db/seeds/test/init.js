@@ -4,12 +4,18 @@ exports.seed = function(knex, Promise) {
     return knex('users').del()
     .then(() => {
         return knex('users').insert([
-            { id: 1, email: 'admin@test.ode', password: 'password' },
-            { id: 2, email: 'dc@test.ode', password: 'password' },
-            { id: 3, email: 'ek@test.ode', password: 'password' },
-            { id: 4, email: 'ja@test.ode', password: 'password' },
-            { id: 5, email: 'pnhd@test.ode', password: 'password' },
-            { id: 6, email: 'ad@test.ode', password: 'password' }
+            { id: 1, email: 'admin@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' },
+            { id: 2, email: 'dc@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' },
+            { id: 3, email: 'ek@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' },
+            { id: 4, email: 'ja@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' },
+            { id: 5, email: 'pnhd@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' },
+            { id: 6, email: 'ad@test.ode',
+                password: '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.' }
         ]);
     }).then(() => {
         return knex('dataset_types').del();
