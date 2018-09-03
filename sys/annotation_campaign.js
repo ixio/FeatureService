@@ -1,0 +1,72 @@
+/* Copyright (C) 2017-2018 Project-ODE
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
+ * ODE-FeatureService annotation campaigns related functions
+ * Author: Erwan Keribin
+ */
+'use strict';
+var HyperSwitch = require('hyperswitch');
+var path = require('path');
+var fsUtil = require('../lib/FeatureServiceUtil');
+
+var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'annotation_campaign.yaml'));
+
+const db = require('../db');
+
+class AnnotationCampaign {
+    constructor(options) {
+        this.options = options;
+    }
+
+    list() {
+        return db.AnnotationCampaign.query()
+        .select(
+            'id',
+            'name',
+            'start',
+            'end',
+            'annotation_set_id',
+            db.AnnotationCampaign.relatedQuery('annotation_tasks').count().as('tasks_count'),
+            db.AnnotationCampaign.relatedQuery('annotation_tasks').where('status', 2).count()
+            .as('complete_tasks_count'),
+            db.AnnotationCampaign.relatedQuery('datasets').count().as('datasets_count')
+        ).then(annotationCampaigns => {
+            for (let campaign of annotationCampaigns) {
+                // Since PGSQL can return a bigint on count, knex will return a string
+                // cf https://knexjs.org/#Builder-count
+                campaign.tasks_count = parseInt(campaign.tasks_count);
+                campaign.complete_tasks_count = parseInt(campaign.complete_tasks_count);
+                campaign.datasets_count = parseInt(campaign.datasets_count);
+            }
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: annotationCampaigns
+            });
+        });
+    }
+}
+
+module.exports = function(options) {
+    var campaign = new AnnotationCampaign(options);
+
+    return {
+        spec: spec,
+        operations: {
+            list: campaign.list.bind(campaign)
+        }
+    };
+};

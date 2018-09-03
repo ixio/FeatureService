@@ -29,6 +29,9 @@ paths:
             description: ODE FeatureService API
 
           paths:
+            /annotation-campaign:
+              x-modules:
+                - path: v1/annotation_campaign.yaml
             /authentication:
               x-modules:
                 - path: v1/authentication.yaml
@@ -50,6 +53,9 @@ paths:
       - spec:
           # Careful - There are 2 indentations here
           paths:
+            /annotation-campaign:
+              x-modules:
+                - path: sys/annotation_campaign.js
             /authentication:
               x-modules:
                 - path: sys/authentication.js
