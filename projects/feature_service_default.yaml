@@ -47,6 +47,9 @@ paths:
             /test/sound:
               x-modules:
                 - path: v1/sound.yaml
+            /user:
+              x-modules:
+                - path: v1/user.yaml
 
   /{api:sys}:
     x-modules:
@@ -74,4 +77,7 @@ paths:
             /test/sound:
               x-modules:
                 - path: sys/sound.js
+            /user:
+              x-modules:
+                - path: sys/user.js
         options: '{{options}}'
