@@ -32,6 +32,9 @@ paths:
             /annotation-campaign:
               x-modules:
                 - path: v1/annotation_campaign.yaml
+            /annotation-set:
+              x-modules:
+                - path: v1/annotation_set.yaml
             /authentication:
               x-modules:
                 - path: v1/authentication.yaml
@@ -56,6 +59,9 @@ paths:
             /annotation-campaign:
               x-modules:
                 - path: sys/annotation_campaign.js
+            /annotation-set:
+              x-modules:
+                - path: sys/annotation_set.js
             /authentication:
               x-modules:
                 - path: sys/authentication.js
