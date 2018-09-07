@@ -17,6 +17,8 @@ describe('user-related models tests', function () {
         var new_user = await db.User.query().orderBy('id', 'desc').first();
         assert.deepEqual(new_user.email, email);
         assert.deepEqual(new_user.password, password);
+        assert.deepEqual(new_user.enabled, true);
+        assert.deepEqual(new_user.valid_until, null);
     });
 
     it('newly created team should have the right info', async function () {
