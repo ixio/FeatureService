@@ -27,6 +27,22 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'annotation_campaign.
 
 const db = require('../db');
 
+// https://stackoverflow.com/a/2450976/2730032
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+  return array;
+}
+
 class AnnotationCampaign {
     constructor(options) {
         this.options = options;
@@ -58,6 +74,63 @@ class AnnotationCampaign {
             });
         });
     }
+
+    new(hyper, req) {
+        var requestParams = req.body;
+        return db.User.query().select('id').findOne('email', req.current_user).then(currentUser => {
+            return Promise.all([
+                Promise.all(requestParams.datasets.map(id => { return db.DatasetFile.query().select('id').where('dataset_id', id) })),
+                Promise.all(requestParams.annotators.map(id => { return db.User.query().select('id').findOne('id', id) }))
+            ]).then(([datasetFiles, annotators]) => {
+                datasetFiles = [].concat.apply([], datasetFiles);
+                let targetDF = [];
+                for (let x = 0; x <= annotators.length - requestParams.annotation_goal; x++) {
+                    targetDF = targetDF.concat(datasetFiles);
+                }
+                // If the chosen method is random then shuffle, otherwise leave intact
+                if (requestParams.annotation_method == 0) {
+                    targetDF = shuffle(targetDF);
+                }
+                let annotation_tasks = [];
+                let files_per_annotator = targetDF.length / annotators.length;
+                for (let x = 0; x < annotators.length; x++) {
+                    let start = x * files_per_annotator;
+                    let end = (x + 1) * files_per_annotator;
+                    annotation_tasks = annotation_tasks.concat(targetDF.slice(start, end).map(datasetFile => {
+                        return { status: 0, dataset_file_id: datasetFile.id, annotator_id: annotators[x].id };
+                    }));
+                }
+                // TODO this method is not good because with random you can get many times the same dataset_file to annotate
+                console.log(annotation_tasks);
+                var annotationCampaignParams = {
+                    name: requestParams.name,
+                    desc: requestParams.desc,
+                    start: requestParams.start,
+                    end: requestParams.end,
+                    annotation_set_id: requestParams.annotation_set,
+                    owner_id: currentUser.id,
+                    datasets: requestParams.datasets.map(id => { return { '#dbRef': id }; }),
+                    annotation_tasks: annotation_tasks
+                }
+                console.log(annotation_tasks);
+                return db.AnnotationCampaign.query()
+                .insertGraph(annotationCampaignParams)
+                .then(annotationCampaign => {
+                    return fsUtil.normalizeResponse({
+                        status: 200,
+                        body: annotationCampaign
+                    });
+                }).catch(error => {
+                    return fsUtil.normalizeResponse({
+                        status: error.statusCode,
+                        name: error.name,
+                        type: error.type,
+                        detail: error.message
+                    });
+                });
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -66,7 +139,8 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            list: campaign.list.bind(campaign)
+            list: campaign.list.bind(campaign),
+            new: campaign.new.bind(campaign)
         }
     };
 };

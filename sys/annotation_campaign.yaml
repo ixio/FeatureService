@@ -23,3 +23,7 @@ paths:
       get:
         summary: Returns a list of all annotation campaigns with relevant information
         operationId: list
+    /new:
+      post:
+        summary: Creates and returns a new annotation campaign
+        operationId: new
