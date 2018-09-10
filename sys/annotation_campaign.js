@@ -43,6 +43,77 @@ function shuffle(array) {
   return array;
 }
 
+// https://stackoverflow.com/a/47225591/2730032
+function partition(array, isValid) {
+  return array.reduce(([pass, fail], elem) => {
+    return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
+  }, [[], []]);
+}
+
+/* MultDistributeSequential(array, multiplier, nBags) returns an array of arrays
+We want to distribute each element of 'array' a 'multiplier' amount of times amongst nBags arrays.
+We want this done in a predictable sequential manner.
+Here we will first build a distributionArray of length array.length*multiplier,
+this array will contain multiplier times each element of array.
+We then distribute the elements of distributionArray in nBags array.
+Using nBagElements as a float and Array.slice we manage this in a equal manner,
+however we should probably prove that this works every time.
+*/
+function MultDistributeSequential(array, multiplier, nBags) {
+    let distributionArray = [];
+    let res = [];
+    for (let x = 0; x < multiplier; x++) {
+        distributionArray = distributionArray.concat(array);
+    }
+    let nBagElements = distributionArray.length / nBags;
+    for (let x = 0; x < nBags; x++) {
+        let start = x * nBagElements;
+        let end = (x + 1) * nBagElements;
+        res.push(distributionArray.slice(start, end));
+    }
+    return res;
+}
+
+/* MultDistributeSequential(array, multiplier, nBags) returns an array of arrays
+We want to distribute each element of 'array' a 'multiplier' amount of times amongst nBags arrays.
+We want this done in a random manner.
+The idea is to iterate nBags time and fill one array at a time (res[bag]),
+we first calculate how many elements res[bag] should have (targetLength),
+then we fill it with up to targetLength from distributionArray (initiliazed with shuffle(array)),
+if targetLength is not achieved we refill distributionArray starting with unused array elements,
+we finish filling res[bag] with unused elements and keep the rest of distributionArray for later.
+This seems to achieved the desired effect but should be checked for randomness quality.
+*/
+function MultDistributeRandom(array, multiplier, nBags) {
+    let targetTotalLength = array.length * multiplier;
+    let nBagElements = Math.floor(targetTotalLength / nBags);
+    let nExtraElements = targetTotalLength % nBags;
+    let res = [];
+    let distributionArray = [];
+    for (let bag = 0; bag < nBags; bag++) {
+        let targetLength = nBagElements;
+        // We try to distribute nExtraElements equally amongst the first bags
+        if (nExtraElements > 0) {
+            targetLength++;
+            nExtraElements--;
+        }
+        if (distributionArray.length === 0) {
+            distributionArray = shuffle(array.slice());
+        }
+        res.push(distributionArray.splice(0, targetLength));
+        if (res[bag].length === targetLength) {
+            continue;
+        }
+        // Logically if we get here that means distributionArray is empty
+        // We refill it starting with elements that aren't in res[bag]
+        let [unusedElements, usedElements] = partition(array, (e) => !res[bag].includes(e));
+        distributionArray = shuffle(unusedElements).concat(shuffle(usedElements));
+        // We should have enough unused elements to fill res[bag], the rest are for the next bag
+        res[bag] = res[bag].concat(distributionArray.splice(0, targetLength - res[bag].length));
+    }
+    return res;
+}
+
 class AnnotationCampaign {
     constructor(options) {
         this.options = options;
@@ -83,24 +154,27 @@ class AnnotationCampaign {
                 Promise.all(requestParams.annotators.map(id => { return db.User.query().select('id').findOne('id', id) }))
             ]).then(([datasetFiles, annotators]) => {
                 datasetFiles = [].concat.apply([], datasetFiles);
-                let targetDF = [];
-                for (let x = 0; x <= annotators.length - requestParams.annotation_goal; x++) {
-                    targetDF = targetDF.concat(datasetFiles);
-                }
-                // If the chosen method is random then shuffle, otherwise leave intact
-                if (requestParams.annotation_method == 0) {
-                    targetDF = shuffle(targetDF);
+                let distParams = [datasetFiles, requestParams.annotation_goal, annotators.length];
+                let distRes = null;
+                if (requestParams.annotation_method === 0) {
+                    // Random method
+                    distRes = MultDistributeRandom(...distParams);
+                } else if (requestParams.annotation_method === 1) {
+                    // Sequential method
+                    distRes = MultDistributeSequential(...distParams);
+                } else {
+                    throw "Unknown annotation tasks distribution method";
                 }
                 let annotation_tasks = [];
-                let files_per_annotator = targetDF.length / annotators.length;
-                for (let x = 0; x < annotators.length; x++) {
-                    let start = x * files_per_annotator;
-                    let end = (x + 1) * files_per_annotator;
-                    annotation_tasks = annotation_tasks.concat(targetDF.slice(start, end).map(datasetFile => {
-                        return { status: 0, dataset_file_id: datasetFile.id, annotator_id: annotators[x].id };
-                    }));
+                for (let x = 0; x < distRes.length; x++) {
+                    for (let datsetfile of distRes[x]) {
+                        annotation_tasks.push({
+                            status: 0,
+                            dataset_file_id: datsetfile.id,
+                            annotator_id: annotators[x].id
+                        })
+                    }
                 }
-                // TODO this method is not good because with random you can get many times the same dataset_file to annotate
                 console.log(annotation_tasks);
                 var annotationCampaignParams = {
                     name: requestParams.name,
@@ -112,7 +186,6 @@ class AnnotationCampaign {
                     datasets: requestParams.datasets.map(id => { return { '#dbRef': id }; }),
                     annotation_tasks: annotation_tasks
                 }
-                console.log(annotation_tasks);
                 return db.AnnotationCampaign.query()
                 .insertGraph(annotationCampaignParams)
                 .then(annotationCampaign => {
