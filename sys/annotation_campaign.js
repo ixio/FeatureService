@@ -29,28 +29,30 @@ const db = require('../db');
 
 // https://stackoverflow.com/a/2450976/2730032
 function shuffle(array) {
-  var currentIndex = array.length, temporaryValue, randomIndex;
-  // While there remain elements to shuffle...
-  while (0 !== currentIndex) {
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex -= 1;
-    // And swap it with the current element.
-    temporaryValue = array[currentIndex];
-    array[currentIndex] = array[randomIndex];
-    array[randomIndex] = temporaryValue;
-  }
-  return array;
+    var currentIndex = array.length;
+    var temporaryValue;
+    var randomIndex;
+    // While there remain elements to shuffle...
+    while (0 !== currentIndex) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex -= 1;
+        // And swap it with the current element.
+        temporaryValue = array[currentIndex];
+        array[currentIndex] = array[randomIndex];
+        array[randomIndex] = temporaryValue;
+    }
+    return array;
 }
 
 // https://stackoverflow.com/a/47225591/2730032
 function partition(array, isValid) {
-  return array.reduce(([pass, fail], elem) => {
-    return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
-  }, [[], []]);
+    return array.reduce(([pass, fail], elem) => {
+        return isValid(elem) ? [[...pass, elem], fail] : [pass, [...fail, elem]];
+    }, [[], []]);
 }
 
-/* MultDistributeSequential(array, multiplier, nBags) returns an array of arrays
+/* multDistributeSequential(array, multiplier, nBags) returns an array of arrays
 We want to distribute each element of 'array' a 'multiplier' amount of times amongst nBags arrays.
 We want this done in a predictable sequential manner.
 Here we will first build a distributionArray of length array.length*multiplier,
@@ -59,7 +61,7 @@ We then distribute the elements of distributionArray in nBags array.
 Using nBagElements as a float and Array.slice we manage this in a equal manner,
 however we should probably prove that this works every time.
 */
-function MultDistributeSequential(array, multiplier, nBags) {
+function multDistributeSequential(array, multiplier, nBags) {
     let distributionArray = [];
     let res = [];
     for (let x = 0; x < multiplier; x++) {
@@ -74,7 +76,7 @@ function MultDistributeSequential(array, multiplier, nBags) {
     return res;
 }
 
-/* MultDistributeSequential(array, multiplier, nBags) returns an array of arrays
+/* multDistributeSequential(array, multiplier, nBags) returns an array of arrays
 We want to distribute each element of 'array' a 'multiplier' amount of times amongst nBags arrays.
 We want this done in a random manner.
 The idea is to iterate nBags time and fill one array at a time (res[bag]),
@@ -84,7 +86,7 @@ if targetLength is not achieved we refill distributionArray starting with unused
 we finish filling res[bag] with unused elements and keep the rest of distributionArray for later.
 This seems to achieved the desired effect but should be checked for randomness quality.
 */
-function MultDistributeRandom(array, multiplier, nBags) {
+function multDistributeRandom(array, multiplier, nBags) {
     let targetTotalLength = array.length * multiplier;
     let nBagElements = Math.floor(targetTotalLength / nBags);
     let nExtraElements = targetTotalLength % nBags;
@@ -150,32 +152,35 @@ class AnnotationCampaign {
         var requestParams = req.body;
         return db.User.query().select('id').findOne('email', req.current_user).then(currentUser => {
             return Promise.all([
-                Promise.all(requestParams.datasets.map(id => { return db.DatasetFile.query().select('id').where('dataset_id', id) })),
-                Promise.all(requestParams.annotators.map(id => { return db.User.query().select('id').findOne('id', id) }))
+                Promise.all(requestParams.datasets.map(id => {
+                    return db.DatasetFile.query().select('id').where('dataset_id', id);
+                })),
+                Promise.all(requestParams.annotators.map(id => {
+                    return db.User.query().select('id').findOne('id', id);
+                }))
             ]).then(([datasetFiles, annotators]) => {
                 datasetFiles = [].concat.apply([], datasetFiles);
                 let distParams = [datasetFiles, requestParams.annotation_goal, annotators.length];
                 let distRes = null;
                 if (requestParams.annotation_method === 0) {
                     // Random method
-                    distRes = MultDistributeRandom(...distParams);
+                    distRes = multDistributeRandom(...distParams);
                 } else if (requestParams.annotation_method === 1) {
                     // Sequential method
-                    distRes = MultDistributeSequential(...distParams);
+                    distRes = multDistributeSequential(...distParams);
                 } else {
                     throw "Unknown annotation tasks distribution method";
                 }
-                let annotation_tasks = [];
+                let annotationTasks = [];
                 for (let x = 0; x < distRes.length; x++) {
                     for (let datsetfile of distRes[x]) {
-                        annotation_tasks.push({
+                        annotationTasks.push({
                             status: 0,
                             dataset_file_id: datsetfile.id,
                             annotator_id: annotators[x].id
-                        })
+                        });
                     }
                 }
-                console.log(annotation_tasks);
                 var annotationCampaignParams = {
                     name: requestParams.name,
                     desc: requestParams.desc,
@@ -184,8 +189,8 @@ class AnnotationCampaign {
                     annotation_set_id: requestParams.annotation_set,
                     owner_id: currentUser.id,
                     datasets: requestParams.datasets.map(id => { return { '#dbRef': id }; }),
-                    annotation_tasks: annotation_tasks
-                }
+                    annotation_tasks: annotationTasks
+                };
                 return db.AnnotationCampaign.query()
                 .insertGraph(annotationCampaignParams)
                 .then(annotationCampaign => {

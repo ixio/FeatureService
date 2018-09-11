@@ -80,11 +80,10 @@ paths:
         - name: datasets
           in: formData
           description: Array containing datasets id targeted by the new annotation campaign
+          type: array
+          items:
+            type: integer
           required: true
-          schema:
-            type: array
-            items:
-              type: integer
         - name: start
           in: formData
           description: Start date for the new annotation campaign
@@ -103,11 +102,10 @@ paths:
         - name: annotators
           in: formData
           description: Array containing users id chosen as annotators for the new annotation campaign
+          type: array
+          items:
+            type: integer
           required: true
-          schema:
-            type: array
-            items:
-              type: integer
         - name: annotation_goal
           in: formData
           description: Number of wanted annotations per file in the new annotation campaign
