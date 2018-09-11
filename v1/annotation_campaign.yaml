@@ -181,6 +181,28 @@ definitions:
         type: string
       annotation_set_id:
         type: integer
+      owner_id:
+        type: integer
+      datasets:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+      annotation_tasks:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+            status:
+              type: integer
+            dataset_file_id:
+              type: integer
+            annotator_id:
+              type: integer
+            annotation_campaign_id:
+              type: integer
 
   annotation-campaign-list:
     type: array
