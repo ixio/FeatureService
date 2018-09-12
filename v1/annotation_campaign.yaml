@@ -32,10 +32,11 @@ info:
     name: GNU General Public Licence, v3
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 paths:
+
   /list:
     get:
       tags:
-        - ODE FeatureService annotation campaign listing function
+        - ODE FeatureService annotation campaign list
       summary: Lists all annotation campaigns
       description: |
         Returns a list of all annotation campaigns with relevant information
@@ -56,6 +57,103 @@ paths:
               uri: /{domain}/sys/annotation-campaign/list
       x-monitor: false
 
+  /new:
+    post:
+      tags:
+        - ODE FeatureService annotation campaign create
+      summary: Create a new annotation campaign
+      description: |
+        Returns the created annotation campaign
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: formData
+          description: Name for the new annotation campaign
+          type: string
+          required: true
+        - name: desc
+          in: formData
+          description: Description for the new annotation campaign
+          type: string
+          required: true
+        - name: datasets
+          in: formData
+          description: Array containing datasets id targeted by the new annotation campaign
+          type: array
+          items:
+            type: integer
+          required: true
+        - name: start
+          in: formData
+          description: Start date for the new annotation campaign
+          type: string
+          required: true
+        - name: end
+          in: formData
+          description: End date for the new annotation campaign
+          type: string
+          required: true
+        - name: annotation_set
+          in: formData
+          description: Annotation set id chosen for the new annotation campaign
+          type: integer
+          required: true
+        - name: annotators
+          in: formData
+          description: Array containing users id chosen as annotators for the new annotation campaign
+          type: array
+          items:
+            type: integer
+          required: true
+        - name: annotation_goal
+          in: formData
+          description: Number of wanted annotations per file in the new annotation campaign
+          type: integer
+          required: true
+        - name: annotation_method
+          in: formData
+          description: Distribution method of files to annotate for the new annotation campaign (0 for Random and 1 for Sequential)
+          type: integer
+          minimum: 0
+          maximum: 1
+          required: true
+      responses:
+        '200':
+          description: the newly created annotation campaign
+          schema:
+            $ref: '#/definitions/annotation-campaign'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: get
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/annotation-campaign/new
+              headers:
+                content-type: multipart/form-data
+              body:
+                name: '{{name}}'
+                desc: '{{desc}}'
+                start: '{{start}}'
+                end: '{{end}}'
+                annotation_set: '{{annotation_set}}'
+                datasets: '{{datasets}}'
+                annotators: '{{annotators}}'
+                annotation_goal: '{{annotation_goal}}'
+                annotation_method: '{{annotation_method}}'
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
@@ -70,6 +168,41 @@ definitions:
         type: string
       instance:
         type: string
+
+  annotation-campaign:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      start:
+        type: string
+      end:
+        type: string
+      annotation_set_id:
+        type: integer
+      owner_id:
+        type: integer
+      datasets:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+      annotation_tasks:
+        type: array
+        items:
+          properties:
+            id:
+              type: integer
+            status:
+              type: integer
+            dataset_file_id:
+              type: integer
+            annotator_id:
+              type: integer
+            annotation_campaign_id:
+              type: integer
 
   annotation-campaign-list:
     type: array

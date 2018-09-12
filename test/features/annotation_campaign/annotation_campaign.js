@@ -41,7 +41,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 200 with the list of campaigns', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList
-        }).then(function(res) {
+        }).then(res => {
             assert.deepEqual(res.status, 200);
             // checking we have the right number of campaigns
             assert.deepEqual(res.body.length, 1);
@@ -55,6 +55,57 @@ describe('annotation-campaign endpoints', function () {
             assert.deepStrictEqual(annotation_campaign.tasks_count, 1);
             assert.deepStrictEqual(annotation_campaign.complete_tasks_count, 0);
             assert.deepStrictEqual(annotation_campaign.datasets_count, 2);
+        });
+    });
+
+    var endpointAuthenticate = '/authentication/authenticate';
+    var endpointCreate = '/annotation-campaign/new'
+
+    it('should return 200 with a new annotation campaign', function () {
+        var annotation_campaign = {
+            name: 'testname',
+            desc: 'testdescription',
+            datasets: [1, 2],
+            start: '2018-06-01',
+            end: '2019-06-01',
+            annotation_set: 1,
+            annotators: [2, 3, 4],
+            annotation_goal: 2,
+            annotation_method: 1
+        };
+        return Promise.all([
+            preq.post({
+                uri: server.config.fsURL + endpointAuthenticate,
+                headers: { 'content-type': 'multipart/form-data'},
+                body: { username: 'dc@test.ode', password: 'password' }
+            }),
+            db.AnnotationCampaign.query().count().first()
+        ]).then(([res, db_query]) => {
+            var first_count = parseInt(db_query.count);
+            assert.deepEqual(res.status, 200);
+            return preq.post({
+                uri: server.config.fsURL + endpointCreate,
+                headers: {
+                    'content-type': 'application/json',
+                    authorization: 'Bearer ' + res.body.token
+                },
+                body: annotation_campaign
+            }).then(res => {
+                assert.deepEqual(res.status, 200);
+                assert.deepStrictEqual(res.body.id, 10);
+                assert.deepStrictEqual(res.body.name, annotation_campaign.name);
+                assert.deepStrictEqual(res.body.desc, annotation_campaign.desc);
+                assert.deepStrictEqual(new Date(res.body.start), new Date(annotation_campaign.start));
+                assert.deepStrictEqual(new Date(res.body.end), new Date(annotation_campaign.end));
+                assert.deepStrictEqual(res.body.datasets.length, annotation_campaign.datasets.length);
+                assert.deepStrictEqual(res.body.datasets[0].id, annotation_campaign.datasets[0]);
+                assert.deepStrictEqual(res.body.annotation_set_id, annotation_campaign.annotation_set);
+                assert.deepStrictEqual(res.body.annotation_tasks.length, 6);
+                assert.deepStrictEqual(res.body.annotation_tasks[0].id, 10);
+                return db.AnnotationCampaign.query().count().first().then(res => {
+                    assert.deepStrictEqual(parseInt(res.count), first_count + 1);
+                })
+            });
         });
     });
 

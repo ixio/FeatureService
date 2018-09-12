@@ -22,10 +22,10 @@
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
+var arrayUtil = require('../lib/ArrayUtil');
+const db = require('../db');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'annotation_campaign.yaml'));
-
-const db = require('../db');
 
 class AnnotationCampaign {
     constructor(options) {
@@ -58,6 +58,60 @@ class AnnotationCampaign {
             });
         });
     }
+
+    new(hyper, req) {
+        var requestParams = req.body;
+        return Promise.all([
+            db.User.query().select('id').findOne('email', req.current_user),
+            db.DatasetFile.query().select('id').where('dataset_id', 'in', requestParams.datasets),
+            db.User.query().select('id').where('id', 'in', requestParams.annotators)
+        ]).then(([currentUser, datasetFiles, annotators]) => {
+            let distParams = [datasetFiles, requestParams.annotation_goal, annotators.length];
+            let distRes;
+            if (requestParams.annotation_method === 0) {
+                distRes = arrayUtil.multDistributeRandom(...distParams);
+            } else if (requestParams.annotation_method === 1) {
+                distRes = arrayUtil.multDistributeSequential(...distParams);
+            } else {
+                throw "Unknown annotation tasks distribution method";
+            }
+            let annotationTasks = [];
+            for (let x = 0; x < distRes.length; x++) {
+                for (let datsetfile of distRes[x]) {
+                    annotationTasks.push({
+                        status: 0,
+                        dataset_file_id: datsetfile.id,
+                        annotator_id: annotators[x].id
+                    });
+                }
+            }
+            var annotationCampaignParams = {
+                name: requestParams.name,
+                desc: requestParams.desc,
+                start: requestParams.start,
+                end: requestParams.end,
+                annotation_set_id: requestParams.annotation_set,
+                owner_id: currentUser.id,
+                datasets: requestParams.datasets.map(id => { return { '#dbRef': id }; }),
+                annotation_tasks: annotationTasks
+            };
+            return db.AnnotationCampaign.query()
+            .insertGraph(annotationCampaignParams)
+            .then(annotationCampaign => {
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: annotationCampaign
+                });
+            }).catch(error => {
+                return fsUtil.normalizeResponse({
+                    status: error.statusCode,
+                    name: error.name,
+                    type: error.type,
+                    detail: error.message
+                });
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -66,7 +120,8 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            list: campaign.list.bind(campaign)
+            list: campaign.list.bind(campaign),
+            new: campaign.new.bind(campaign)
         }
     };
 };
