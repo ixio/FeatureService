@@ -41,7 +41,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 200 with the list of campaigns', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList
-        }).then(function(res) {
+        }).then(res => {
             assert.deepEqual(res.status, 200);
             // checking we have the right number of campaigns
             assert.deepEqual(res.body.length, 1);
@@ -73,11 +73,15 @@ describe('annotation-campaign endpoints', function () {
             annotation_goal: 2,
             annotation_method: 1
         };
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'dc@test.ode', password: 'password' }
-        }).then(function(res) {
+        return Promise.all([
+            preq.post({
+                uri: server.config.fsURL + endpointAuthenticate,
+                headers: { 'content-type': 'multipart/form-data'},
+                body: { username: 'dc@test.ode', password: 'password' }
+            }),
+            db.AnnotationCampaign.query().count().first()
+        ]).then(([res, db_query]) => {
+            var first_count = parseInt(db_query.count);
             assert.deepEqual(res.status, 200);
             return preq.post({
                 uri: server.config.fsURL + endpointCreate,
@@ -86,7 +90,7 @@ describe('annotation-campaign endpoints', function () {
                     authorization: 'Bearer ' + res.body.token
                 },
                 body: annotation_campaign
-            }).then(function(res) {
+            }).then(res => {
                 assert.deepEqual(res.status, 200);
                 assert.deepStrictEqual(res.body.id, 10);
                 assert.deepStrictEqual(res.body.name, annotation_campaign.name);
@@ -98,6 +102,9 @@ describe('annotation-campaign endpoints', function () {
                 assert.deepStrictEqual(res.body.annotation_set_id, annotation_campaign.annotation_set);
                 assert.deepStrictEqual(res.body.annotation_tasks.length, 6);
                 assert.deepStrictEqual(res.body.annotation_tasks[0].id, 10);
+                return db.AnnotationCampaign.query().count().first().then(res => {
+                    assert.deepStrictEqual(parseInt(res.count), first_count + 1);
+                })
             });
         });
     });
