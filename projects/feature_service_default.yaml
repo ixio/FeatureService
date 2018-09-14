@@ -35,6 +35,9 @@ paths:
             /annotation-set:
               x-modules:
                 - path: v1/annotation_set.yaml
+            /annotation-task:
+              x-modules:
+                - path: v1/annotation_task.yaml
             /authentication:
               x-modules:
                 - path: v1/authentication.yaml
@@ -65,6 +68,9 @@ paths:
             /annotation-set:
               x-modules:
                 - path: sys/annotation_set.js
+            /annotation-task:
+              x-modules:
+                - path: sys/annotation_task.js
             /authentication:
               x-modules:
                 - path: sys/authentication.js
