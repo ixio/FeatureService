@@ -23,3 +23,11 @@ paths:
       get:
         summary: Returns a list of the current user annotation tasks for the identified campaign
         operationId: currentUserCampaignList
+    /{id}:
+      get:
+        summary: Returns the necessary input for audio annotator code
+        operationId: audioAnnotator
+    /{id}/update_results:
+      post:
+        summary: Returns the necessary input for audio annotator code
+        operationId: updateResults

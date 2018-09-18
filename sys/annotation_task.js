@@ -63,6 +63,126 @@ class AnnotationTask {
             });
         });
     }
+
+    audioAnnotator(hyper, req) {
+        let annotation_task_id = req.params.id;
+        return db.User.query().findOne('email', req.current_user).then(currentUser => {
+            return db.AnnotationTask.query()
+            .where('annotator_id', currentUser.id)
+            .findOne('annotation_tasks.id', annotation_task_id)
+            .joinRelation('[dataset_file, annotation_campaign]')
+            .select('annotation_tasks.id', 'filename', 'annotation_set_id')
+            .then(annotationTask => {
+                if (!annotationTask) {
+                    return fsUtil.normalizeResponse({
+                        status: 404,
+                        body: {
+                            detail: 'Task not found for user'
+                        }
+                    });
+                }
+                return db.AnnotationSet.query()
+                .findOne('id', annotationTask.annotation_set_id)
+                .then(annotationSet => {
+                    return annotationSet.$relatedQuery('tags').then(tags => {
+                        return fsUtil.normalizeResponse({
+                            status: 200,
+                            body: {
+                                task: {
+                                    feedback: 'none',
+                                    visualization: 'spectrogram',
+                                    proximityTag: [],
+                                    annotationTag: tags.map(tag => { return tag.name; }),
+                                    url: 'http://localhost:7231/data.ode.org/v1/test/sound/' + annotationTask.filename + '/play',
+                                    alwaysShowTags: true
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    }
+
+    updateResults(hyper, req) {
+        let annotation_task_id = req.params.id;
+        return db.User.query().findOne('email', req.current_user).then(currentUser => {
+            return db.AnnotationTask.query()
+            .where('annotator_id', currentUser.id)
+            .findOne('annotation_tasks.id', annotation_task_id)
+            .joinRelation('annotation_campaign')
+            .select('annotation_tasks.id', 'annotation_campaign.id as campaign_id', 'annotation_set_id')
+            .then(annotationTask => {
+                console.log('annotationTask', annotationTask);
+                if (!annotationTask) {
+                    return fsUtil.normalizeResponse({
+                        status: 404,
+                        body: {
+                            detail: 'Task not found for user'
+                        }
+                    });
+                }
+                return db.AnnotationSet.query()
+                .findOne('id', annotationTask.annotation_set_id)
+                .then(annotationSet => {
+                    return annotationSet.$relatedQuery('tags').then(tags => {
+                        return tags.reduce((obj, tag) => {
+                            obj[tag.name] = tag.id
+                            return obj
+                        }, {});
+                    });
+                }).then(tags_id => {
+                    let results = req.body.annotations.map(annotation => {
+                        return {
+                            start: annotation.start,
+                            end: annotation.end,
+                            annotation_tag_id: tags_id[annotation.annotation],
+                            annotation_task_id: annotationTask.id
+                        };
+                    });
+                    let session = {
+                        start: new Date(req.body.task_start_time),
+                        end: new Date(req.body.task_end_time),
+                        session_output: req.body,
+                        annotation_task_id: annotationTask.id
+                    };
+                    return Promise.all([
+                        annotationTask.$query().patch({'status': 2}),
+                        db.AnnotationSession.query().insert(session),
+                        db.AnnotationResult.query()
+                        .where('annotation_task_id', annotationTask.id)
+                        .delete()
+                        .then(() => {
+                            return db.AnnotationResult.query().insert(results);
+                        })
+                    ]).then(() => {
+                        return db.AnnotationTask.query()
+                        .where('annotator_id', currentUser.id)
+                        .where('annotation_campaign_id', annotationTask.campaign_id)
+                        .where('status', '!=', 2)
+                        .findOne('id', '>', annotationTask.id)
+                        .then(nextAnnotationTask => {
+                            if (!nextAnnotationTask) {
+                                return fsUtil.normalizeResponse({
+                                    status: 200,
+                                    body: {
+                                        next_task: null,
+                                        campaign_id: annotationTask.campaign_id
+                                    }
+                                });
+                            }
+                            return fsUtil.normalizeResponse({
+                                status: 200,
+                                body: {
+                                    next_task: nextAnnotationTask.id
+                                }
+                            });
+                        });
+                    });
+                });
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -71,7 +191,9 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            currentUserCampaignList: task.currentUserCampaignList.bind(task)
+            currentUserCampaignList: task.currentUserCampaignList.bind(task),
+            audioAnnotator: task.audioAnnotator.bind(task),
+            updateResults: task.updateResults.bind(task)
         }
     };
 };
