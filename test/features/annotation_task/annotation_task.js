@@ -26,6 +26,22 @@ var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
 
+var endpointAuthenticate = '/authentication/authenticate';
+function callEndpointWithAuth(user, endpoint) {
+    return preq.post({
+        uri: server.config.fsURL + endpointAuthenticate,
+        headers: { 'content-type': 'multipart/form-data'},
+        body: { username: user, password: 'password' }
+    }).then(auth => {
+        assert.deepEqual(auth.status, 200);
+        return preq.get({
+            uri: server.config.fsURL + endpoint,
+            headers: {
+              authorization: 'Bearer ' + auth.body.token
+            }
+        });
+    });
+}
 
 describe('annotation-task endpoints', function () {
     this.timeout(20000);
@@ -36,72 +52,35 @@ describe('annotation-task endpoints', function () {
         await db.init();
     });
 
-    var endpointAuthenticate = '/authentication/authenticate';
     var endpointList = '/annotation-task/campaign/1/my-list';
 
     it('should return 200 with a list of annotation tasks', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'ek@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList,
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                assert.deepEqual(res.status, 200);
-                assert.deepEqual(res.body.length, 1);
-                let annotation_task = res.body[0];
-                assert.deepStrictEqual(annotation_task.id, 1);
-                assert.deepStrictEqual(annotation_task.status, 1);
-                assert.deepStrictEqual(annotation_task.filename, 'A32C0000.WAV');
-                assert.deepStrictEqual(annotation_task.dataset_name, 'SPMAuralA2010');
-                assert.deepStrictEqual(annotation_task.start, '2010-08-19T17:00:00.000Z');
-                assert.deepStrictEqual(annotation_task.end, '2010-08-19T17:45:00.000Z');
-            });
+        return callEndpointWithAuth('ek@test.ode', endpointList).then(res => {
+            assert.deepEqual(res.status, 200);
+            assert.deepEqual(res.body.length, 1);
+            let annotation_task = res.body[0];
+            assert.deepStrictEqual(annotation_task.id, 1);
+            assert.deepStrictEqual(annotation_task.status, 1);
+            assert.deepStrictEqual(annotation_task.filename, 'A32C0000.WAV');
+            assert.deepStrictEqual(annotation_task.dataset_name, 'SPMAuralA2010');
+            assert.deepStrictEqual(annotation_task.start, '2010-08-19T17:00:00.000Z');
+            assert.deepStrictEqual(annotation_task.end, '2010-08-19T17:45:00.000Z');
         });
     });
 
     it('should return 404 for user without annotation tasks', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'dc@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList,
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                throw 'Should not succeed'
-            }).catch(res => {
-                assert.deepEqual(res.status, 404);
-            });
+        return callEndpointWithAuth('dc@test.ode', endpointList).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
         });
     });
 
     it('should return 404 for unknown campaign', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'ek@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList.replace(1, 2),
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                throw 'Should not succeed'
-            }).catch(res => {
-                assert.deepEqual(res.status, 404);
-            });
+        return callEndpointWithAuth('ek@test.ode', endpointList.replace(1, 2)).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
         });
     });
 

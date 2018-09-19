@@ -65,11 +65,11 @@ class AnnotationTask {
     }
 
     audioAnnotator(hyper, req) {
-        let annotation_task_id = req.params.id;
+        let annotationTaskId = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
             return db.AnnotationTask.query()
             .where('annotator_id', currentUser.id)
-            .findOne('annotation_tasks.id', annotation_task_id)
+            .findOne('annotation_tasks.id', annotationTaskId)
             .joinRelation('[dataset_file, annotation_campaign]')
             .select('annotation_tasks.id', 'filename', 'annotation_set_id')
             .then(annotationTask => {
@@ -106,15 +106,18 @@ class AnnotationTask {
     }
 
     updateResults(hyper, req) {
-        let annotation_task_id = req.params.id;
+        let annotationTaskId = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
             return db.AnnotationTask.query()
             .where('annotator_id', currentUser.id)
-            .findOne('annotation_tasks.id', annotation_task_id)
+            .findOne('annotation_tasks.id', annotationTaskId)
             .joinRelation('annotation_campaign')
-            .select('annotation_tasks.id', 'annotation_campaign.id as campaign_id', 'annotation_set_id')
+            .select(
+                'annotation_tasks.id',
+                'annotation_campaign.id as campaign_id',
+                'annotation_set_id'
+            )
             .then(annotationTask => {
-                console.log('annotationTask', annotationTask);
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
                         status: 404,
@@ -128,30 +131,30 @@ class AnnotationTask {
                 .then(annotationSet => {
                     return annotationSet.$relatedQuery('tags').then(tags => {
                         return tags.reduce((obj, tag) => {
-                            obj[tag.name] = tag.id
-                            return obj
+                            obj[tag.name] = tag.id;
+                            return obj;
                         }, {});
                     });
-                }).then(tags_id => {
+                }).then(tagsId => {
                     let results = req.body.annotations.map(annotation => {
                         return {
                             start: annotation.start,
                             end: annotation.end,
-                            annotation_tag_id: tags_id[annotation.annotation],
-                            annotation_task_id: annotationTask.id
+                            annotation_tag_id: tagsId[annotation.annotation],
+                            annotationTaskId: annotationTask.id
                         };
                     });
                     let session = {
                         start: new Date(req.body.task_start_time),
                         end: new Date(req.body.task_end_time),
                         session_output: req.body,
-                        annotation_task_id: annotationTask.id
+                        annotationTaskId: annotationTask.id
                     };
                     return Promise.all([
-                        annotationTask.$query().patch({'status': 2}),
+                        annotationTask.$query().patch({ status: 2 }),
                         db.AnnotationSession.query().insert(session),
                         db.AnnotationResult.query()
-                        .where('annotation_task_id', annotationTask.id)
+                        .where('annotationTaskId', annotationTask.id)
                         .delete()
                         .then(() => {
                             return db.AnnotationResult.query().insert(results);
