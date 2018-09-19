@@ -31,6 +31,8 @@ default_project: &default_project
         authentication:
           secret: fake-test-secret
           token_lifetime: 1h
+        annotation-task:
+          play_url: "http://localhost:7231/data.ode.org/v1/test/sound/$filename/play"
 
 
 spec_root: &spec_root

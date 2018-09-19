@@ -81,6 +81,7 @@ class AnnotationTask {
                         }
                     });
                 }
+                let url = this.options.play_url.replace('$filename', annotationTask.filename);
                 return db.AnnotationSet.query()
                 .findOne('id', annotationTask.annotation_set_id)
                 .then(annotationSet => {
@@ -93,7 +94,7 @@ class AnnotationTask {
                                     visualization: 'spectrogram',
                                     proximityTag: [],
                                     annotationTag: tags.map(tag => { return tag.name; }),
-                                    url: 'http://localhost:7231/data.ode.org/v1/test/sound/' + annotationTask.filename + '/play',
+                                    url: url,
                                     alwaysShowTags: true
                                 }
                             }

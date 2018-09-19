@@ -33,6 +33,8 @@ feature_service_project: &feature_service_project
           # cat /dev/urandom | tr -dc A-Za-z0-9 | head -c 128 ; echo ''
           secret: GENERATE NEW SECRET PLEASE
           token_lifetime: 1h
+        annotation-task:
+          play_url: "http://localhost:7231/data.ode.org/v1/test/sound/$filename/play"
 
 # Swagger spec root.
 spec: &spec_root
