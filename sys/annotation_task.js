@@ -65,11 +65,11 @@ class AnnotationTask {
     }
 
     audioAnnotator(hyper, req) {
-        let annotationTaskId = req.params.id;
+        let taskID = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
             return db.AnnotationTask.query()
             .where('annotator_id', currentUser.id)
-            .findOne('annotation_tasks.id', annotationTaskId)
+            .findOne('annotation_tasks.id', taskID)
             .joinRelation('[dataset_file, annotation_campaign]')
             .select('annotation_tasks.id', 'filename', 'annotation_set_id')
             .then(annotationTask => {
@@ -106,11 +106,11 @@ class AnnotationTask {
     }
 
     updateResults(hyper, req) {
-        let annotationTaskId = req.params.id;
+        let taskID = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
             return db.AnnotationTask.query()
             .where('annotator_id', currentUser.id)
-            .findOne('annotation_tasks.id', annotationTaskId)
+            .findOne('annotation_tasks.id', taskID)
             .joinRelation('annotation_campaign')
             .select(
                 'annotation_tasks.id',
@@ -141,20 +141,20 @@ class AnnotationTask {
                             start: annotation.start,
                             end: annotation.end,
                             annotation_tag_id: tagsId[annotation.annotation],
-                            annotationTaskId: annotationTask.id
+                            annotation_task_id: annotationTask.id
                         };
                     });
                     let session = {
                         start: new Date(req.body.task_start_time),
                         end: new Date(req.body.task_end_time),
                         session_output: req.body,
-                        annotationTaskId: annotationTask.id
+                        annotation_task_id: annotationTask.id
                     };
                     return Promise.all([
                         annotationTask.$query().patch({ status: 2 }),
                         db.AnnotationSession.query().insert(session),
                         db.AnnotationResult.query()
-                        .where('annotationTaskId', annotationTask.id)
+                        .where('annotation_task_id', annotationTask.id)
                         .delete()
                         .then(() => {
                             return db.AnnotationResult.query().insert(results);

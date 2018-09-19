@@ -45,7 +45,7 @@ paths:
         - name: id
           in: path
           description: Annotation Campaign ID
-          type: string
+          type: integer
           required: true
       responses:
         '200':
@@ -105,7 +105,7 @@ paths:
         - get_from_backend:
             request:
               uri: /{domain}/sys/annotation-task/{id}
-              current_user: 'ek@test.ode' #'{{verify_token.body.token.aud}}'
+              current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
   /{id}/update_results:
