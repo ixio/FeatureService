@@ -19,6 +19,10 @@
 
 
 paths:
+    /{id}:
+      get:
+        summary: Returns details of a specific annotation campaign
+        operationId: detail
     /list:
       get:
         summary: Returns a list of all annotation campaigns with relevant information
