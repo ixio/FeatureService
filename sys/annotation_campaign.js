@@ -32,6 +32,26 @@ class AnnotationCampaign {
         this.options = options;
     }
 
+    detail(hyper, req) {
+        let campaignID = req.params.id;
+        return Promise.all([
+            db.AnnotationCampaign.query().findOne('id', campaignID),
+            db.AnnotationTask.query().where('annotation_campaign_id', campaignID)
+            .groupBy('annotator_id', 'status').count().select('annotator_id', 'status')
+        ]).then(([campaign, tasks]) => {
+            tasks.forEach(task => {
+                task.count = parseInt(task.count, 10);
+            });
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: {
+                    campaign: campaign,
+                    tasks: tasks
+                }
+            });
+        });
+    }
+
     list() {
         return db.AnnotationCampaign.query()
         .select(
@@ -120,6 +140,7 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
+            detail: campaign.detail.bind(campaign),
             list: campaign.list.bind(campaign),
             new: campaign.new.bind(campaign)
         }
