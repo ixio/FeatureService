@@ -173,10 +173,11 @@ describe('annotation-task endpoints', function () {
                 assert.deepEqual(res.body, { next_task: null, campaign_id: 1 });
                 // Testing old results were overwritten and a session was added
                 return Promise.all([
-                    db.AnnotationResult.query().where('annotation_task_id', 1).select('id'),
+                    db.AnnotationResult.query().joinRelation('tag').where('annotation_task_id', 1).select('annotation_results.id', 'name'),
                     db.AnnotationSession.query().where('annotation_task_id', 1).count().first()
                 ]).then(([new_results, new_sessions]) => {
                     assert.deepEqual(new_results.map(r => {return r.id;}), [10, 11]);
+                    assert.deepEqual(new_results.map(r => {return r.name;}), ["Humpback Whale", "Killer Whale"]);
                     assert.deepEqual(new_sessions.count, 2);
                 });
             });

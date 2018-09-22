@@ -127,14 +127,14 @@ class AnnotationTask {
                     });
                 }
                 return db.AnnotationSet.query()
-                .findOne('id', annotationTask.annotation_set_id)
-                .then(annotationSet => {
-                    return annotationSet.$relatedQuery('tags').then(tags => {
-                        return tags.reduce((obj, tag) => {
-                            obj[tag.name] = tag.id;
-                            return obj;
-                        }, {});
-                    });
+                .where('annotation_sets.id', annotationTask.annotation_set_id)
+                .joinRelation('tags')
+                .select('tags.id as id', 'tags.name as name')
+                .then(tags => {
+                    return tags.reduce((obj, tag) => {
+                        obj[tag.name] = tag.id;
+                        return obj;
+                    }, {});
                 }).then(tagsId => {
                     let results = req.body.annotations.map(annotation => {
                         return {
