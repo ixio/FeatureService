@@ -141,6 +141,33 @@ class AnnotationCampaign {
             });
         });
     }
+
+    report(hyper, req) {
+        let campaignID = req.params.id;
+        return db.AnnotationTask.query()
+        .where('annotation_campaign_id', campaignID)
+        .joinRelation('results')
+        .joinRelation('annotator')
+        .joinRelation('dataset_file')
+        .joinRelation('dataset')
+        .join('annotation_tags as tags', 'results.annotation_tag_id', 'tags.id')
+        .select(
+            'dataset.name as dataset',
+            'dataset_file.filename',
+            'results.id as result_id',
+            'results.start',
+            'results.end',
+            'tags.name as annotation',
+            'annotator.email as annotator'
+        ).then(annotations => {
+            return fsUtil.normalizeResponse({
+                status: 200,
+                body: annotations.map(annotation => {
+                    return Object.values(annotation).join(',')
+                }).join('\n')
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -151,7 +178,8 @@ module.exports = function(options) {
         operations: {
             detail: campaign.detail.bind(campaign),
             list: campaign.list.bind(campaign),
-            new: campaign.new.bind(campaign)
+            new: campaign.new.bind(campaign),
+            report: campaign.report.bind(campaign)
         }
     };
 };
