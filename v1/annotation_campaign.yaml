@@ -184,6 +184,36 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
+  /report/{id}:
+    get:
+      tags:
+        - ODE FeatureService annotation campaign csv report
+      summary: Returns the CSV report of a specific annotation campaign
+      description: |
+        Returns the CSV report of a specific annotation campaign
+      produces:
+        - text/csv
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Campaign ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: CSV report of a specific annotation campaign
+          schema:
+            type: string
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/annotation-campaign/report/{id}
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
