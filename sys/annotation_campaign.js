@@ -144,28 +144,36 @@ class AnnotationCampaign {
 
     report(hyper, req) {
         let campaignID = req.params.id;
-        return db.AnnotationTask.query()
-        .where('annotation_campaign_id', campaignID)
-        .joinRelation('results')
-        .joinRelation('annotator')
-        .joinRelation('dataset_file')
-        .joinRelation('dataset')
-        .join('annotation_tags as tags', 'results.annotation_tag_id', 'tags.id')
-        .select(
-            'dataset.name as dataset',
-            'dataset_file.filename',
-            'results.id as result_id',
-            'results.start',
-            'results.end',
-            'tags.name as annotation',
-            'annotator.email as annotator'
-        ).then(annotations => {
-            return fsUtil.normalizeResponse({
+        return Promise.all([
+            db.AnnotationCampaign.query().findOne('id', campaignID).select('name'),
+            db.AnnotationTask.query()
+            .where('annotation_campaign_id', campaignID)
+            .joinRelation('results')
+            .joinRelation('annotator')
+            .joinRelation('dataset_file')
+            .joinRelation('dataset')
+            .join('annotation_tags as tags', 'results.annotation_tag_id', 'tags.id')
+            .select(
+                'dataset.name as dataset',
+                'dataset_file.filename',
+                'results.start',
+                'results.end',
+                'tags.name as annotation',
+                'annotator.email as annotator'
+            )
+        ]).then(([campaign, annotations]) => {
+            let filename = '"' + campaign.name.replace(' ', '_') + '.csv"';
+            let csvHeader = 'dataset,filename,start,end,annotation,annotator\n';
+            return {
                 status: 200,
-                body: annotations.map(annotation => {
-                    return Object.values(annotation).join(',')
+                headers: {
+                    'content-type': 'text/csv; charset=utf-8',
+                    'content-disposition': 'attachment; filename=' + filename
+                },
+                body: csvHeader + annotations.map(annotation => {
+                    return Object.values(annotation).join(',');
                 }).join('\n')
-            });
+            };
         });
     }
 }
