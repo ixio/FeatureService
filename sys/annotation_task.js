@@ -40,6 +40,7 @@ class AnnotationTask {
             .joinRelation('dataset_file')
             .join('audio_metadata', 'dataset_file.audio_metadata_id', 'audio_metadata.id')
             .join('datasets', 'dataset_file.dataset_id', 'datasets.id')
+            .orderBy('annotation_tasks.id')
             .select(
                 'annotation_tasks.id',
                 'annotation_tasks.status',
@@ -164,7 +165,8 @@ class AnnotationTask {
                         .where('annotator_id', currentUser.id)
                         .where('annotation_campaign_id', annotationTask.campaign_id)
                         .where('status', '!=', 2)
-                        .findOne('id', '>', annotationTask.id)
+                        .orderBy('id')
+                        .findOne('id', '!=', annotationTask.id)
                         .then(nextAnnotationTask => {
                             if (!nextAnnotationTask) {
                                 return fsUtil.normalizeResponse({
