@@ -202,6 +202,111 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
+  /local/{filename}/update_results:
+    post:
+      tags:
+        - ODE FeatureService annotation task audio annotator post local
+      summary: Updates result for a local annotation task, will return local campaign ID
+      description: |
+        Updates result for a local annotation task with AudioAnnotator format, will return local campaign ID
+        Annotation task will be created for these results
+      produces:
+        - application/json
+      parameters:
+        - name: filename
+          in: path
+          description: Local annotated file name
+          type: string
+          required: true
+        - name: task_start_time
+          in: formData
+          description: Start time of annotation session
+          type: integer
+          required: true
+        - name: task_end_time
+          in: formData
+          description: End time of annotation sessions
+          type: integer
+          required: true
+        - name: visualization
+          in: formData
+          description: Task visualization type
+          type: string
+          required: false
+        - name: annotations
+          in: formData
+          description: Result annotations
+          schema:
+            $ref: '#/definitions/annotations'
+          required: true
+        - name: deleted_annotations
+          in: formData
+          description: Deleted annotations
+          schema:
+            $ref: '#/definitions/annotations'
+          required: false
+        - name: annotation_events
+          in: formData
+          description: List of the different types of actions they took to create the annotations
+          schema:
+            $ref: '#/definitions/annotation-events'
+          required: false
+        - name: play_events
+          in: formData
+          description: List of actions the user took to play and pause the audio
+          schema:
+            $ref: '#/definitions/play-events'
+          required: false
+        - name: final_solution_shown
+          in: formData
+          description: Boolean, if at the end, the user was shown what city the clip was recorded in
+          type: boolean
+          required: false
+      responses:
+        '200':
+          description: Local campaign ID
+          schema:
+            $ref: '#/definitions/audio-annotator-next'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: 'get'
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - create_task:
+            request:
+              method: post
+              uri: /{domain}/sys/annotation-task/local
+              headers:
+                content-type: multipart/form-data
+              body:
+                filename: '{{filename}}'
+                annotations: '{{annotations}}'
+              current_user: '{{verify_token.body.token.aud}}'
+        - post_results:
+            request:
+              method: post
+              uri: /{domain}/sys/annotation-task/{create_task.body.task_id}/update_results
+              headers:
+                content-type: multipart/form-data
+              body:
+                task_start_time: '{{task_start_time}}'
+                task_end_time: '{{task_end_time}}'
+                visualization: '{{visualization}}'
+                annotations: '{{annotations}}'
+                deleted_annotations: '{{deleted_annotations}}'
+                annotation_events: '{{annotation_events}}'
+                play_events: '{{play_events}}'
+                final_solution_shown: '{{final_solution_shown}}'
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:

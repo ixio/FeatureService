@@ -189,6 +189,61 @@ class AnnotationTask {
             });
         });
     }
+
+    createLocalTask(hyper, req) {
+        let filename = decodeURI(req.body.filename);
+        let annotation_tags = new Set(req.body.annotations.map(a => { return a.annotation; }));
+        return Promise.all([
+            db.User.query().findOne('email', req.current_user),
+            db.AnnotationTag.query().select('id', 'name').then(tags => {
+                return tags.reduce((obj, tag) => {
+                        obj[tag.name] = tag.id;
+                        return obj;
+                }, {});
+            }),
+            db.AnnotationSet.query()
+            .where('annotation_sets.id', 0)
+            .joinRelation('tags')
+            .select('tags.name as name').then(tags => {
+                return tags.map(tag => { return tag.name; });
+            })
+        ]).then(([current_user, all_tags, present_tags]) => {
+            let new_tags = [];
+            annotation_tags.forEach(tag => {
+                if (!present_tags.includes(tag)) {
+                    if (Object.keys(all_tags).includes(tag)) {
+                        new_tags.push({ "#dbRef": all_tags[tag] })
+                    } else {
+                        new_tags.push({ name: tag })
+                    }
+                }
+            });
+            return Promise.all([
+                db.AnnotationSet.query()
+                .upsertGraph({
+                    id: 0,
+                    tags: new_tags
+                }, { noDelete: ['tags'] }),
+                db.AnnotationTask.query()
+                .insertGraph({
+                    annotation_campaign_id: 0,
+                    dataset_file: {
+                        dataset_id: 0,
+                        filename: filename
+                    },
+                    status: 2,
+                    annotator_id: current_user.id
+                })
+            ]).then(([tagInserts, taskInsert]) => {
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: {
+                        task_id: taskInsert.id
+                    }
+                });
+            });
+        })
+    }
 }
 
 module.exports = function(options) {
@@ -199,7 +254,8 @@ module.exports = function(options) {
         operations: {
             currentUserCampaignList: task.currentUserCampaignList.bind(task),
             audioAnnotator: task.audioAnnotator.bind(task),
-            updateResults: task.updateResults.bind(task)
+            updateResults: task.updateResults.bind(task),
+            createLocalTask: task.createLocalTask.bind(task)
         }
     };
 };

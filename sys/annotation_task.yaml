@@ -31,3 +31,7 @@ paths:
       post:
         summary: Returns the necessary input for audio annotator code
         operationId: updateResults
+    /local:
+      post:
+        summary: Returns task_id of new local task_id
+        operationId: createLocalTask

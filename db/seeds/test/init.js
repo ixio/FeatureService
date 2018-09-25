@@ -77,6 +77,11 @@ exports.seed = function(knex, Promise) {
     }).then(() => {
         return knex('datasets').insert([
             {
+                id: 0, name: 'LocalDataset', dataset_path: '',
+                status: 1, dataset_type_id: 1, files_type: '.wav', start_date: '2000-01-01',
+                end_date: '2999-12-31', owner_id: 1
+            },
+            {
                 id: 1, name: 'SPMAuralA2010', dataset_path: 'datarmor:/home/ode/spm/spmaurala2010',
                 status: 1, dataset_type_id: 1, files_type: '.wav', start_date: '2010-08-19',
                 end_date: '2010-11-02', geo_metadata_id: 1, audio_metadata_id: 1, owner_id: 5
@@ -165,6 +170,8 @@ exports.seed = function(knex, Promise) {
         return knex('annotation_sets').del();
     }).then(() => {
         return knex('annotation_sets').insert([
+            { id: 0, name: 'Local annotation set', desc: 'Annotation set made by local annotations',
+                owner_id: 1 },
             { id: 1, name: 'SPM annotation set', desc: 'Annotation set made for the SPM collection',
                 owner_id: 5 }
         ]);
@@ -208,6 +215,8 @@ exports.seed = function(knex, Promise) {
         return knex('annotation_campaigns').del();
     }).then(() => {
         return knex('annotation_campaigns').insert([
+            { id: 0, name: 'Local annotation campaign', start: '2000-01-01', end: '2999-12-31',
+                annotation_set_id: 0, owner_id: 1 },
             { id: 1, name: 'SPM whale annotation', start: '2018-06-01', end: '2018-12-30',
                 annotation_set_id: 1, owner_id: 5 }
         ]);
