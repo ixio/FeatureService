@@ -108,7 +108,7 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
-  /{id}/update_results:
+  /{id}/update-results:
     post:
       tags:
         - ODE FeatureService annotation task audio annotator post
@@ -184,10 +184,10 @@ paths:
               headers: '{{request.headers}}'
             return_if:
               status: ['4xx', '5xx']
-        - get_from_backend:
+        - post_to_backend:
             request:
               method: post
-              uri: /{domain}/sys/annotation-task/{id}/update_results
+              uri: /{domain}/sys/annotation-task/{id}/update-results
               headers:
                 content-type: multipart/form-data
               body:

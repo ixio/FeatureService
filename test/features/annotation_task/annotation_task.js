@@ -130,7 +130,7 @@ describe('annotation-task endpoints', function () {
         });
     });
 
-    var endpointPostAudioAnnotator = '/annotation-task/1/update_results';
+    var endpointPostAudioAnnotator = '/annotation-task/1/update-results';
     var postData = {
         task_start_time: 1537369230225,
         task_end_time: 1537369245631,
