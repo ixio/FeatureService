@@ -286,7 +286,7 @@ paths:
               headers:
                 content-type: multipart/form-data
               body:
-                filename: '{{filename}}'
+                filename: '{{request.params.filename}}'
                 annotations: '{{annotations}}'
               current_user: '{{verify_token.body.token.aud}}'
         - post_results:
