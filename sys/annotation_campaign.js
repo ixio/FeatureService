@@ -36,7 +36,7 @@ class AnnotationCampaign {
         let campaignID = req.params.id;
         return Promise.all([
             db.AnnotationCampaign.query().findOne('id', campaignID),
-            db.AnnotationTask.query().where('annotation_campaign_id', 10)
+            db.AnnotationTask.query().where('annotation_campaign_id', campaignID)
             .groupBy('annotator_id', 'status').count().select('annotator_id', 'status')
         ]).then(([campaign, tasks]) => {
             tasks.forEach(task => {
