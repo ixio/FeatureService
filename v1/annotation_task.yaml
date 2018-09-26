@@ -45,7 +45,7 @@ paths:
         - name: id
           in: path
           description: Annotation Campaign ID
-          type: string
+          type: integer
           required: true
       responses:
         '200':
@@ -70,6 +70,138 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
+  /{id}:
+    get:
+      tags:
+        - ODE FeatureService annotation task audio annotator
+      summary: Returns the output needed for audio annotator to work on the specified annotation task
+      description: |
+        Returns the info needed for audio annotator to work on the specified annotation task
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Task ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: audio annotator input
+          schema:
+            $ref: '#/definitions/audio-annotator-input'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: 'get'
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/annotation-task/{id}
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
+  /{id}/update-results:
+    post:
+      tags:
+        - ODE FeatureService annotation task audio annotator post
+      summary: Updates result for specified annotation task, will return next task ID
+      description: |
+        Updates result for specified annotation task with AudioAnnotator format, will return next task ID
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Task ID
+          type: integer
+          required: true
+        - name: task_start_time
+          in: formData
+          description: Start time of annotation session
+          type: integer
+          required: true
+        - name: task_end_time
+          in: formData
+          description: End time of annotation sessions
+          type: integer
+          required: true
+        - name: visualization
+          in: formData
+          description: Task visualization type
+          type: string
+          required: false
+        - name: annotations
+          in: formData
+          description: Result annotations
+          schema:
+            $ref: '#/definitions/annotations'
+          required: true
+        - name: deleted_annotations
+          in: formData
+          description: Deleted annotations
+          schema:
+            $ref: '#/definitions/annotations'
+          required: false
+        - name: annotation_events
+          in: formData
+          description: List of the different types of actions they took to create the annotations
+          schema:
+            $ref: '#/definitions/annotation-events'
+          required: false
+        - name: play_events
+          in: formData
+          description: List of actions the user took to play and pause the audio
+          schema:
+            $ref: '#/definitions/play-events'
+          required: false
+        - name: final_solution_shown
+          in: formData
+          description: Boolean, if at the end, the user was shown what city the clip was recorded in
+          type: boolean
+          required: false
+      responses:
+        '200':
+          description: next task ID or campaign ID if there are no more tasks
+          schema:
+            $ref: '#/definitions/audio-annotator-next'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: 'get'
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/annotation-task/{id}/update-results
+              headers:
+                content-type: multipart/form-data
+              body:
+                task_start_time: '{{task_start_time}}'
+                task_end_time: '{{task_end_time}}'
+                visualization: '{{visualization}}'
+                annotations: '{{annotations}}'
+                deleted_annotations: '{{deleted_annotations}}'
+                annotation_events: '{{annotation_events}}'
+                play_events: '{{play_events}}'
+                final_solution_shown: '{{final_solution_shown}}'
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:
@@ -84,6 +216,36 @@ definitions:
         type: string
       instance:
         type: string
+
+  annotations:
+    type: array
+    items:
+      properties:
+        id:
+          type: string
+        annotation:
+          type: string
+        start:
+          type: number
+        end:
+          type: number
+
+  annotation-events:
+    type: array
+    items:
+      properties:
+        event:
+          type: string
+        region_id:
+          type: string
+        time:
+          type: integer
+        region_start:
+          type: number
+        region_end:
+          type: number
+        region_label:
+          type: string
 
   annotation-task-list:
     type: array
@@ -101,3 +263,40 @@ definitions:
           type: string
         end:
           type: string
+
+  audio-annotator-input:
+    properties:
+      feedback:
+        type: string
+      visualization:
+        type: string
+      proximityTag:
+        type: array
+        items:
+          type: string
+      annotationTag:
+        type: array
+        items:
+          type: string
+      url:
+        type: string
+      alwaysShowTags:
+        type: boolean
+
+    audio-annotator-next:
+      properties:
+        next_task:
+          type: integer
+        campaign_id:
+          type: integer
+
+  play-events:
+    type: array
+    items:
+      properties:
+        audioSourceTime:
+          type: number
+        event:
+          type: string
+        time:
+          type: integer

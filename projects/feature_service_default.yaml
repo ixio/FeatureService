@@ -71,6 +71,7 @@ paths:
             /annotation-task:
               x-modules:
                 - path: sys/annotation_task.js
+                  options: '{{options.annotation-task}}'
             /authentication:
               x-modules:
                 - path: sys/authentication.js

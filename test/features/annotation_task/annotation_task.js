@@ -26,6 +26,40 @@ var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
 
+var endpointAuthenticate = '/authentication/authenticate';
+function getEndpointWithAuth(user, endpoint) {
+    return preq.post({
+        uri: server.config.fsURL + endpointAuthenticate,
+        headers: { 'content-type': 'multipart/form-data'},
+        body: { username: user, password: 'password' }
+    }).then(auth => {
+        assert.deepEqual(auth.status, 200);
+        return preq.get({
+            uri: server.config.fsURL + endpoint,
+            headers: {
+                authorization: 'Bearer ' + auth.body.token
+            }
+        });
+    });
+}
+
+function postEndpointWithAuth(user, endpoint, data) {
+    return preq.post({
+        uri: server.config.fsURL + endpointAuthenticate,
+        headers: { 'content-type': 'multipart/form-data'},
+        body: { username: user, password: 'password' }
+    }).then(auth => {
+        assert.deepEqual(auth.status, 200);
+        return preq.post({
+            uri: server.config.fsURL + endpoint,
+            headers: {
+                'content-type': 'application/json',
+                authorization: 'Bearer ' + auth.body.token
+            },
+            body: data
+        });
+    });
+}
 
 describe('annotation-task endpoints', function () {
     this.timeout(20000);
@@ -36,72 +70,143 @@ describe('annotation-task endpoints', function () {
         await db.init();
     });
 
-    var endpointAuthenticate = '/authentication/authenticate';
     var endpointList = '/annotation-task/campaign/1/my-list';
 
     it('should return 200 with a list of annotation tasks', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'ek@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList,
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                assert.deepEqual(res.status, 200);
-                assert.deepEqual(res.body.length, 1);
-                let annotation_task = res.body[0];
-                assert.deepStrictEqual(annotation_task.id, 1);
-                assert.deepStrictEqual(annotation_task.status, 1);
-                assert.deepStrictEqual(annotation_task.filename, 'A32C0000.WAV');
-                assert.deepStrictEqual(annotation_task.dataset_name, 'SPMAuralA2010');
-                assert.deepStrictEqual(annotation_task.start, '2010-08-19T17:00:00.000Z');
-                assert.deepStrictEqual(annotation_task.end, '2010-08-19T17:45:00.000Z');
-            });
+        return getEndpointWithAuth('ek@test.ode', endpointList).then(res => {
+            assert.deepEqual(res.status, 200);
+            assert.deepEqual(res.body.length, 1);
+            let annotation_task = res.body[0];
+            assert.deepStrictEqual(annotation_task.id, 1);
+            assert.deepStrictEqual(annotation_task.status, 1);
+            assert.deepStrictEqual(annotation_task.filename, 'A32C0000.WAV');
+            assert.deepStrictEqual(annotation_task.dataset_name, 'SPMAuralA2010');
+            assert.deepStrictEqual(annotation_task.start, '2010-08-19T17:00:00.000Z');
+            assert.deepStrictEqual(annotation_task.end, '2010-08-19T17:45:00.000Z');
         });
     });
 
     it('should return 404 for user without annotation tasks', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'dc@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList,
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                throw 'Should not succeed'
-            }).catch(res => {
-                assert.deepEqual(res.status, 404);
-            });
+        return getEndpointWithAuth('dc@test.ode', endpointList).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
         });
     });
 
     it('should return 404 for unknown campaign', function () {
-        return preq.post({
-            uri: server.config.fsURL + endpointAuthenticate,
-            headers: { 'content-type': 'multipart/form-data'},
-            body: { username: 'ek@test.ode', password: 'password' }
-        }).then(auth => {
-            assert.deepEqual(auth.status, 200);
-            return preq.get({
-                uri: server.config.fsURL + endpointList.replace(1, 2),
-                headers: {
-                  authorization: 'Bearer ' + auth.body.token
-                }
-            }).then(res => {
-                throw 'Should not succeed'
-            }).catch(res => {
-                assert.deepEqual(res.status, 404);
+        return getEndpointWithAuth('ek@test.ode', endpointList.replace(1, 2)).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    var endpointAudioAnnotator = '/annotation-task/1';
+
+    it('should return 200 with audio annontator input', function () {
+        return getEndpointWithAuth('ek@test.ode', endpointAudioAnnotator).then(res => {
+            assert.deepEqual(res.status, 200);
+            assert.deepEqual(Object.keys(res.body.task).length, 6);
+            let annotation_task = res.body.task;
+            assert.deepStrictEqual(annotation_task.annotationTag.length, 13);
+            assert.deepStrictEqual(annotation_task.url, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
+        });
+    });
+
+    it('should return 404 for wrong user', function () {
+        return getEndpointWithAuth('dc@test.ode', endpointAudioAnnotator).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    it('should return 404 for unknown task', function () {
+        return getEndpointWithAuth('ek@test.ode', endpointAudioAnnotator.replace(1, 8)).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    var endpointPostAudioAnnotator = '/annotation-task/1/update-results';
+    var postData = {
+        task_start_time: 1537369230225,
+        task_end_time: 1537369245631,
+        visualization: "spectrogram",
+        annotations: [
+            {id: "wavesurfer_tdae5d2bk6", start: 11.30747744015285, end: 18.30524529729571, annotation: "Humpback Whale"},
+            {id: "wavesurfer_nvs1n4igdug", start: 29.521763154438563, end: 39.83426315443856, annotation: "Killer Whale"}
+        ],
+        deleted_annotations: [
+            {id: "wavesurfer_tug8klmnr1c", start: 45.358816725867136, end: 48.13783458301, annotation: "Sperm Whale"}
+        ],
+        annotation_events: [
+            {event: "start-to-create", time: 1537369231193, region_id: "wavesurfer_tdae5d2bk6"},
+            {event: "offline-create", time: 1537369231343, region_id: "wavesurfer_tdae5d2bk6", region_start: 11.30747744015285, region_end: 18.30524529729571},
+            {event: "add-annotation-label", time: 1537369232286, region_id: "wavesurfer_tdae5d2bk6", region_label: "Humpback Whale"},
+            {event: "start-to-create", time: 1537369232743, region_id: "wavesurfer_nvs1n4igdug"},
+            {event: "offline-create", time: 1537369232867, region_id: "wavesurfer_nvs1n4igdug", region_start: 29.521763154438563, region_end: 39.83426315443856},
+            {event: "add-annotation-label", time: 1537369233775, region_id: "wavesurfer_nvs1n4igdug", region_label: "Killer Whale"},
+            {event: "start-to-create", time: 1537369237726, region_id: "wavesurfer_tug8klmnr1c"},
+            {event: "offline-create", time: 1537369238059, region_id: "wavesurfer_tug8klmnr1c", region_start: 45.358816725867136, region_end: 48.13783458301},
+            {event: "add-annotation-label", time: 1537369240998, region_id: "wavesurfer_tug8klmnr1c", region_label: "Sperm Whale"},
+            {event: "delete", time: 1537369244237, region_id: "wavesurfer_tug8klmnr1c"}
+        ],
+        play_events: [
+            {event: "click-play", time: 1537369235088, audioSourceTime: 0},
+            {event: "click-pause", time: 1537369236846, audioSourceTime: 1.7647165532879825}
+        ],
+        final_solution_shown: false
+    };
+
+    it('should return 200 with correct result for good request', function () {
+        return Promise.all([
+            db.AnnotationResult.query().where('annotation_task_id', 1).select('id'),
+            db.AnnotationSession.query().where('annotation_task_id', 1).count().first()
+        ]).then(([old_results, old_sessions]) => {
+            assert.deepEqual(old_results.map(r => {return r.id;}), [1, 2]);
+            assert.deepEqual(old_sessions.count, 1);
+            return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator, postData).then(res => {
+                assert.deepEqual(res.status, 200);
+                assert.deepEqual(res.body, { next_task: null, campaign_id: 1 });
+                // Testing old results were overwritten and a session was added
+                return Promise.all([
+                    db.AnnotationResult.query().joinRelation('tag').where('annotation_task_id', 1).select('annotation_results.id', 'name'),
+                    db.AnnotationSession.query().where('annotation_task_id', 1).count().first()
+                ]).then(([new_results, new_sessions]) => {
+                    assert.deepEqual(new_results.map(r => {return r.id;}), [10, 11]);
+                    assert.deepEqual(new_results.map(r => {return r.name;}), ["Humpback Whale", "Killer Whale"]);
+                    assert.deepEqual(new_sessions.count, 2);
+                });
             });
+        });
+    });
+
+    it('should return 400 for request missing annotations', function () {
+        let badPostData = Object.assign({}, postData);
+        delete badPostData.annotations;
+        return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator, badPostData).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 400);
+        });
+    });
+
+    it('should return 404 for wrong user', function () {
+        return postEndpointWithAuth('dc@test.ode', endpointPostAudioAnnotator, postData).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    it('should return 404 for unknown task', function () {
+        return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator.replace(1, 8), postData).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
         });
     });
 
