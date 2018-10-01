@@ -36,6 +36,40 @@ describe('annotation-campaign endpoints', function () {
         await db.init();
     });
 
+    var endpointDetail = '/annotation-campaign/1';
+
+    it('should return 200 with the details of the campaign', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointDetail
+        }).then(res => {
+            assert.deepEqual(res.status, 200);
+            assert.deepEqual(Object.keys(res.body), ['campaign', 'tasks']);
+            let campaign = res.body.campaign;
+            assert.deepStrictEqual(campaign.id, 1);
+            assert.deepStrictEqual(campaign.name, 'SPM whale annotation');
+            assert.deepStrictEqual(campaign.desc, null);
+            assert.deepStrictEqual(new Date(campaign.start), new Date('2018-06-01'));
+            assert.deepStrictEqual(new Date(campaign.end), new Date('2018-12-30'));
+            assert.deepStrictEqual(campaign.annotation_set_id, 1);
+            assert.deepStrictEqual(campaign.owner_id, 5);
+            let tasks = res.body.tasks;
+            assert.deepEqual(tasks.length, 1);
+            assert.deepEqual(tasks[0].count, 1);
+            assert.deepEqual(tasks[0].annotator_id, 3);
+            assert.deepEqual(tasks[0].status, 1);
+        });
+    });
+
+    it('should return 404 for the wrong campaign', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointDetail.replace(1,5)
+        }).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
     var endpointList = '/annotation-campaign/list';
 
     it('should return 200 with the list of campaigns', function () {

@@ -42,13 +42,22 @@ class AnnotationCampaign {
             tasks.forEach(task => {
                 task.count = parseInt(task.count, 10);
             });
-            return fsUtil.normalizeResponse({
-                status: 200,
-                body: {
-                    campaign: campaign,
-                    tasks: tasks
-                }
-            });
+            if (campaign) {
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: {
+                        campaign: campaign,
+                        tasks: tasks
+                    }
+                });
+            } else {
+                return fsUtil.normalizeResponse({
+                    status: 404,
+                    body: {
+                        detail: 'Annotation campaign not found'
+                    }
+                });
+            }
         });
     }
 
