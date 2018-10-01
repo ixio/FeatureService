@@ -31,3 +31,7 @@ paths:
       post:
         summary: Creates and returns a new annotation campaign
         operationId: new
+    /report/{id}:
+      get:
+        summary: Returns the CSV report of a specific annotation campaign
+        operationId: report

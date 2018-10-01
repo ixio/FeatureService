@@ -143,6 +143,37 @@ describe('annotation-campaign endpoints', function () {
         });
     });
 
+    var endpointReport = '/annotation-campaign/report/1';
+
+    it('should return 200 with the CSV report of the campaign', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointReport
+        }).then(res => {
+            assert.deepEqual(res.status, 200);
+            let lines = res.body.split('\n');
+            assert.deepEqual(lines.length, 3);
+            let first_line = lines[1].split(',');
+            assert.deepEqual(first_line, [
+                'SPMAuralA2010',
+                'A32C0000.WAV',
+                '1.72157641613321',
+                '2.13639189984882',
+                'Humpback Whale',
+                'ek@test.ode'
+            ]);
+        });
+    });
+
+    it('should return 404 for the wrong campaign', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointReport.replace(1,5)
+        }).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
     after(function() {
         db.close();
         server.stop();
