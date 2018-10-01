@@ -162,18 +162,27 @@ class AnnotationCampaign {
                 'annotator.email as annotator'
             )
         ]).then(([campaign, annotations]) => {
-            let filename = '"' + campaign.name.replace(' ', '_') + '.csv"';
-            let csvHeader = 'dataset,filename,start,end,annotation,annotator\n';
-            return {
-                status: 200,
-                headers: {
-                    'content-type': 'text/csv; charset=utf-8',
-                    'content-disposition': 'attachment; filename=' + filename
-                },
-                body: csvHeader + annotations.map(annotation => {
-                    return Object.values(annotation).join(',');
-                }).join('\n')
-            };
+            if (campaign) {
+                let filename = '"' + campaign.name.replace(' ', '_') + '.csv"';
+                let csvHeader = 'dataset,filename,start,end,annotation,annotator\n';
+                return {
+                    status: 200,
+                    headers: {
+                        'content-type': 'text/csv; charset=utf-8',
+                        'content-disposition': 'attachment; filename=' + filename
+                    },
+                    body: csvHeader + annotations.map(annotation => {
+                        return Object.values(annotation).join(',');
+                    }).join('\n')
+                };
+            } else {
+                return fsUtil.normalizeResponse({
+                    status: 404,
+                    body: {
+                        detail: 'Annotation campaign not found'
+                    }
+                });
+            }
         });
     }
 }
