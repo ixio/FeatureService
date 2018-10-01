@@ -33,6 +33,36 @@ info:
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 paths:
 
+  /{id}:
+    get:
+      tags:
+        - ODE FeatureService annotation campaign detail
+      summary: Returns details of a specific annotation campaign
+      description: |
+        Returns details of a specific annotation campaign
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Campaign ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: details of a specific annotation campaign
+          schema:
+            $ref: '#/definitions/annotation-campaign-detail'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/annotation-campaign/{id}
+      x-monitor: false
+
   /list:
     get:
       tags:
@@ -202,6 +232,32 @@ definitions:
             annotator_id:
               type: integer
             annotation_campaign_id:
+              type: integer
+
+  annotation-campaign-detail:
+    properties:
+      campaign:
+        properties:
+          id:
+            type: integer
+          name:
+            type: string
+          start:
+            type: string
+          end:
+            type: string
+          owner_id:
+            type: integer
+        type: integer
+      tasks:
+        type: array
+        items:
+          properties:
+            count:
+              type: integer
+            annotator_id:
+              type: integer
+            status:
               type: integer
 
   annotation-campaign-list:
