@@ -25,41 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
-
-var endpointAuthenticate = '/authentication/authenticate';
-function getEndpointWithAuth(user, endpoint) {
-    return preq.post({
-        uri: server.config.fsURL + endpointAuthenticate,
-        headers: { 'content-type': 'multipart/form-data'},
-        body: { username: user, password: 'password' }
-    }).then(auth => {
-        assert.deepEqual(auth.status, 200);
-        return preq.get({
-            uri: server.config.fsURL + endpoint,
-            headers: {
-                authorization: 'Bearer ' + auth.body.token
-            }
-        });
-    });
-}
-
-function postEndpointWithAuth(user, endpoint, data) {
-    return preq.post({
-        uri: server.config.fsURL + endpointAuthenticate,
-        headers: { 'content-type': 'multipart/form-data'},
-        body: { username: user, password: 'password' }
-    }).then(auth => {
-        assert.deepEqual(auth.status, 200);
-        return preq.post({
-            uri: server.config.fsURL + endpoint,
-            headers: {
-                'content-type': 'application/json',
-                authorization: 'Bearer ' + auth.body.token
-            },
-            body: data
-        });
-    });
-}
+var auth   = require('../../utils/auth.js');
 
 describe('annotation-task endpoints', function () {
     this.timeout(20000);
@@ -70,10 +36,16 @@ describe('annotation-task endpoints', function () {
         await db.init();
     });
 
+    var dcToken = auth.get_token('dc@test.ode');
+    var ekToken = auth.get_token('ek@test.ode');
+
     var endpointList = '/annotation-task/campaign/1/my-list';
 
     it('should return 200 with a list of annotation tasks', function () {
-        return getEndpointWithAuth('ek@test.ode', endpointList).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointList,
+            headers: { authorization: 'Bearer ' + ekToken }
+        }).then(res => {
             assert.deepEqual(res.status, 200);
             assert.deepEqual(res.body.length, 1);
             let annotation_task = res.body[0];
@@ -87,7 +59,10 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for user without annotation tasks', function () {
-        return getEndpointWithAuth('dc@test.ode', endpointList).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointList,
+            headers: { authorization: 'Bearer ' + dcToken }
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
@@ -95,7 +70,10 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for unknown campaign', function () {
-        return getEndpointWithAuth('ek@test.ode', endpointList.replace(1, 2)).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointList.replace(1, 2),
+            headers: { authorization: 'Bearer ' + ekToken }
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
@@ -105,7 +83,10 @@ describe('annotation-task endpoints', function () {
     var endpointAudioAnnotator = '/annotation-task/1';
 
     it('should return 200 with audio annontator input', function () {
-        return getEndpointWithAuth('ek@test.ode', endpointAudioAnnotator).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator,
+            headers: { authorization: 'Bearer ' + ekToken }
+        }).then(res => {
             assert.deepEqual(res.status, 200);
             assert.deepEqual(Object.keys(res.body.task).length, 6);
             let annotation_task = res.body.task;
@@ -115,7 +96,10 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for wrong user', function () {
-        return getEndpointWithAuth('dc@test.ode', endpointAudioAnnotator).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator,
+            headers: { authorization: 'Bearer ' + dcToken }
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
@@ -123,7 +107,10 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for unknown task', function () {
-        return getEndpointWithAuth('ek@test.ode', endpointAudioAnnotator.replace(1, 8)).then(res => {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator.replace(1, 8),
+            headers: { authorization: 'Bearer ' + ekToken }
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
@@ -168,7 +155,14 @@ describe('annotation-task endpoints', function () {
         ]).then(([old_results, old_sessions]) => {
             assert.deepEqual(old_results.map(r => {return r.id;}), [1, 2]);
             assert.deepEqual(old_sessions.count, 1);
-            return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator, postData).then(res => {
+            return preq.post({
+                uri: server.config.fsURL + endpointPostAudioAnnotator,
+                headers: {
+                    'content-type': 'application/json',
+                    authorization: 'Bearer ' + ekToken
+                },
+                body: postData
+            }).then(res => {
                 assert.deepEqual(res.status, 200);
                 assert.deepEqual(res.body, { next_task: null, campaign_id: 1 });
                 // Testing old results were overwritten and a session was added
@@ -187,7 +181,14 @@ describe('annotation-task endpoints', function () {
     it('should return 400 for request missing annotations', function () {
         let badPostData = Object.assign({}, postData);
         delete badPostData.annotations;
-        return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator, badPostData).then(res => {
+        return preq.post({
+            uri: server.config.fsURL + endpointPostAudioAnnotator,
+            headers: {
+                'content-type': 'application/json',
+                authorization: 'Bearer ' + ekToken
+            },
+            body: badPostData
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 400);
@@ -195,7 +196,14 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for wrong user', function () {
-        return postEndpointWithAuth('dc@test.ode', endpointPostAudioAnnotator, postData).then(res => {
+        return preq.post({
+            uri: server.config.fsURL + endpointPostAudioAnnotator,
+            headers: {
+                'content-type': 'application/json',
+                authorization: 'Bearer ' + dcToken
+            },
+            body: postData
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
@@ -203,7 +211,14 @@ describe('annotation-task endpoints', function () {
     });
 
     it('should return 404 for unknown task', function () {
-        return postEndpointWithAuth('ek@test.ode', endpointPostAudioAnnotator.replace(1, 8), postData).then(res => {
+        return preq.post({
+            uri: server.config.fsURL + endpointPostAudioAnnotator.replace(1, 8),
+            headers: {
+                'content-type': 'application/json',
+                authorization: 'Bearer ' + ekToken
+            },
+            body: postData
+        }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
             assert.deepEqual(res.status, 404);
