@@ -25,6 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
+var mockAuth   = require('../../utils/mockAuth.js');
 
 
 describe('annotation-set endpoints', function () {
@@ -36,11 +37,14 @@ describe('annotation-set endpoints', function () {
         await db.init();
     });
 
+    var mockToken = mockAuth.get_token('admin@test.ode');
+
     var endpointList = '/annotation-set/list';
 
     it('should return 200 with the list of sets', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointList
+            uri: server.config.fsURL + endpointList,
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             // checking we have the right number of sets
