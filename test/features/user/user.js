@@ -25,7 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
-var auth   = require('../../utils/auth.js');
+var auth   = require('../../utils/mockAuth.js');
 
 
 describe('user endpoints', function () {

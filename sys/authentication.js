@@ -44,6 +44,7 @@ class Authentication {
         var auth = this.authService.authorize(requestParams.username, requestParams.password);
         return auth.then(authorized => {
             if (authorized) {
+                // If changes are made check if test/utils/mochAuth.js needs them too
                 var token = jwt.sign(
                   { aud: requestParams.username },
                   this.secret,
