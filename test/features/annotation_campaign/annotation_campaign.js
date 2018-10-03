@@ -25,7 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
-var auth   = require('../../utils/mockAuth.js');
+var mockAuth   = require('../../utils/mockAuth.js');
 
 
 describe('annotation-campaign endpoints', function () {
@@ -37,14 +37,14 @@ describe('annotation-campaign endpoints', function () {
         await db.init();
     });
 
-    var token = auth.get_token('admin@test.ode');
+    var mockToken = mockAuth.get_token('admin@test.ode');
 
     var endpointDetail = '/annotation-campaign/1';
 
     it('should return 200 with the details of the campaign', function () {
         return preq.get({
             uri: server.config.fsURL + endpointDetail,
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
             assert.deepEqual(Object.keys(res.body), ['campaign', 'tasks']);
@@ -67,7 +67,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 404 for the wrong campaign', function () {
         return preq.get({
             uri: server.config.fsURL + endpointDetail.replace(1,5),
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
@@ -80,7 +80,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 200 with the list of campaigns', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList,
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
             // checking we have the right number of campaigns
@@ -119,7 +119,7 @@ describe('annotation-campaign endpoints', function () {
                 uri: server.config.fsURL + endpointCreate,
                 headers: {
                     'content-type': 'application/json',
-                    authorization: 'Bearer ' + token
+                    authorization: 'Bearer ' + mockToken
                 },
                 body: annotation_campaign
             }).then(res => {
@@ -146,7 +146,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 200 with the CSV report of the campaign', function () {
         return preq.get({
             uri: server.config.fsURL + endpointReport,
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
             let lines = res.body.split('\n');
@@ -166,7 +166,7 @@ describe('annotation-campaign endpoints', function () {
     it('should return 404 for the wrong campaign', function () {
         return preq.get({
             uri: server.config.fsURL + endpointReport.replace(1,5),
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {

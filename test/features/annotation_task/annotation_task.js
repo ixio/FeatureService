@@ -25,7 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
-var auth   = require('../../utils/mockAuth.js');
+var mockAuth   = require('../../utils/mockAuth.js');
 
 describe('annotation-task endpoints', function () {
     this.timeout(20000);
@@ -36,15 +36,15 @@ describe('annotation-task endpoints', function () {
         await db.init();
     });
 
-    var dcToken = auth.get_token('dc@test.ode');
-    var ekToken = auth.get_token('ek@test.ode');
+    var dcMockToken = mockAuth.get_token('dc@test.ode');
+    var ekMockToken = mockAuth.get_token('ek@test.ode');
 
     var endpointList = '/annotation-task/campaign/1/my-list';
 
     it('should return 200 with a list of annotation tasks', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList,
-            headers: { authorization: 'Bearer ' + ekToken }
+            headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
             assert.deepEqual(res.body.length, 1);
@@ -61,7 +61,7 @@ describe('annotation-task endpoints', function () {
     it('should return 404 for user without annotation tasks', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList,
-            headers: { authorization: 'Bearer ' + dcToken }
+            headers: { authorization: 'Bearer ' + dcMockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
@@ -72,7 +72,7 @@ describe('annotation-task endpoints', function () {
     it('should return 404 for unknown campaign', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList.replace(1, 2),
-            headers: { authorization: 'Bearer ' + ekToken }
+            headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
@@ -85,7 +85,7 @@ describe('annotation-task endpoints', function () {
     it('should return 200 with audio annontator input', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAudioAnnotator,
-            headers: { authorization: 'Bearer ' + ekToken }
+            headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
             assert.deepEqual(Object.keys(res.body.task).length, 6);
@@ -98,7 +98,7 @@ describe('annotation-task endpoints', function () {
     it('should return 404 for wrong user', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAudioAnnotator,
-            headers: { authorization: 'Bearer ' + dcToken }
+            headers: { authorization: 'Bearer ' + dcMockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
@@ -109,7 +109,7 @@ describe('annotation-task endpoints', function () {
     it('should return 404 for unknown task', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAudioAnnotator.replace(1, 8),
-            headers: { authorization: 'Bearer ' + ekToken }
+            headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
         }).catch(res => {
@@ -159,7 +159,7 @@ describe('annotation-task endpoints', function () {
                 uri: server.config.fsURL + endpointPostAudioAnnotator,
                 headers: {
                     'content-type': 'application/json',
-                    authorization: 'Bearer ' + ekToken
+                    authorization: 'Bearer ' + ekMockToken
                 },
                 body: postData
             }).then(res => {
@@ -185,7 +185,7 @@ describe('annotation-task endpoints', function () {
             uri: server.config.fsURL + endpointPostAudioAnnotator,
             headers: {
                 'content-type': 'application/json',
-                authorization: 'Bearer ' + ekToken
+                authorization: 'Bearer ' + ekMockToken
             },
             body: badPostData
         }).then(res => {
@@ -200,7 +200,7 @@ describe('annotation-task endpoints', function () {
             uri: server.config.fsURL + endpointPostAudioAnnotator,
             headers: {
                 'content-type': 'application/json',
-                authorization: 'Bearer ' + dcToken
+                authorization: 'Bearer ' + dcMockToken
             },
             body: postData
         }).then(res => {
@@ -215,7 +215,7 @@ describe('annotation-task endpoints', function () {
             uri: server.config.fsURL + endpointPostAudioAnnotator.replace(1, 8),
             headers: {
                 'content-type': 'application/json',
-                authorization: 'Bearer ' + ekToken
+                authorization: 'Bearer ' + ekMockToken
             },
             body: postData
         }).then(res => {

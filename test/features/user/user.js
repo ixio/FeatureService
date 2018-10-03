@@ -25,7 +25,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
-var auth   = require('../../utils/mockAuth.js');
+var mockAuth   = require('../../utils/mockAuth.js');
 
 
 describe('user endpoints', function () {
@@ -37,14 +37,14 @@ describe('user endpoints', function () {
         await db.init();
     });
 
-    var token = auth.get_token('admin@test.ode');
+    var mockToken = mockAuth.get_token('admin@test.ode');
 
     var endpointList = '/user/list';
 
     it('should return 200 with the list of users', function () {
         return preq.get({
             uri: server.config.fsURL + endpointList,
-            headers: { authorization: 'Bearer ' + token }
+            headers: { authorization: 'Bearer ' + mockToken }
         }).then(function(res) {
             assert.deepEqual(res.status, 200);
             // checking we have the right number of users

@@ -1,14 +1,17 @@
 /*
- * ODE-FeatureService test auth utility functions
+ * ODE-FeatureService test mockAuth utility functions
  */
 'use strict';
 const jwt = require('jsonwebtoken');
 var server = require('./server.js');
 
-// We need the auth secret from the config file, server.js already parses it for us
-var config = server.config.conf.default_project['x-modules'][1].options.authentication;
+// We want to mock a token that will work with the actual server.
+// So we need the auth secret defined in the config file, and server.js parses it for us.
+var config = server.config.conf.default_project['x-modules'].find(project => {
+    return project.path === 'projects/feature_service_default.yaml';
+}).options.authentication;
 
-// This function is meant to return a token like the v1/authentication/authenticate endpoint
+// This function returns a valid token, as would v1/authentication/authenticate endpoint do.
 function get_token(user) {
     return jwt.sign({ aud: user }, config.secret);
 }
