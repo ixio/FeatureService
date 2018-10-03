@@ -50,6 +50,9 @@ paths:
             /search:
               x-modules:
                 - path: v1/search.yaml
+            /spectro:
+              x-modules:
+                - path: v1/spectro.yaml
             /test/sound:
               x-modules:
                 - path: v1/sound.yaml
@@ -87,6 +90,9 @@ paths:
                 - path: sys/search.js
                   options:
                     elasticSearch: '{{options.elasticSearch}}'
+            /spectro:
+              x-modules:
+                - path: sys/spectro.js
             /test/sound:
               x-modules:
                 - path: sys/sound.js
