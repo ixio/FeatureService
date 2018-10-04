@@ -72,8 +72,12 @@ class AnnotationTask {
             .where('annotator_id', currentUser.id)
             .findOne('annotation_tasks.id', taskID)
             .joinRelation('[dataset_file, annotation_campaign]')
-            .select('annotation_tasks.id', 'filename', 'annotation_set_id')
-            .then(annotationTask => {
+            .select(
+                'annotation_tasks.id',
+                'filename',
+                'annotation_set_id',
+                'dataset_file.id as file_id'
+            ).then(annotationTask => {
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
                         status: 404,
@@ -83,6 +87,7 @@ class AnnotationTask {
                     });
                 }
                 let url = this.options.play_url.replace('$filename', annotationTask.filename);
+                let spectroUrl = this.options.spectro_url + annotationTask.file_id;
                 return db.AnnotationSet.query()
                 .findOne('id', annotationTask.annotation_set_id)
                 .then(annotationSet => {
@@ -96,6 +101,7 @@ class AnnotationTask {
                                     proximityTag: [],
                                     annotationTag: tags.map(tag => { return tag.name; }),
                                     url: url,
+                                    spectroUrl: spectroUrl,
                                     alwaysShowTags: true
                                 }
                             }

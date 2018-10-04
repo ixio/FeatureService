@@ -35,6 +35,7 @@ feature_service_project: &feature_service_project
           token_lifetime: 1h
         annotation-task:
           play_url: "http://localhost:7231/data.ode.org/v1/test/sound/$filename/play"
+          spectro_url: "http://localhost:7231/data.ode.org/v1/spectro/"
 
 # Swagger spec root.
 spec: &spec_root
