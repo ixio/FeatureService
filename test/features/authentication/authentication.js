@@ -9,6 +9,7 @@ var assert = require('../../utils/assert.js');
 var preq   = require('preq');
 var server = require('../../utils/server.js');
 var db     = require('../../../db');
+var mockAuth   = require('../../utils/mockAuth.js');
 
 
 describe('authentication-related endpoints', function () {
@@ -39,7 +40,7 @@ describe('authentication-related endpoints', function () {
             headers: { 'content-type': 'multipart/form-data'},
             body: { username: 'aadmin@test.ode', password: 'password' }
         }).then(function() {
-          throw 'Should not succeed'
+            throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
@@ -51,7 +52,7 @@ describe('authentication-related endpoints', function () {
             headers: { 'content-type': 'multipart/form-data'},
             body: { username: 'admin@test.ode', password: 'apassword' }
         }).then(function() {
-          throw 'Should not succeed'
+            throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
@@ -63,7 +64,7 @@ describe('authentication-related endpoints', function () {
         return preq.get({
             uri: server.config.fsURL + endpointToken
         }).then(function() {
-          throw 'Should not succeed'
+            throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
@@ -76,7 +77,7 @@ describe('authentication-related endpoints', function () {
               authorization: 'Bearer WrongBearer'
             }
         }).then(function() {
-          throw 'Should not succeed'
+            throw 'Should not succeed'
         }).catch(function(res) {
             assert.deepEqual(res.status, 401);
         });
@@ -95,7 +96,32 @@ describe('authentication-related endpoints', function () {
                   authorization: 'Bearer ' + res.body.token
                 }
             }).then(function(res) {
-              assert.deepEqual(res.status, 200);
+                assert.deepEqual(res.status, 200);
+            });
+        });
+    });
+
+    it('should succeed then later fail if user is disabled', function () {
+        let login = 'admin@test.ode';
+        let mockToken = mockAuth.get_token(login);
+        return preq.get({
+            uri: server.config.fsURL + endpointToken,
+            headers: {
+              authorization: 'Bearer ' + mockToken
+            }
+        }).then(function(res) {
+            assert.deepEqual(res.status, 200);
+            return db.User.query().patch({ enabled: false }).where('email', login).then(() => {
+                return preq.get({
+                    uri: server.config.fsURL + endpointToken,
+                    headers: {
+                      authorization: 'Bearer ' + mockToken
+                    }
+                }).then(() => {
+                    throw 'Should not succeed'
+                }).catch(res => {
+                    assert.deepEqual(res.status, 401);
+                });
             });
         });
     });
