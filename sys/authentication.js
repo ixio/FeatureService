@@ -76,12 +76,17 @@ class Authentication {
         } catch (err) {
             return fsUtil.authErrorResponse(err);
         }
-        return fsUtil.normalizeResponse({
+        return this.authService.validUser(res.aud).then(user => {
+            if (!user) {
+                return fsUtil.authErrorResponse("Invalid user");
+            }
+            return fsUtil.normalizeResponse({
                 status: 200,
                 body: {
                     token: res
                 }
             });
+        });
     }
 }
 
