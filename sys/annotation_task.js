@@ -26,6 +26,15 @@ const db = require('../db');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'annotation_task.yaml'));
 
+const instructions = [
+    "Annotation de cris de baleines bleues",
+    "1. Pour annoter un cri, créer une boite autour de ce cri en maintenant la souris, puis relâcher la souris quand la boite enveloppe bien le cri (temporellement).",
+    "2. Une fois la boite créée, cliquer sur le label du cri (ici 1 seul label disponible à chaque fois).",
+    "3. Quand tous les cris d’intérêt sont annotés, cliquer sur ‘submit & load next recording’.",
+    "4. Recommencer.",
+    "Remarques : pour écouter un son, tracer une boite autour de lui, puis cliquer sur la flèche ‘play’ en haut de la boite. Pour supprimer une annotation, cliquer sur la croix qui apparait en haut de la boite."
+]
+
 class AnnotationTask {
     constructor(options) {
         this.options = options;
@@ -102,7 +111,8 @@ class AnnotationTask {
                                     annotationTag: tags.map(tag => { return tag.name; }),
                                     url: url,
                                     spectroUrl: spectroUrl,
-                                    alwaysShowTags: true
+                                    alwaysShowTags: true,
+                                    instructions: instructions
                                 }
                             }
                         });
