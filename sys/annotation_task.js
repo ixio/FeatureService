@@ -35,6 +35,12 @@ const instructions = [
     "Remarques : pour écouter un son, tracer une boite autour de lui, puis cliquer sur la flèche ‘play’ en haut de la boite. Pour supprimer une annotation, cliquer sur la croix qui apparait en haut de la boite."
 ]
 
+const instructionImages = {
+    'Campagne D-calls': 'https://drive.google.com/file/d/1_SiGUoHNzSa007aZXMEWmLDQqXZ6XVg0/preview',
+    'Campagne MAD-calls': 'https://drive.google.com/file/d/1Raf3gRLnat0DUBpSyBNIRL1F-KxAFZN5/preview',
+    'Campagne AUS-calls': 'https://drive.google.com/file/d/1R_tQkbbTxwwChHu6e78dfcBjIinuGjJB/preview'
+}
+
 class AnnotationTask {
     constructor(options) {
         this.options = options;
@@ -85,7 +91,8 @@ class AnnotationTask {
                 'annotation_tasks.id',
                 'filename',
                 'annotation_set_id',
-                'dataset_file.id as file_id'
+                'dataset_file.id as file_id',
+                'annotation_campaign.name as campaign_name'
             ).then(annotationTask => {
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
@@ -97,23 +104,28 @@ class AnnotationTask {
                 }
                 let url = this.options.play_url.replace('$filename', annotationTask.filename);
                 let spectroUrl = this.options.spectro_url + annotationTask.file_id;
+                let campaign = annotationTask.campaign_name;
                 return db.AnnotationSet.query()
                 .findOne('id', annotationTask.annotation_set_id)
                 .then(annotationSet => {
                     return annotationSet.$relatedQuery('tags').then(tags => {
+                        let task = {
+                            feedback: 'none',
+                            visualization: 'spectrogram',
+                            proximityTag: [],
+                            annotationTag: tags.map(tag => { return tag.name; }),
+                            url: url,
+                            spectroUrl: spectroUrl,
+                            alwaysShowTags: true,
+                            instructions: instructions
+                        }
+                        if (campaign in instructionImages) {
+                            task.tutorialVideoURL = instructionImages[campaign]
+                        }
                         return fsUtil.normalizeResponse({
                             status: 200,
                             body: {
-                                task: {
-                                    feedback: 'none',
-                                    visualization: 'spectrogram',
-                                    proximityTag: [],
-                                    annotationTag: tags.map(tag => { return tag.name; }),
-                                    url: url,
-                                    spectroUrl: spectroUrl,
-                                    alwaysShowTags: true,
-                                    instructions: instructions
-                                }
+                                task: task
                             }
                         });
                     });
