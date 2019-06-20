@@ -88,7 +88,8 @@ describe('annotation-task endpoints', function () {
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            assert.deepEqual(Object.keys(res.body.task).length, 6);
+            let ref_tags = ['feedback', 'visualization', 'proximityTag', 'annotationTag', 'url', 'spectroUrl', 'alwaysShowTags'];
+            assert.deepEqual(Object.keys(res.body.task), ref_tags);
             let annotation_task = res.body.task;
             assert.deepStrictEqual(annotation_task.annotationTag.length, 13);
             assert.deepStrictEqual(annotation_task.url, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
