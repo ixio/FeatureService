@@ -1,0 +1,82 @@
+# Copyright (C) 2017-2018 Project-ODE
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+# Hyperswitch configuration for ODE-FeatureService api:spectro endpoints
+# Author: Erwan Keribin
+
+
+swagger: '2.0'
+info:
+  version: '1.0.0-beta'
+  title: ODE FeatureService Spectro API
+  description: ODE FeatureService Spectro API
+  termsofservice: TBD
+  contact:
+    name: ODE-Project Team
+    email: TBD
+    url: TBD
+  license:
+    name: GNU General Public Licence, v3
+    url: https://www.gnu.org/licenses/gpl-3.0.en.html
+
+paths:
+  /{fileId}:
+    get:
+      tags:
+        - ODE FeatureService Spectro
+      summary: Get the spectrogram of corresponding ID
+      description: |
+        Get the spectrogram of corresponding ID
+      produces:
+        - image/png
+      parameters:
+        - name: fileId
+          in: path
+          description: The identifier of the file of which we want the spectro
+          type: string
+          required: true
+      responses:
+        '200':
+          description: The spectro that correspond to the given id.
+          content:
+            image/png:
+              schema:
+                type: string
+                format: binary
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/spectro/{fileId}
+      x-monitor: false
+
+definitions:
+  # A https://tools.ietf.org/html/draft-nottingham-http-problem
+  problem:
+    required:
+      - type
+    properties:
+      type:
+        type: string
+      title:
+        type: string
+      detail:
+        type: string
+      instance:
+        type: string

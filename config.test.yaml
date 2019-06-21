@@ -33,6 +33,7 @@ default_project: &default_project
           token_lifetime: 1h
         annotation-task:
           play_url: "http://localhost:7231/data.ode.org/v1/test/sound/$filename/play"
+          spectro_url: "http://localhost:7231/data.ode.org/v1/spectro/"
 
 
 spec_root: &spec_root
