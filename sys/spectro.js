@@ -38,11 +38,13 @@ class Spectro {
 
     getSpectro(hyper, req) {
         return db.DatasetFile.query().findOne('id', req.params.fileId).then(file => {
-            let filename = file.filename.replace('.WAV', '.png').replace('.wav', '.png');
-
-            var filePath = path.join(__dirname, this.pngBasePath, filename);
-
-            var resquestExists = fileSystem.existsSync(filePath);
+            let filePath = '';
+            let resquestExists = false;
+            if (file) {
+                let filename = file.filename.replace('.WAV', '.png').replace('.wav', '.png');
+                filePath = path.join(__dirname, this.pngBasePath, filename);
+                resquestExists = fileSystem.existsSync(filePath);
+            }
 
             if (!resquestExists) {
                 // return 404 if requested spectro doesn't exist
@@ -55,9 +57,9 @@ class Spectro {
                 });
             }
 
-            var stat = fileSystem.statSync(filePath);
+            let stat = fileSystem.statSync(filePath);
 
-            var response = {
+            let response = {
                 status: 200,
                 headers: {
                     'content-type': 'image/png',

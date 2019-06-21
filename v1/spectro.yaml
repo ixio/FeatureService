@@ -14,8 +14,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# Hyperswitch configuration for ODE-FeatureService api:sound endpoints
-# Author: Alexandre Degurse
+# Hyperswitch configuration for ODE-FeatureService api:spectro endpoints
+# Author: Erwan Keribin
 
 
 swagger: '2.0'
