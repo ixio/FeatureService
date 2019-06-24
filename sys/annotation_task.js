@@ -65,7 +65,7 @@ class AnnotationTask {
         });
     }
 
-    audioAnnotator(hyper, req) {
+    legacyAudioAnnotator(hyper, req) {
         let taskID = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
             return db.AnnotationTask.query()
@@ -204,7 +204,7 @@ module.exports = function(options) {
         spec: spec,
         operations: {
             currentUserCampaignList: task.currentUserCampaignList.bind(task),
-            audioAnnotator: task.audioAnnotator.bind(task),
+            legacyAudioAnnotator: task.legacyAudioAnnotator.bind(task),
             updateResults: task.updateResults.bind(task)
         }
     };

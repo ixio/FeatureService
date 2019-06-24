@@ -70,13 +70,13 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
-  /{id}:
+  /legacy/{id}:
     get:
       tags:
-        - ODE FeatureService annotation task audio annotator
-      summary: Returns the output needed for audio annotator to work on the specified annotation task
+        - ODE FeatureService annotation task legacy audio annotator
+      summary: Returns the output needed for the legacy audio annotator to work on the specified annotation task
       description: |
-        Returns the info needed for audio annotator to work on the specified annotation task
+        Returns the info needed for the legacy audio annotator to work on the specified annotation task
       produces:
         - application/json
       parameters:
@@ -87,9 +87,9 @@ paths:
           required: true
       responses:
         '200':
-          description: audio annotator input
+          description: legacy audio annotator input
           schema:
-            $ref: '#/definitions/audio-annotator-input'
+            $ref: '#/definitions/legacy-audio-annotator-input'
         default:
           description: Error
           schema:
@@ -104,7 +104,7 @@ paths:
               status: ['4xx', '5xx']
         - get_from_backend:
             request:
-              uri: /{domain}/sys/annotation-task/{id}
+              uri: /{domain}/sys/annotation-task/legacy/{id}
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
@@ -264,7 +264,7 @@ definitions:
         end:
           type: string
 
-  audio-annotator-input:
+  legacy-audio-annotator-input:
     properties:
       feedback:
         type: string
