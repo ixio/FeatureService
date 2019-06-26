@@ -80,11 +80,11 @@ describe('annotation-task endpoints', function () {
         });
     });
 
-    var endpointAudioAnnotator = '/annotation-task/1';
+    var endpointLegacyAudioAnnotator = '/annotation-task/legacy/1';
 
-    it('should return 200 with audio annontator input', function () {
+    it('should return 200 with legacy audio annontator input', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointAudioAnnotator,
+            uri: server.config.fsURL + endpointLegacyAudioAnnotator,
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
@@ -98,7 +98,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for wrong user', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointAudioAnnotator,
+            uri: server.config.fsURL + endpointLegacyAudioAnnotator,
             headers: { authorization: 'Bearer ' + dcMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -109,7 +109,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointLegacyAudioAnnotator.replace(1, 8),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
