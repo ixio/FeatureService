@@ -308,6 +308,15 @@ definitions:
         type: array
         items:
           type: string
+      boundaries:
+        startTime:
+          type: string
+        endTime:
+          type: string
+        startFrequency:
+          type: number
+        endFrequency:
+          type: number
       audioUrl:
         type: string
       spectroUrls:

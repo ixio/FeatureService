@@ -88,11 +88,14 @@ describe('annotation-task endpoints', function () {
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            let ref_tags = ['annotationTags', 'audioUrl', 'spectroUrls'];
+            let ref_tags = ['annotationTags', 'boundaries', 'audioUrl', 'spectroUrls'];
             assert.deepEqual(Object.keys(res.body.task), ref_tags);
             let annotation_task = res.body.task;
             assert.deepStrictEqual(annotation_task.annotationTags.length, 13);
             assert.deepStrictEqual(annotation_task.audioUrl, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
+            let boundary_tags = ['startTime', 'endTime', 'startFrequency', 'endFrequency'];
+            assert.deepEqual(Object.keys(annotation_task.boundaries), boundary_tags);
+            assert.deepStrictEqual(annotation_task.boundaries.endFrequency, 16384);
         });
     });
 
