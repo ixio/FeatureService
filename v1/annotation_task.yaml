@@ -70,6 +70,44 @@ paths:
               current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
+  /{id}:
+    get:
+      tags:
+        - ODE FeatureService annotation task audio annotator
+      summary: Returns the output needed for the audio annotator to work on the specified annotation task
+      description: |
+        Returns the info needed for the audio annotator to work on the specified annotation task
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Task ID
+          type: integer
+          required: true
+      responses:
+        '200':
+          description: audio annotator input
+          schema:
+            $ref: '#/definitions/audio-annotator-input'
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: 'get'
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - get_from_backend:
+            request:
+              uri: /{domain}/sys/annotation-task/{id}
+              current_user: '{{verify_token.body.token.aud}}'
+      x-monitor: false
+
   /legacy/{id}:
     get:
       tags:
@@ -263,6 +301,25 @@ definitions:
           type: string
         end:
           type: string
+
+  audio-annotator-input:
+    properties:
+      annotationTags:
+        type: array
+        items:
+          type: string
+      audioUrl:
+        type: string
+      spectroUrls:
+        properties:
+          keys:
+            type: array
+            items:
+              type: string
+          urls:
+            type: array
+            items:
+              type: string
 
   legacy-audio-annotator-input:
     properties:
