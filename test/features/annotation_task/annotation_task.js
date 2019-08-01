@@ -71,7 +71,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown campaign', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointList.replace(1, 2),
+            uri: server.config.fsURL + endpointList.replace('1', '2'),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -112,7 +112,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointAudioAnnotator.replace('1', '8'),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -150,7 +150,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointLegacyAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointLegacyAudioAnnotator.replace('1', '8'),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -254,7 +254,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.post({
-            uri: server.config.fsURL + endpointPostAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointPostAudioAnnotator.replace('1', '8'),
             headers: {
                 'content-type': 'application/json',
                 authorization: 'Bearer ' + ekMockToken
