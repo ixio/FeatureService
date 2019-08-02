@@ -71,7 +71,48 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown campaign', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointList.replace(1, 2),
+            uri: server.config.fsURL + endpointList.replace('1', '2'),
+            headers: { authorization: 'Bearer ' + ekMockToken }
+        }).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    var endpointAudioAnnotator = '/annotation-task/1';
+
+    it('should return 200 with audio annontator input', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator,
+            headers: { authorization: 'Bearer ' + ekMockToken }
+        }).then(res => {
+            assert.deepEqual(res.status, 200);
+            let ref_tags = ['annotationTags', 'boundaries', 'audioUrl', 'spectroUrls'];
+            assert.deepEqual(Object.keys(res.body.task), ref_tags);
+            let annotation_task = res.body.task;
+            assert.deepStrictEqual(annotation_task.annotationTags.length, 13);
+            assert.deepStrictEqual(annotation_task.audioUrl, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
+            let boundary_tags = ['startTime', 'endTime', 'startFrequency', 'endFrequency'];
+            assert.deepEqual(Object.keys(annotation_task.boundaries), boundary_tags);
+            assert.deepStrictEqual(annotation_task.boundaries.endFrequency, 16384);
+        });
+    });
+
+    it('should return 404 for wrong user', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator,
+            headers: { authorization: 'Bearer ' + dcMockToken }
+        }).then(res => {
+            throw 'Should not succeed'
+        }).catch(res => {
+            assert.deepEqual(res.status, 404);
+        });
+    });
+
+    it('should return 404 for unknown task', function () {
+        return preq.get({
+            uri: server.config.fsURL + endpointAudioAnnotator.replace('1', '8'),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -109,7 +150,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.get({
-            uri: server.config.fsURL + endpointLegacyAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointLegacyAudioAnnotator.replace('1', '8'),
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             throw 'Should not succeed'
@@ -213,7 +254,7 @@ describe('annotation-task endpoints', function () {
 
     it('should return 404 for unknown task', function () {
         return preq.post({
-            uri: server.config.fsURL + endpointPostAudioAnnotator.replace(1, 8),
+            uri: server.config.fsURL + endpointPostAudioAnnotator.replace('1', '8'),
             headers: {
                 'content-type': 'application/json',
                 authorization: 'Bearer ' + ekMockToken

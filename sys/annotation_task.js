@@ -65,6 +65,65 @@ class AnnotationTask {
         });
     }
 
+    audioAnnotator(hyper, req) {
+        let taskID = req.params.id;
+        return db.User.query().findOne('email', req.current_user).then(currentUser => {
+            return db.AnnotationTask.query()
+            .where('annotator_id', currentUser.id)
+            .findOne('annotation_tasks.id', taskID)
+            .joinRelation(
+                '[dataset_file.[audio_metadata, dataset.[audio_metadata]], annotation_campaign]'
+            )
+            .select(
+                'annotation_tasks.id',
+                'filename',
+                'annotation_set_id',
+                'dataset_file.id as file_id',
+                'dataset_file:audio_metadata.start as startTime',
+                'dataset_file:audio_metadata.end as endTime',
+                'dataset_file:audio_metadata.sample_rate_khz as fileSampleRate',
+                'dataset_file:dataset:audio_metadata.sample_rate_khz as datasetSampleRate'
+            ).then(annotationTask => {
+                if (!annotationTask) {
+                    return fsUtil.normalizeResponse({
+                        status: 404,
+                        body: {
+                            detail: 'Task not found for user'
+                        }
+                    });
+                }
+                let audioUrl = this.options.play_url.replace('$filename', annotationTask.filename);
+                let spectroUrl = this.options.spectro_url + annotationTask.file_id;
+                // File sampleRate has priority over Dataset sampleRate
+                let sampleRate = annotationTask.fileSampleRate || annotationTask.datasetSampleRate;
+                return db.AnnotationSet.query()
+                .findOne('id', annotationTask.annotation_set_id)
+                .then(annotationSet => {
+                    return annotationSet.$relatedQuery('tags').then(tags => {
+                        return fsUtil.normalizeResponse({
+                            status: 200,
+                            body: {
+                                task: {
+                                    annotationTags: tags.map(tag => { return tag.name; }),
+                                    boundaries: {
+                                        startTime: annotationTask.startTime,
+                                        endTime: annotationTask.endTime,
+                                        startFrequency: 0,
+                                        endFrequency: sampleRate / 2
+                                    },
+                                    audioUrl: audioUrl,
+                                    spectroUrls: {
+                                        '100%': spectroUrl
+                                    }
+                                }
+                            }
+                        });
+                    });
+                });
+            });
+        });
+    }
+
     legacyAudioAnnotator(hyper, req) {
         let taskID = req.params.id;
         return db.User.query().findOne('email', req.current_user).then(currentUser => {
@@ -204,6 +263,7 @@ module.exports = function(options) {
         spec: spec,
         operations: {
             currentUserCampaignList: task.currentUserCampaignList.bind(task),
+            audioAnnotator: task.audioAnnotator.bind(task),
             legacyAudioAnnotator: task.legacyAudioAnnotator.bind(task),
             updateResults: task.updateResults.bind(task)
         }
