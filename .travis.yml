@@ -2,8 +2,6 @@ language: node_js
 node_js:
   - '9'
 sudo: false
-# Default dist change broke the build (https://blog.travis-ci.com/2019-04-15-xenial-default-build-environment)
-dist: trusty # Setting Trusty explicitly fixes the issue but better fix would be to make it work with Xenial or Bionic
 addons:
   postgresql: "10"
   apt:
@@ -18,9 +16,9 @@ env:
 services:
   - postgresql
 before_script:
-  - psql -U travis -c "CREATE USER test WITH PASSWORD 'password';"
-  - psql -U travis -c "CREATE DATABASE test OWNER test;"
-  - psql -U travis -d test -c "CREATE EXTENSION postgis;"
+  - psql -U postgres -c "CREATE USER test WITH PASSWORD 'password';" -p 5433
+  - psql -U postgres -c "CREATE DATABASE test OWNER test;" -p 5433
+  - psql -U postgres -d test -c "CREATE EXTENSION postgis;" -p 5433
 script: sh test/utils/run_tests.sh coverage all && (npm run-script coveralls || exit 0)
 notifications:
   slack:
