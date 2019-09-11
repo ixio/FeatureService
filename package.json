@@ -7,7 +7,8 @@
     "start": "service-runner",
     "test": "sh test/utils/run_tests.sh test",
     "coverage": "sh test/utils/run_tests.sh coverage",
-    "coveralls": "cat ./coverage/lcov.info | coveralls"
+    "coveralls": "cat ./coverage/lcov.info | coveralls",
+    "seed": "node seed.js"
   },
   "repository": {
     "type": "git",
