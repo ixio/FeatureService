@@ -1,31 +1,45 @@
 'use strict';
 
-const { spawnSync } = require( 'child_process' );
 const db = require('./db');
+const https = require('https');
+const fs = require('fs');
 
+// Seeding constants
 const download_url = 'https://cdn.oceandataexplorer.org'
 const download_folder = __dirname + '/resources/annotator'
 
-function run_cmd(cmd) {
-    console.log('> Running ' + cmd);
-    let correct_cmd = cmd.replace('knex', 'node node_modules/knex/bin/cli.js');
-    let [head, ...tail] = correct_cmd.split(' ');
-    let launched_cmd = spawnSync(head, tail);
-    if (launched_cmd.stderr.toString() != '') {
-        console.log(launched_cmd.stderr.toString());
+// Aux functions
+// download function inspired from https://stackoverflow.com/a/22907134/2730032
+function download(url, dest) {
+    if (fs.existsSync(dest)) {
+        console.log(`${url} has already been downloaded to ${dest}`);
     } else {
-        console.log(launched_cmd.stdout.toString());
+        console.log(`Downloading ${url} to ${dest}`);
+        let file = fs.createWriteStream(dest);
+        let request = https.get(url, function(response) {
+            response.pipe(file);
+            file.on('finish', function() {
+                file.close();
+            });
+        }).on('error', function(err) {
+            fs.unlink(dest);
+            console.log(err.message);
+        });
     }
-}
+};
 
-run_cmd('knex migrate:latest');
-run_cmd('knex seed:run');
+// Migrate and seed database
+console.log('> Migrating and seeding database')
+db.init();
+
+// Downloading seed audio & image files
 db.DatasetFile.query().select('filename').then(dataset_files => {
+    console.log(`> Downloading ${dataset_files.length * 2} audio and image files`)
     for (let dataset_file of dataset_files) {
         let wav_name = dataset_file.filename;
         let png_name = wav_name.replace('.wav', '.png');
-        run_cmd(`wget -O ${download_folder}/wav/${wav_name} ${download_url}/${wav_name}`);
-        run_cmd(`wget -O ${download_folder}/png/${png_name} ${download_url}/${png_name}`);
+        download(`${download_url}/${wav_name}`, `${download_folder}/wav/${wav_name}`);
+        download(`${download_url}/${png_name}`, `${download_folder}/png/${png_name}`);
     }
-    return;
+    db.close();
 });
