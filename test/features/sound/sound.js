@@ -22,11 +22,11 @@ describe('sound endpoints', function() {
 
     it('should return 200 with the requested wav file', function() {
         return preq.get({
-            uri: server.config.fsURL + endpoint + '/paris.wav/play'
+            uri: server.config.fsURL + endpoint + '/A32C0000.WAV/play'
         }).then(function(res) {
             var sound = res.body;
 
-            var filePath = path.join(__dirname, '../../../resources/annotator/wav/paris.wav');
+            var filePath = path.join(__dirname, '../../../resources/annotator/wav/A32C0000.WAV');
             var expectedSound = fileSystem.readFileSync(filePath);
 
             assert.deepEqual(sound, expectedSound);
@@ -51,8 +51,8 @@ describe('sound endpoints', function() {
             var soundList = res.body;
 
             // we now that FS contains at least these two wav files
-            assert.deepEqual(soundList.includes("paris.wav"), true);
-            assert.deepEqual(soundList.includes("spectrogram_demo_doorknock_mono.wav"), true);
+            assert.deepEqual(soundList.includes("A32C0000.WAV"), true);
+            assert.deepEqual(soundList.includes("7F210000.WAV"), true);
         });
     });
 

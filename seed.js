@@ -5,8 +5,8 @@ const https = require('https');
 const fs = require('fs');
 
 // Seeding constants
-const download_url = 'https://cdn.oceandataexplorer.org'
-const download_folder = __dirname + '/resources/annotator'
+const downloadUrl = 'https://cdn.oceandataexplorer.org';
+const downloadFolder = __dirname + '/resources/annotator';
 
 // Aux functions
 // download function inspired from https://stackoverflow.com/a/22907134/2730032
@@ -26,22 +26,22 @@ function download(url, dest) {
             console.log(err.message);
         });
     }
-};
+}
 
 // Migrate and seed database
-console.log('> Migrating and seeding database')
+console.log('> Migrating and seeding database');
 db.init().then(() => {
     // Downloading seed audio & image files
-    db.DatasetFile.query().select('filename').then(dataset_files => {
-        console.log(`> Downloading ${dataset_files.length * 2} audio and image files`)
-        for (let dataset_file of dataset_files) {
-            let wav_name = dataset_file.filename;
-            let png_name = wav_name.replace('.wav', '.png');
-            download(`${download_url}/${wav_name}`, `${download_folder}/wav/${wav_name}`);
-            download(`${download_url}/${png_name}`, `${download_folder}/png/${png_name}`);
+    db.DatasetFile.query().select('filename').then(datasetFiles => {
+        console.log(`> Downloading ${datasetFiles.length * 2} audio and image files`);
+        for (let datasetFile of datasetFiles) {
+            let wavName = datasetFile.filename;
+            let pngName = wavName.replace('.wav', '.png');
+            download(`${downloadUrl}/${wavName}`, `${downloadFolder}/wav/${wavName}`);
+            download(`${downloadUrl}/${pngName}`, `${downloadFolder}/png/${pngName}`);
         }
         return db.close();
     }).then(() => {
-        console.log(`> Seeding complete`)
+        console.log(`> Seeding complete`);
     });
 });

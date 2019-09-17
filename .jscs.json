@@ -23,6 +23,7 @@
     "node_modules/**",
     "test/**",
     "coverage/**",
-    "test.db.**"
+    "test.db.**",
+    "db/seeds/**"
   ]
 }
