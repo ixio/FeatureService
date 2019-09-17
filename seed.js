@@ -30,16 +30,18 @@ function download(url, dest) {
 
 // Migrate and seed database
 console.log('> Migrating and seeding database')
-db.init();
-
-// Downloading seed audio & image files
-db.DatasetFile.query().select('filename').then(dataset_files => {
-    console.log(`> Downloading ${dataset_files.length * 2} audio and image files`)
-    for (let dataset_file of dataset_files) {
-        let wav_name = dataset_file.filename;
-        let png_name = wav_name.replace('.wav', '.png');
-        download(`${download_url}/${wav_name}`, `${download_folder}/wav/${wav_name}`);
-        download(`${download_url}/${png_name}`, `${download_folder}/png/${png_name}`);
-    }
-    db.close();
+db.init().then(() => {
+    // Downloading seed audio & image files
+    db.DatasetFile.query().select('filename').then(dataset_files => {
+        console.log(`> Downloading ${dataset_files.length * 2} audio and image files`)
+        for (let dataset_file of dataset_files) {
+            let wav_name = dataset_file.filename;
+            let png_name = wav_name.replace('.wav', '.png');
+            download(`${download_url}/${wav_name}`, `${download_folder}/wav/${wav_name}`);
+            download(`${download_url}/${png_name}`, `${download_folder}/png/${png_name}`);
+        }
+        return db.close();
+    }).then(() => {
+        console.log(`> Seeding complete`)
+    });
 });
