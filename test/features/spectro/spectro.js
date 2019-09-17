@@ -25,11 +25,11 @@ describe('spectro endpoints', function() {
 
     it('should return 200 with the requested png file', function() {
         return preq.get({
-            uri: server.config.fsURL + endpoint + '/1'
+            uri: server.config.fsURL + endpoint + '/1/nfft=1024/A32C0000.png'
         }).then(function(res) {
             var spectro = res.body;
 
-            var filePath = path.join(__dirname, '../../../resources/annotator/png/A32C0000.png');
+            var filePath = path.join(__dirname, '../../../resources/annotator/png/1/nfft=1024/A32C0000.png');
             var expectedSpectro = fileSystem.readFileSync(filePath);
 
             assert.deepEqual(spectro, expectedSpectro);
@@ -38,7 +38,7 @@ describe('spectro endpoints', function() {
 
     it('should return 404 when requested png file doesn\'t exist', function() {
         return preq.get({
-            uri: server.config.fsURL + endpoint + '/0'
+            uri: server.config.fsURL + endpoint + '/0/nfft=1024/nothere.png'
         }).then(function() {
             throw 'Should not succeed'
         }).catch(function(res) {

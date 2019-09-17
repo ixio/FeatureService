@@ -33,7 +33,7 @@ info:
     url: https://www.gnu.org/licenses/gpl-3.0.en.html
 
 paths:
-  /{fileId}:
+  /{fileId}/{spectroParams}/{spectroTileFile}:
     get:
       tags:
         - ODE FeatureService Spectro
@@ -46,6 +46,16 @@ paths:
         - name: fileId
           in: path
           description: The identifier of the file of which we want the spectro
+          type: string
+          required: true
+        - name: spectroParams
+          in: path
+          description: String containing spectro parameters
+          type: string
+          required: true
+        - name: spectroTileFile
+          in: path
+          description: Spectro tile file name
           type: string
           required: true
       responses:
@@ -63,7 +73,7 @@ paths:
       x-request-handler:
         - get_from_backend:
             request:
-              uri: /{domain}/sys/spectro/{fileId}
+              uri: /{domain}/sys/spectro/{fileId}/{spectroParams}/{spectroTileFile}
       x-monitor: false
 
 definitions:
