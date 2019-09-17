@@ -2,13 +2,15 @@ language: node_js
 node_js:
   - '9'
 sudo: false
+# Default dist change broke the build (https://blog.travis-ci.com/2019-04-15-xenial-default-build-environment)
+dist: trusty # Setting Trusty explicitly fixes the issue but better fix would be to make it work with Xenial or Bionic
 addons:
   postgresql: "10"
   apt:
     packages:
     - postgresql-10
     - postgresql-client-10
-    - postgresql-10-postgis-2.4 
+    - postgresql-10-postgis-2.4
     - postgresql-10-postgis-2.4-scripts
 env:
   global:
