@@ -1,13 +1,28 @@
 'use strict';
 
 exports.seed = function(knex, Promise) {
-    return knex('users').del()
+    return Promise.all([
+        knex.raw("ALTER SEQUENCE users_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE dataset_types_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE geo_metadata_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE audio_metadata_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE datasets_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE dataset_files_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_sets_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_tags_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_set_tags_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_campaigns_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_campaign_datasets_id_seq RESTART WITH 100"),
+        knex.raw("ALTER SEQUENCE annotation_tasks_id_seq RESTART WITH 100")
+    ])
+    .then(() => {
+        return knex('users').del();
+    })
     .then(() => {
         return knex('users').insert(
             [{'id': 1, 'email': 'admin@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 2, 'email': 'dc@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 3, 'email': 'ek@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 4, 'email': 'ja@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 5, 'email': 'pnhd@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 6, 'email': 'ad@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}, {'id': 7, 'email': 'rv@test.ode', 'password': '$2a$10$RTELpt2ltJpjDEYRhU1NR.uK8hw4pdVCWZNl5FCRYx.ejUI7LMzb.'}]
         );
     })
-    
     .then(() => {
         return knex('dataset_types').del();
     })
@@ -24,12 +39,15 @@ exports.seed = function(knex, Promise) {
             [{'name': 'Saint-Pierre-et-Miquelon', 'desc': 'South of Saint-Pierre-et-Miquelon', 'id': 1}, {'name': 'Channel Islands National Marine Sanctuary site B', 'desc': 'Channel Islands National Marine Sanctuary site B', 'id': 2}, {'name': 'Southern  California site R', 'desc': 'Southern  California site R', 'id': 3}]
         );
     })
+    
     .then(() => {
         return knex.raw("UPDATE geo_metadata SET location = POINT(46.66765695359446, -56.2750928645425) WHERE id = 1");
     })
+    
     .then(() => {
         return knex.raw("UPDATE geo_metadata SET location = POINT(34.2833333, -120.01861111111111) WHERE id = 2");
     })
+    
     .then(() => {
         return knex.raw("UPDATE geo_metadata SET location = POINT(33.1516667, -120.00166666666667) WHERE id = 3");
     })
@@ -106,21 +124,19 @@ exports.seed = function(knex, Promise) {
         );
     })
     .then(() => {
-        // The following lines set index autoincrement counter to 1000
-        // We have to do this since previous inserts don't change increment counter on PGSQL
         return Promise.all([
-            knex.raw('ALTER SEQUENCE users_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE dataset_types_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE geo_metadata_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE audio_metadata_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE datasets_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE dataset_files_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_sets_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_tags_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_set_tags_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_campaigns_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_campaign_datasets_id_seq RESTART WITH 1000'),
-            knex.raw('ALTER SEQUENCE annotation_tasks_id_seq RESTART WITH 1000')
+            knex.raw("ALTER SEQUENCE users_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE dataset_types_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE geo_metadata_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE audio_metadata_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE datasets_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE dataset_files_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_sets_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_tags_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_set_tags_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_campaigns_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_campaign_datasets_id_seq RESTART WITH 1000"),
+            knex.raw("ALTER SEQUENCE annotation_tasks_id_seq RESTART WITH 1000")
         ]);
     });
 };
