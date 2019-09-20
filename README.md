@@ -31,18 +31,16 @@ docker run --name devdb -p 127.0.0.1:5432:5432 -d mdillon/postgis
 docker run --name testdb -e POSTGRES_USER=test -p 127.0.0.1:5433:5432 -d mdillon/postgis
 ```
 
-Use knex to set up dev database
+Use seeding script to setup the dev database and download audio&image files
 
 ```sh
-alias knex=node_modules/knex/bin/cli.js
-knex migrate:latest
-knex seed:run
+npm run seed
 ```
 
 Start FeatureService:
 
 ```sh
-node server
+npm start
 ```
 
 The defaults without a config file should work.
@@ -72,3 +70,13 @@ npm run-script coverage
 ```
 
 The coverage report can now be found in *&lt;project&gt;/coverage/lcov-report/index.html*.
+
+### Using Knex directly
+
+We use Knex to setup our database, you can migrate and seed for example as follows:
+
+```sh
+alias knex=node_modules/knex/bin/cli.js
+knex migrate:latest
+knex seed:run
+```
