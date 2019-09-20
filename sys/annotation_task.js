@@ -97,18 +97,22 @@ class AnnotationTask {
                 let audioUrl = this.options.play_url.replace('$filename', annotationTask.filename);
                 // Finding spectro tiles by readdirSync
                 // Later we should either have this info in the DB or dynamically generate spectros
-                let spectroUrls = {};
+                let allSpectroUrls = [];
                 let spectroFolder = path.join(this.spectroBasePath, String(annotationTask.file_id));
                 try {
                     fs.readdirSync(spectroFolder).forEach(folder => {
-                        spectroUrls[folder] = []
+                        let oneSpectroUrls = { 'urls': [] };
                         fs.readdirSync(path.join(spectroFolder, folder)).forEach(file => {
-                            let spectroUrl = this.options.spectro_url
+                            let url = this.options.spectro_url
                             + annotationTask.file_id + '/'
                             + encodeURIComponent(folder) + '/' // folder has special name
                             + file;
-                            spectroUrls[folder].push(spectroUrl);
+                            oneSpectroUrls['urls'].push(url);
                         });
+                        folder.split(' ').map(param => param.split('=')).forEach(([key, val]) => {
+                            oneSpectroUrls[key] = val;
+                        });
+                        allSpectroUrls.push(oneSpectroUrls);
                     });
                 } catch (err) {
                     if (err.code == 'ENOENT') {
@@ -134,7 +138,7 @@ class AnnotationTask {
                                         endFrequency: sampleRate / 2
                                     },
                                     audioUrl: audioUrl,
-                                    spectroUrls: spectroUrls
+                                    spectroUrls: allSpectroUrls
                                 }
                             }
                         });

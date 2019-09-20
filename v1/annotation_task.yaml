@@ -309,26 +309,27 @@ definitions:
         items:
           type: string
       boundaries:
-        startTime:
-          type: string
-        endTime:
-          type: string
-        startFrequency:
-          type: number
-        endFrequency:
-          type: number
+        properties:
+          startTime:
+            type: string
+          endTime:
+            type: string
+          startFrequency:
+            type: number
+          endFrequency:
+            type: number
       audioUrl:
         type: string
       spectroUrls:
-        properties:
-          keys:
-            type: array
-            items:
-              type: string
-          urls:
-            type: array
-            items:
-              type: string
+        type: array
+        items:
+          properties:
+            urls:
+              type: array
+              items:
+                type: string
+          additionalProperties:
+            type: string
 
   legacy-audio-annotator-input:
     properties:
