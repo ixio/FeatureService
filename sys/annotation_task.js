@@ -101,13 +101,13 @@ class AnnotationTask {
                 let spectroFolder = path.join(this.spectroBasePath, String(annotationTask.file_id));
                 try {
                     fs.readdirSync(spectroFolder).forEach(folder => {
-                        let oneSpectroUrls = { 'urls': [] };
+                        let oneSpectroUrls = { urls: [] };
                         fs.readdirSync(path.join(spectroFolder, folder)).forEach(file => {
                             let url = this.options.spectro_url
                             + annotationTask.file_id + '/'
                             + encodeURIComponent(folder) + '/' // folder has special name
                             + file;
-                            oneSpectroUrls['urls'].push(url);
+                            oneSpectroUrls.urls.push(url);
                         });
                         folder.split(' ').map(param => param.split('=')).forEach(([key, val]) => {
                             oneSpectroUrls[key] = val;
@@ -115,7 +115,7 @@ class AnnotationTask {
                         allSpectroUrls.push(oneSpectroUrls);
                     });
                 } catch (err) {
-                    if (err.code == 'ENOENT') {
+                    if (err.code === 'ENOENT') {
                         throw(Error('Annotation task is missing spectro data'));
                     }
                     throw(err);

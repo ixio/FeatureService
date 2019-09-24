@@ -1,9 +1,10 @@
 'use strict';
 
-const db = require('./db');
 const https = require('https');
 const fs = require('fs');
 const path = require('path');
+const { spawnSync } = require('child_process');
+const db = require('./db');
 
 // Seeding constants
 const downloadUrl = 'https://cdn.oceandataexplorer.org';
@@ -29,9 +30,7 @@ function download(url, dest, callback = null) {
             } else {
                 console.log(`Error: ${url} returns statusCode ${response.statusCode}`);
                 file.destroy();
-                fs.unlink(dest, (err) => {
-                    // Without the callback this doesn't work however err === null weirdly enough
-                });
+                fs.unlinkSync(dest);
             }
         }).on('error', function(err) {
             fs.unlink(dest);
@@ -39,49 +38,50 @@ function download(url, dest, callback = null) {
         });
     }
 }
-// unzip function inspired from https://stackoverflow.com/a/21991500/2730032
-const tar = require('tar');
-const zlib = require('zlib');
-const mkdirp = require('mkdirp'); // used to create directory tree
 
-var log = console.log;
-
-var tarball = 'path/to/downloaded/archive.tar.gz';
-var dest    = 'path/to/destination';
-function unzip(tarball, dest) {
-    fs.createReadStream(tarball)
-    .on('error', log)
-    .pipe(zlib.Unzip())
-    .pipe(tar.Parse())
-    .on('entry', function(entry) {
-        var isDir     = 'Directory' === entry.type;
-        var fullpath  = path.join(dest, entry.path);
-        var directory = isDir ? fullpath : path.dirname(fullpath);
-
-        mkdirp(directory, function(err) {
-            if (err) throw err;
-            if (! isDir) { // should really make this an `if (isFile)` check...
-                entry.pipe(fs.createWriteStream(fullpath));
-            }
-        });
-    });
+// run bash command
+function runCmd(cmd) {
+    console.log('Running > ' + cmd);
+    let [head, ...tail] = cmd.split(' ');
+    let launchedCmd = spawnSync(head, tail);
+    if (launchedCmd.error) {
+        throw(launchedCmd.error);
+    } else if (launchedCmd.stderr.toString() !== '') {
+        console.log('Error', launchedCmd.stderr.toString());
+    } else {
+        console.log(launchedCmd.stdout.toString());
+    }
 }
 
 // Migrate and seed database
 console.log('> Migrating and seeding database');
 db.init().then(() => {
     // Downloading seed audio & image files
-    db.DatasetFile.query().select('filename').then(datasetFiles => {
-        console.log(`> Downloading ${datasetFiles.length * 2} audio and image files`);
+    db.DatasetFile.query().select('id', 'filename').then(datasetFiles => {
+        console.log(`> Downloading ${datasetFiles.length * 2} audio and image files (+ unzipping)`);
         for (let datasetFile of datasetFiles) {
             let wavName = datasetFile.filename;
-            let pngZipName = wavName.replace('.wav', '.tgz');
+            let pngZipName = wavName.replace('.wav', '.zip');
+            let pngZipPath = path.join(downloadFolder, 'png', pngZipName);
+            let pngResPath = path.join(downloadFolder, 'png', datasetFile.id.toString());
             download(`${downloadUrl}/${wavName}`, `${path.join(downloadFolder, 'wav', wavName)}`);
-            download(`${downloadUrl}/${pngZipName}`, `${path.join(downloadFolder, 'png', pngZipName)}`, () => {
-                console.log(`Download finished for ${pngZipName}, now unzipping`);
-                unzip(path.join(downloadFolder, 'png', pngZipName), path.join(downloadFolder, 'png', 'test'));
-            });
-
+            if (!fs.existsSync(pngResPath)) {
+                if (fs.existsSync(pngZipPath)) {
+                    console.log(`Unzipping previously downloaded ${pngZipName}`);
+                    fs.mkdirSync(pngResPath);
+                    runCmd(`unzip ${pngZipPath} -d ${pngResPath}`);
+                    fs.unlinkSync(pngZipPath);
+                } else {
+                    download(`${downloadUrl}/${pngZipName}`, pngZipPath, () => {
+                        console.log(`Download finished for ${pngZipName}, now unzipping`);
+                        fs.mkdirSync(pngResPath);
+                        runCmd(`unzip ${pngZipPath} -d ${pngResPath}`);
+                        fs.unlinkSync(pngZipPath);
+                    });
+                }
+            } else {
+                console.log(`Folder already exists for ${pngZipName} (${pngResPath})`);
+            }
         }
         return db.close();
     }).then(() => {
