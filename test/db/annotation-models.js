@@ -87,15 +87,15 @@ describe('annotation-related models tests', function () {
     it('newly created annotation result should have the right info', async function () {
         var annotation_result = {
             annotation_tag_id: 5,
-            start: 2.2549841651658,
-            end: 5.1919416519871,
+            startTime: 2.2549841651658,
+            endTime: 5.1919416519871,
             annotation_task_id: 1
         }
         await db.AnnotationResult.query().insert(annotation_result);
         var new_annotation_result = await db.AnnotationResult.query().orderBy('id', 'desc').first();
         assert.deepEqual(new_annotation_result.annotation_tag_id, annotation_result.annotation_tag_id);
-        assert.deepEqual(new_annotation_result.start, annotation_result.start);
-        assert.deepEqual(new_annotation_result.end, annotation_result.end);
+        assert.deepEqual(new_annotation_result.startTime, annotation_result.startTime);
+        assert.deepEqual(new_annotation_result.endTime, annotation_result.endTime);
         assert.deepEqual(new_annotation_result.annotation_task_id, annotation_result.annotation_task_id);
     });
 

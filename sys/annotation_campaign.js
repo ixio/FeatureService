@@ -156,8 +156,8 @@ class AnnotationCampaign {
             .select(
                 'dataset.name as dataset',
                 'dataset_file.filename',
-                'results.start',
-                'results.end',
+                'results.startTime',
+                'results.endTime',
                 'tags.name as annotation',
                 'annotator.email as annotator'
             )

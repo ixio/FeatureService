@@ -228,8 +228,8 @@ class AnnotationTask {
                 }).then(tagsId => {
                     let results = req.body.annotations.map(annotation => {
                         return {
-                            start: annotation.start,
-                            end: annotation.end,
+                            startTime: annotation.start,
+                            endTime: annotation.end,
                             annotation_tag_id: tagsId[annotation.annotation],
                             annotation_task_id: annotationTask.id
                         };
