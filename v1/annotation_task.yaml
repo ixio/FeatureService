@@ -267,6 +267,10 @@ definitions:
           type: number
         end:
           type: number
+        startFrequency:
+          type: number
+        endFrequency:
+          type: number
 
   annotation-events:
     type: array
