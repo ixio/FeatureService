@@ -334,6 +334,8 @@ definitions:
                 type: string
           additionalProperties:
             type: string
+      prevAnnotations:
+        $ref: '#/definitions/annotations'
 
   legacy-audio-annotator-input:
     properties:

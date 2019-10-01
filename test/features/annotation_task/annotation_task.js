@@ -88,7 +88,7 @@ describe('annotation-task endpoints', function () {
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            let ref_tags = ['annotationTags', 'boundaries', 'audioUrl', 'spectroUrls'];
+            let ref_tags = ['annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
             assert.deepEqual(Object.keys(res.body.task), ref_tags);
             let annotation_task = res.body.task;
             assert.deepStrictEqual(annotation_task.annotationTags.length, 13);

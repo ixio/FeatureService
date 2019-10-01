@@ -122,26 +122,39 @@ class AnnotationTask {
                 }
                 // File sampleRate has priority over Dataset sampleRate
                 let sampleRate = annotationTask.fileSampleRate || annotationTask.datasetSampleRate;
-                return db.AnnotationSet.query()
-                .findOne('id', annotationTask.annotation_set_id)
-                .then(annotationSet => {
-                    return annotationSet.$relatedQuery('tags').then(tags => {
-                        return fsUtil.normalizeResponse({
-                            status: 200,
-                            body: {
-                                task: {
-                                    annotationTags: tags.map(tag => { return tag.name; }),
-                                    boundaries: {
-                                        startTime: annotationTask.startTime,
-                                        endTime: annotationTask.endTime,
-                                        startFrequency: 0,
-                                        endFrequency: sampleRate / 2
-                                    },
-                                    audioUrl: audioUrl,
-                                    spectroUrls: allSpectroUrls
-                                }
+                return Promise.all([
+                    db.AnnotationSet.query()
+                    .findOne('id', annotationTask.annotation_set_id)
+                    .then(annotationSet => {
+                        return annotationSet.$relatedQuery('tags');
+                    }),
+                    annotationTask.$relatedQuery('results')
+                    .joinRelation('tag')
+                    .select(
+                        'annotation_results.id',
+                        'tag.name as annotation',
+                        'startTime',
+                        'endTime',
+                        'startFrequency',
+                        'endFrequency'
+                    )
+                ]).then(([tags, prevAnnotations]) => {
+                    return fsUtil.normalizeResponse({
+                        status: 200,
+                        body: {
+                            task: {
+                                annotationTags: tags.map(tag => { return tag.name; }),
+                                boundaries: {
+                                    startTime: annotationTask.startTime,
+                                    endTime: annotationTask.endTime,
+                                    startFrequency: 0,
+                                    endFrequency: sampleRate / 2
+                                },
+                                audioUrl: audioUrl,
+                                spectroUrls: allSpectroUrls,
+                                prevAnnotations: prevAnnotations
                             }
-                        });
+                        }
                     });
                 });
             });
