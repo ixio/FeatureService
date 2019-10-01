@@ -84,7 +84,8 @@ class AnnotationTask {
                 'dataset_file:audio_metadata.start as startTime',
                 'dataset_file:audio_metadata.end as endTime',
                 'dataset_file:audio_metadata.sample_rate_khz as fileSampleRate',
-                'dataset_file:dataset:audio_metadata.sample_rate_khz as datasetSampleRate'
+                'dataset_file:dataset:audio_metadata.sample_rate_khz as datasetSampleRate',
+                'annotation_campaign_id as campaign_id'
             ).then(annotationTask => {
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
@@ -143,6 +144,7 @@ class AnnotationTask {
                         status: 200,
                         body: {
                             task: {
+                                campaignId: annotationTask.campaign_id,
                                 annotationTags: tags.map(tag => { return tag.name; }),
                                 boundaries: {
                                     startTime: annotationTask.startTime,

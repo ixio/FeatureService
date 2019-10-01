@@ -308,6 +308,8 @@ definitions:
 
   audio-annotator-input:
     properties:
+      campaignId:
+        type: number
       annotationTags:
         type: array
         items:

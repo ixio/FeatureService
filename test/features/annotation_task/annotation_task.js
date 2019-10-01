@@ -82,13 +82,13 @@ describe('annotation-task endpoints', function () {
 
     var endpointAudioAnnotator = '/annotation-task/1';
 
-    it('should return 200 with audio annontator input', function () {
+    it('should return 200 with audio annotator input', function () {
         return preq.get({
             uri: server.config.fsURL + endpointAudioAnnotator,
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            let ref_tags = ['annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
+            let ref_tags = ['campaignId', 'annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
             assert.deepEqual(Object.keys(res.body.task), ref_tags);
             let annotation_task = res.body.task;
             assert.deepStrictEqual(annotation_task.annotationTags.length, 13);
