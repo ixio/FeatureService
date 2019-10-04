@@ -31,7 +31,7 @@ docker run --name devdb -p 127.0.0.1:5432:5432 -d mdillon/postgis
 docker run --name testdb -e POSTGRES_USER=test -p 127.0.0.1:5433:5432 -d mdillon/postgis
 ```
 
-Use seeding script to setup the dev database and download audio&image files
+Use seeding script to setup the dev database and download audio&image files (it is meant to run on a machine with the unzip command).
 
 ```sh
 npm run seed

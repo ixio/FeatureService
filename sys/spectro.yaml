@@ -19,7 +19,7 @@
 
 
 paths:
-  /{fileId}:
+  /{fileId}/{spectroParams}/{spectroTileFile}:
       get:
         summary: Get a spectrogram file
         operationId: getSpectro

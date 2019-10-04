@@ -25,7 +25,6 @@ var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fileSystem = require('fs');
 const HTTPError = HyperSwitch.HTTPError;
-const db = require('../db');
 
 var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'spectro.yaml'));
 
@@ -37,39 +36,37 @@ class Spectro {
     }
 
     getSpectro(hyper, req) {
-        return db.DatasetFile.query().findOne('id', req.params.fileId).then(file => {
-            let filePath = '';
-            let resquestExists = false;
-            if (file) {
-                let filename = file.filename.replace('.WAV', '.png').replace('.wav', '.png');
-                filePath = path.join(__dirname, this.pngBasePath, filename);
-                resquestExists = fileSystem.existsSync(filePath);
-            }
+        let filePath = path.join(
+            __dirname,
+            this.pngBasePath,
+            req.params.fileId,
+            req.params.spectroParams,
+            req.params.spectroTileFile
+        );
 
-            if (!resquestExists) {
-                // return 404 if requested spectro doesn't exist
-                throw new HTTPError({
-                    status: 404,
-                    body: {
-                        type: 'ENOENT',
-                        detail: 'no such file',
-                    }
-                });
-            }
+        if (!fileSystem.existsSync(filePath)) {
+            // return 404 if requested spectro doesn't exist
+            throw new HTTPError({
+                status: 404,
+                body: {
+                    type: 'ENOENT',
+                    detail: 'no such file',
+                }
+            });
+        }
 
-            let stat = fileSystem.statSync(filePath);
+        let stat = fileSystem.statSync(filePath);
 
-            let response = {
-                status: 200,
-                headers: {
-                    'content-type': 'image/png',
-                    'content-length': stat.size
-                },
-                body: fileSystem.createReadStream(filePath)
-            };
+        let response = {
+            status: 200,
+            headers: {
+                'content-type': 'image/png',
+                'content-length': stat.size
+            },
+            body: fileSystem.createReadStream(filePath)
+        };
 
-            return response;
-        });
+        return response;
     }
 }
 

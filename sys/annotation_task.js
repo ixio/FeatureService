@@ -19,6 +19,7 @@
  * Author: Erwan Keribin
  */
 'use strict';
+const fs = require('fs');
 var HyperSwitch = require('hyperswitch');
 var path = require('path');
 var fsUtil = require('../lib/FeatureServiceUtil');
@@ -29,6 +30,7 @@ var spec = HyperSwitch.utils.loadSpec(path.join(__dirname, 'annotation_task.yaml
 class AnnotationTask {
     constructor(options) {
         this.options = options;
+        this.spectroBasePath = path.join(__dirname, "../resources/annotator/png");
     }
 
     currentUserCampaignList(hyper, req) {
@@ -93,7 +95,31 @@ class AnnotationTask {
                     });
                 }
                 let audioUrl = this.options.play_url.replace('$filename', annotationTask.filename);
-                let spectroUrl = this.options.spectro_url + annotationTask.file_id;
+                // Finding spectro tiles by readdirSync
+                // Later we should either have this info in the DB or dynamically generate spectros
+                let allSpectroUrls = [];
+                let spectroFolder = path.join(this.spectroBasePath, String(annotationTask.file_id));
+                try {
+                    fs.readdirSync(spectroFolder).forEach(folder => {
+                        let oneSpectroUrls = { urls: [] };
+                        fs.readdirSync(path.join(spectroFolder, folder)).forEach(file => {
+                            let url = this.options.spectro_url
+                            + annotationTask.file_id + '/'
+                            + encodeURIComponent(folder) + '/' // folder has special name
+                            + file;
+                            oneSpectroUrls.urls.push(url);
+                        });
+                        folder.split(' ').map(param => param.split('=')).forEach(([key, val]) => {
+                            oneSpectroUrls[key] = val;
+                        });
+                        allSpectroUrls.push(oneSpectroUrls);
+                    });
+                } catch (err) {
+                    if (err.code === 'ENOENT') {
+                        throw(Error('Annotation task is missing spectro data'));
+                    }
+                    throw(err);
+                }
                 // File sampleRate has priority over Dataset sampleRate
                 let sampleRate = annotationTask.fileSampleRate || annotationTask.datasetSampleRate;
                 return db.AnnotationSet.query()
@@ -112,9 +138,7 @@ class AnnotationTask {
                                         endFrequency: sampleRate / 2
                                     },
                                     audioUrl: audioUrl,
-                                    spectroUrls: {
-                                        '100%': spectroUrl
-                                    }
+                                    spectroUrls: allSpectroUrls
                                 }
                             }
                         });
