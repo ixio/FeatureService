@@ -88,14 +88,19 @@ describe('annotation-task endpoints', function () {
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            let ref_tags = ['campaignId', 'annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
-            assert.deepEqual(Object.keys(res.body.task), ref_tags);
-            let annotation_task = res.body.task;
-            assert.deepStrictEqual(annotation_task.annotationTags.length, 13);
-            assert.deepStrictEqual(annotation_task.audioUrl, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
-            let boundary_tags = ['startTime', 'endTime', 'startFrequency', 'endFrequency'];
-            assert.deepEqual(Object.keys(annotation_task.boundaries), boundary_tags);
-            assert.deepStrictEqual(annotation_task.boundaries.endFrequency, 16384);
+            let refKeys = ['campaignId', 'annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
+            assert.deepEqual(Object.keys(res.body.task), refKeys);
+            let annotationTask = res.body.task;
+            assert.deepStrictEqual(annotationTask.annotationTags.length, 13);
+            assert.deepStrictEqual(annotationTask.audioUrl, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
+            let boundaryKeys = ['startTime', 'endTime', 'startFrequency', 'endFrequency'];
+            assert.deepEqual(Object.keys(annotationTask.boundaries), boundaryKeys);
+            assert.deepStrictEqual(annotationTask.boundaries.endFrequency, 16384);
+            assert.deepStrictEqual(annotationTask.prevAnnotations.length, 2);
+            let prevAnnotation = annotationTask.prevAnnotations[0];
+            let annotationKeys =  ['id', 'annotation'].concat(boundaryKeys);
+            assert.deepStrictEqual(Object.keys(prevAnnotation), annotationKeys);
+            assert.deepStrictEqual(prevAnnotation.annotation, 'Humpback Whale');
         });
     });
 
