@@ -165,11 +165,11 @@ describe('annotation-task endpoints', function () {
         task_end_time: 1537369245631,
         visualization: "spectrogram",
         annotations: [
-            {id: "wavesurfer_tdae5d2bk6", start: 11.30747744015285, end: 18.30524529729571, annotation: "Humpback Whale"},
-            {id: "wavesurfer_nvs1n4igdug", start: 29.521763154438563, end: 39.83426315443856, annotation: "Killer Whale"}
+            {id: "wavesurfer_tdae5d2bk6", startTime: 11.30747744015285, endTime: 18.30524529729571, annotation: "Humpback Whale"},
+            {id: "wavesurfer_nvs1n4igdug", startTime: 29.521763154438563, endTime: 39.83426315443856, annotation: "Killer Whale"}
         ],
         deleted_annotations: [
-            {id: "wavesurfer_tug8klmnr1c", start: 45.358816725867136, end: 48.13783458301, annotation: "Sperm Whale"}
+            {id: "wavesurfer_tug8klmnr1c", startTime: 45.358816725867136, endTime: 48.13783458301, annotation: "Sperm Whale"}
         ],
         annotation_events: [
             {event: "start-to-create", time: 1537369231193, region_id: "wavesurfer_tdae5d2bk6"},

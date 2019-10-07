@@ -263,9 +263,9 @@ definitions:
           type: string
         annotation:
           type: string
-        start:
+        startTime:
           type: number
-        end:
+        endTime:
           type: number
         startFrequency:
           type: number
