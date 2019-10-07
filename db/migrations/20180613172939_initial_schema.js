@@ -303,8 +303,10 @@ exports.up = knex => {
                 .references('id')
                 .inTable('annotation_tags')
                 .onDelete('CASCADE');
-            table.double('start').unsigned();
-            table.double('end').unsigned();
+            table.double('startTime').unsigned();
+            table.double('endTime').unsigned();
+            table.double('startFrequency').unsigned();
+            table.double('endFrequency').unsigned();
             table
                 .integer('annotation_task_id')
                 .unsigned()

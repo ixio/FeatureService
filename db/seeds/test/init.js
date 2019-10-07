@@ -232,11 +232,11 @@ exports.seed = function(knex, Promise) {
     }).then(() => {
         return knex('annotation_results').insert([
             {
-                id: 1, annotation_tag_id: 2, start: 1.7215764161332052, end: 2.136391899848815,
+                id: 1, annotation_tag_id: 2, startTime: 1.7215764161332052, endTime: 2.136391899848815,
                 annotation_task_id: 1
             },
             {
-                id: 2, annotation_tag_id: 7, start: 3.4582705746225595, end: 3.956049155081292,
+                id: 2, annotation_tag_id: 7, startTime: 3.4582705746225595, endTime: 3.956049155081292,
                 annotation_task_id: 1
             }
         ]);

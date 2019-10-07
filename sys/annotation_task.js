@@ -227,12 +227,19 @@ class AnnotationTask {
                     }, {});
                 }).then(tagsId => {
                     let results = req.body.annotations.map(annotation => {
-                        return {
-                            start: annotation.start,
-                            end: annotation.end,
+                        let inputAnnotation = {
+                            startTime: annotation.startTime,
+                            endTime: annotation.endTime,
                             annotation_tag_id: tagsId[annotation.annotation],
                             annotation_task_id: annotationTask.id
                         };
+                        if (annotation.startFrequency) {
+                            inputAnnotation.startFrequency = annotation.startFrequency;
+                        }
+                        if (annotation.endFrequency) {
+                            inputAnnotation.endFrequency = annotation.endFrequency;
+                        }
+                        return inputAnnotation;
                     });
                     let session = {
                         start: new Date(req.body.task_start_time),

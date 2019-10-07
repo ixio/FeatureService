@@ -156,15 +156,26 @@ class AnnotationCampaign {
             .select(
                 'dataset.name as dataset',
                 'dataset_file.filename',
-                'results.start',
-                'results.end',
+                'results.startTime',
+                'results.endTime',
+                'results.startFrequency',
+                'results.endFrequency',
                 'tags.name as annotation',
                 'annotator.email as annotator'
             )
         ]).then(([campaign, annotations]) => {
             if (campaign) {
                 let filename = '"' + campaign.name.replace(' ', '_') + '.csv"';
-                let csvHeader = 'dataset,filename,start,end,annotation,annotator\n';
+                let csvHeader = [
+                    'dataset',
+                    'filename',
+                    'start_time',
+                    'end_time',
+                    'start_frequency',
+                    'end_frequency',
+                    'annotation',
+                    'annotator'
+                ].join(',') + '\n';
                 return {
                     status: 200,
                     headers: {

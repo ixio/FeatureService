@@ -157,6 +157,8 @@ describe('annotation-campaign endpoints', function () {
                 'A32C0000.WAV',
                 '1.72157641613321',
                 '2.13639189984882',
+                '',
+                '',
                 'Humpback Whale',
                 'ek@test.ode'
             ]);
