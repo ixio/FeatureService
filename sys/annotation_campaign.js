@@ -61,29 +61,41 @@ class AnnotationCampaign {
         });
     }
 
-    list() {
-        return db.AnnotationCampaign.query()
-        .select(
-            'id',
-            'name',
-            'start',
-            'end',
-            'annotation_set_id',
-            db.AnnotationCampaign.relatedQuery('annotation_tasks').count().as('tasks_count'),
-            db.AnnotationCampaign.relatedQuery('annotation_tasks').where('status', 2).count()
-            .as('complete_tasks_count'),
-            db.AnnotationCampaign.relatedQuery('datasets').count().as('datasets_count')
-        ).then(annotationCampaigns => {
-            for (let campaign of annotationCampaigns) {
-                // Since PGSQL can return a bigint on count, knex will return a string
-                // cf https://knexjs.org/#Builder-count
-                campaign.tasks_count = parseInt(campaign.tasks_count);
-                campaign.complete_tasks_count = parseInt(campaign.complete_tasks_count);
-                campaign.datasets_count = parseInt(campaign.datasets_count);
-            }
-            return fsUtil.normalizeResponse({
-                status: 200,
-                body: annotationCampaigns
+    list(hyper, req) {
+        return db.User.query().select('id').findOne('email', req.current_user).then(user => {
+            return db.AnnotationCampaign.query()
+            .select(
+                'id',
+                'name',
+                'start',
+                'end',
+                'annotation_set_id',
+                db.AnnotationCampaign.relatedQuery('annotation_tasks').count().as('tasks_count'),
+                db.AnnotationCampaign.relatedQuery('annotation_tasks')
+                .where('annotator_id', user.id).count().as('user_tasks_count'),
+                db.AnnotationCampaign.relatedQuery('annotation_tasks').where('status', 2).count()
+                .as('complete_tasks_count'),
+                db.AnnotationCampaign.relatedQuery('annotation_tasks').where({
+                    status: 2,
+                    annotator_id: user.id
+                }).count().as('user_complete_tasks_count'),
+                db.AnnotationCampaign.relatedQuery('datasets').count().as('datasets_count')
+            ).then(annotationCampaigns => {
+                for (let campaign of annotationCampaigns) {
+                    // Since PGSQL can return a bigint on count, knex will return a string
+                    // cf https://knexjs.org/#Builder-count
+                    campaign.tasks_count = parseInt(campaign.tasks_count);
+                    campaign.user_tasks_count = parseInt(campaign.user_tasks_count);
+                    campaign.complete_tasks_count = parseInt(campaign.complete_tasks_count);
+                    campaign.user_complete_tasks_count = parseInt(
+                        campaign.user_complete_tasks_count
+                    );
+                    campaign.datasets_count = parseInt(campaign.datasets_count);
+                }
+                return fsUtil.normalizeResponse({
+                    status: 200,
+                    body: annotationCampaigns
+                });
             });
         });
     }

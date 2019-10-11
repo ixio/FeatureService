@@ -94,6 +94,8 @@ describe('annotation-campaign endpoints', function () {
             assert.deepStrictEqual(annotation_campaign.annotation_set_id, 1);
             assert.deepStrictEqual(annotation_campaign.tasks_count, 1);
             assert.deepStrictEqual(annotation_campaign.complete_tasks_count, 0);
+            assert.deepStrictEqual(annotation_campaign.user_tasks_count, 0);
+            assert.deepStrictEqual(annotation_campaign.user_complete_tasks_count, 0);
             assert.deepStrictEqual(annotation_campaign.datasets_count, 2);
         });
     });
