@@ -99,6 +99,7 @@ paths:
         - get_from_backend:
             request:
               uri: /{domain}/sys/annotation-campaign/list
+              current_user: '{{verify_token.body.token.aud}}'
       x-monitor: false
 
   /new:
@@ -327,7 +328,11 @@ definitions:
           type: integer
         tasks_count:
           type: integer
+        user_tasks_count:
+          type: integer
         complete_tasks_count:
+          type: integer
+        user_complete_tasks_count:
           type: integer
         datasets_count:
           type: integer
