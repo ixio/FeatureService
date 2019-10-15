@@ -85,7 +85,8 @@ class AnnotationTask {
                 'dataset_file:audio_metadata.end as endTime',
                 'dataset_file:audio_metadata.sample_rate_khz as fileSampleRate',
                 'dataset_file:dataset:audio_metadata.sample_rate_khz as datasetSampleRate',
-                'annotation_campaign_id as campaign_id'
+                'annotation_campaign_id as campaignId',
+                'annotation_campaign.instructions_url as instructionsUrl'
             ).then(annotationTask => {
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
@@ -140,11 +141,11 @@ class AnnotationTask {
                         'endFrequency'
                     )
                 ]).then(([tags, prevAnnotations]) => {
-                    return fsUtil.normalizeResponse({
+                    let res = {
                         status: 200,
                         body: {
                             task: {
-                                campaignId: annotationTask.campaign_id,
+                                campaignId: annotationTask.campaignId,
                                 annotationTags: tags.map(tag => { return tag.name; }),
                                 boundaries: {
                                     startTime: annotationTask.startTime,
@@ -157,7 +158,11 @@ class AnnotationTask {
                                 prevAnnotations: prevAnnotations
                             }
                         }
-                    });
+                    };
+                    if (annotationTask.instructionsUrl) {
+                        res.body.task.instructionsUrl = annotationTask.instructionsUrl;
+                    }
+                    return fsUtil.normalizeResponse(res);
                 });
             });
         });

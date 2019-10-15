@@ -88,11 +88,12 @@ describe('annotation-task endpoints', function () {
             headers: { authorization: 'Bearer ' + ekMockToken }
         }).then(res => {
             assert.deepEqual(res.status, 200);
-            let refKeys = ['campaignId', 'annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations'];
+            let refKeys = ['campaignId', 'annotationTags', 'boundaries', 'audioUrl', 'spectroUrls', 'prevAnnotations', 'instructionsUrl'];
             assert.deepEqual(Object.keys(res.body.task), refKeys);
             let annotationTask = res.body.task;
             assert.deepStrictEqual(annotationTask.annotationTags.length, 13);
             assert.deepStrictEqual(annotationTask.audioUrl, 'http://localhost:7231/data.ode.org/v1/test/sound/A32C0000.WAV/play');
+            assert.deepStrictEqual(annotationTask.instructionsUrl, 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon');
             let boundaryKeys = ['startTime', 'endTime', 'startFrequency', 'endFrequency'];
             assert.deepEqual(Object.keys(annotationTask.boundaries), boundaryKeys);
             assert.deepStrictEqual(annotationTask.boundaries.endFrequency, 16384);

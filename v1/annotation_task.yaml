@@ -338,6 +338,8 @@ definitions:
             type: string
       prevAnnotations:
         $ref: '#/definitions/annotations'
+      instructionsUrl:
+        type: string
 
   legacy-audio-annotator-input:
     properties:

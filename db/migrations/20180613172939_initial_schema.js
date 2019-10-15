@@ -243,6 +243,7 @@ exports.up = knex => {
             table.increments('id').primary();
             table.string('name');
             table.text('desc');
+            table.text('instructions_url');
             table.dateTime('start');
             table.dateTime('end');
             table

@@ -208,8 +208,10 @@ exports.seed = function(knex, Promise) {
         return knex('annotation_campaigns').del();
     }).then(() => {
         return knex('annotation_campaigns').insert([
-            { id: 1, name: 'SPM whale annotation', start: '2018-06-01', end: '2018-12-30',
-                annotation_set_id: 1, owner_id: 5 }
+            {
+                id: 1, name: 'SPM whale annotation', start: '2018-06-01', end: '2018-12-30',
+                instructions_url: 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon', annotation_set_id: 1, owner_id: 5
+           }
         ]);
     }).then(() => {
         return knex('annotation_campaign_datasets').del();
