@@ -93,7 +93,7 @@ exports.seed = function(knex, Promise) {
     })
     .then(() => {
         return knex('annotation_campaigns').insert(
-            [{'name': 'Test SPM campaign', 'desc': 'Test annotation campaign', 'start': '2010-08-19', 'end': '2010-11-02', 'annotation_set_id': 101, 'owner_id': 101, 'id': 101}, {'name': 'Test DCLDE LF campaign', 'desc': 'Test annotation campaign DCLDE LF 2015', 'start': '2012-06-22', 'end': '2012-06-26', 'annotation_set_id': 102, 'owner_id': 101, 'id': 102}, {'name': 'Test DCLDE HF campaign', 'desc': 'Test annotation campaign DCLDE HF 2015', 'start': '2009-11-06', 'end': '2009-11-06', 'annotation_set_id': 103, 'owner_id': 101, 'id': 103}]
+            [{'name': 'Test SPM campaign', 'desc': 'Test annotation campaign', 'instructions_url': 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon', 'start': '2010-08-19', 'end': '2010-11-02', 'annotation_set_id': 101, 'owner_id': 101, 'id': 101}, {'name': 'Test DCLDE LF campaign', 'desc': 'Test annotation campaign DCLDE LF 2015', 'start': '2012-06-22', 'end': '2012-06-26', 'annotation_set_id': 102, 'owner_id': 101, 'id': 102}, {'name': 'Test DCLDE HF campaign', 'desc': 'Test annotation campaign DCLDE HF 2015', 'start': '2009-11-06', 'end': '2009-11-06', 'annotation_set_id': 103, 'owner_id': 101, 'id': 103}]
         );
     })
     .then(() => {

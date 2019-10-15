@@ -14,6 +14,7 @@ describe('annotation-related models tests', function () {
         var annotation_campaign = {
             name: 'test',
             desc: 'we are testing this',
+            instructions_url: 'https://www.wikipedia.org',
             start: new Date('2018-01-01 12:00:00'),
             end: new Date('2019-01-01 12:00:00'),
             annotation_set_id: 1,
@@ -23,6 +24,7 @@ describe('annotation-related models tests', function () {
         var new_campaign = await db.AnnotationCampaign.query().orderBy('id', 'desc').first();
         assert.deepEqual(new_campaign.name, annotation_campaign['name']);
         assert.deepEqual(new_campaign.desc, annotation_campaign['desc']);
+        assert.deepEqual(new_campaign.instructions_url, annotation_campaign['instructions_url']);
         assert.deepEqual(new_campaign.start, annotation_campaign['start']);
         assert.deepEqual(new_campaign.end, annotation_campaign['end']);
         assert.deepEqual(new_campaign.annotation_set_id, annotation_campaign['annotation_set_id']);
