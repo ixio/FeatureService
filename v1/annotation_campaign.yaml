@@ -294,6 +294,10 @@ definitions:
             type: integer
           name:
             type: string
+          desc:
+            type: string
+          instructionsUrl:
+            type: string
           start:
             type: string
           end:
@@ -319,6 +323,8 @@ definitions:
         id:
           type: integer
         name:
+          type: string
+        instructionsUrl:
           type: string
         start:
           type: string

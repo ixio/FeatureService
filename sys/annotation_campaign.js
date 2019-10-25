@@ -43,6 +43,8 @@ class AnnotationCampaign {
                 task.count = parseInt(task.count, 10);
             });
             if (campaign) {
+                campaign.instructionsUrl = campaign.instructions_url;
+                delete campaign.instructions_url;
                 return fsUtil.normalizeResponse({
                     status: 200,
                     body: {
@@ -67,6 +69,7 @@ class AnnotationCampaign {
             .select(
                 'id',
                 'name',
+                'instructions_url as instructionsUrl',
                 'start',
                 'end',
                 'annotation_set_id',

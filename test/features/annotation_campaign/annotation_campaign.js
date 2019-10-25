@@ -52,6 +52,7 @@ describe('annotation-campaign endpoints', function () {
             assert.deepStrictEqual(campaign.id, 1);
             assert.deepStrictEqual(campaign.name, 'SPM whale annotation');
             assert.deepStrictEqual(campaign.desc, null);
+            assert.deepStrictEqual(campaign.instructionsUrl, 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon');
             assert.deepStrictEqual(new Date(campaign.start), new Date('2018-06-01'));
             assert.deepStrictEqual(new Date(campaign.end), new Date('2018-12-30'));
             assert.deepStrictEqual(campaign.annotation_set_id, 1);
@@ -89,6 +90,7 @@ describe('annotation-campaign endpoints', function () {
             var annotation_campaign = res.body[0];
             assert.deepStrictEqual(annotation_campaign.id, 1);
             assert.deepStrictEqual(annotation_campaign.name, 'SPM whale annotation');
+            assert.deepStrictEqual(annotation_campaign.instructionsUrl, 'https://en.wikipedia.org/wiki/Saint_Pierre_and_Miquelon');
             assert.deepStrictEqual(new Date(annotation_campaign.start), new Date('2018-06-01'));
             assert.deepStrictEqual(new Date(annotation_campaign.end), new Date('2018-12-30'));
             assert.deepStrictEqual(annotation_campaign.annotation_set_id, 1);
