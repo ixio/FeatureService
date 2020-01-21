@@ -211,6 +211,68 @@ class AnnotationCampaign {
             }
         });
     }
+
+    usageReport(hyper, req) {
+        let campaignID = req.params.id;
+        return db.User.query().findOne('email', req.current_user).then(currentUser => {
+            return Promise.all([
+                db.AnnotationCampaign.query().findOne('id', campaignID).select('name', 'owner_id'),
+                db.AnnotationTask.query()
+                .where('annotation_campaign_id', campaignID)
+                .joinRelation('annotation_sessions')
+                .joinRelation('annotator')
+                .joinRelation('dataset_file')
+                .joinRelation('dataset')
+                .select(
+                    'dataset.name as dataset',
+                    'dataset_file.filename',
+                    'annotation_sessions.start',
+                    'annotation_sessions.end',
+                    'annotator.email as annotator'
+                )
+            ]).then(([campaign, annotations]) => {
+                if (campaign) {
+                    if (campaign.owner_id != currentUser.id) {
+                        return fsUtil.normalizeResponse({
+                            status: 401,
+                            body: {
+                                detail: 'User not authorised'
+                            }
+                        });
+                    }
+                    let filename = '"' + campaign.name.replace(' ', '_') + '.csv"';
+                    let csvHeader = [
+                        'dataset',
+                        'filename',
+                        'start_time',
+                        'end_time',
+                        'annotator',
+                        'duration'
+                    ].join(',') + '\n';
+                    return {
+                        status: 200,
+                        headers: {
+                            'content-type': 'text/csv; charset=utf-8',
+                            'content-disposition': 'attachment; filename=' + filename
+                        },
+                        body: csvHeader + annotations.map(annotation => {
+                            annotation.duration = annotation.end - annotation.start;
+                            //annotation.start = new Date(annotation.start.getTime()).toLocaleString('fr-FR').replace(',','');
+                            //annotation.end = new Date(annotation.end.getTime()).toLocaleString('fr-FR').replace(',','');
+                            return Object.values(annotation).join(',');
+                        }).join('\n')
+                    };
+                } else {
+                    return fsUtil.normalizeResponse({
+                        status: 404,
+                        body: {
+                            detail: 'Annotation campaign not found'
+                        }
+                    });
+                }
+            });
+        })
+    }
 }
 
 module.exports = function(options) {
@@ -222,7 +284,8 @@ module.exports = function(options) {
             detail: campaign.detail.bind(campaign),
             list: campaign.list.bind(campaign),
             new: campaign.new.bind(campaign),
-            report: campaign.report.bind(campaign)
+            report: campaign.report.bind(campaign),
+            usageReport: campaign.usageReport.bind(campaign)
         }
     };
 };

@@ -35,3 +35,7 @@ paths:
       get:
         summary: Returns the CSV report of a specific annotation campaign
         operationId: report
+    /usage-report/{id}:
+      get:
+        summary: Returns the CSV usage report of a specific annotation campaign
+        operationId: usageReport
