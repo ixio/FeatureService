@@ -247,6 +247,7 @@ exports.up = knex => {
             table.dateTime('start');
             table.dateTime('end');
             table.integer('start_zoom');
+            table.boolean('presence_mode');
             table
                 .integer('annotation_set_id')
                 .unsigned()

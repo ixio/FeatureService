@@ -87,7 +87,8 @@ class AnnotationTask {
                 'dataset_file:dataset:audio_metadata.sample_rate_khz as datasetSampleRate',
                 'annotation_campaign_id as campaignId',
                 'annotation_campaign.instructions_url as instructionsUrl',
-                'annotation_campaign.start_zoom as startZoom'
+                'annotation_campaign.start_zoom as startZoom',
+                'annotation_campaign.presence_mode as presenceTask'
             ).then(annotationTask => {
                 if (!annotationTask) {
                     return fsUtil.normalizeResponse({
@@ -159,7 +160,8 @@ class AnnotationTask {
                                 spectroUrls: allSpectroUrls,
                                 prevAnnotations: prevAnnotations,
                                 startZoom: annotationTask.startZoom,
-                                filename: annotationTask.filename
+                                filename: annotationTask.filename,
+                                presenceTask: annotationTask.presenceTask,
                             }
                         }
                     };

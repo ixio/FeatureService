@@ -346,6 +346,8 @@ definitions:
         type: number
       filename:
         type: string
+      presenceTask:
+        type: boolean
 
   legacy-audio-annotator-input:
     properties:
