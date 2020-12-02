@@ -342,6 +342,8 @@ definitions:
         $ref: '#/definitions/annotations'
       instructionsUrl:
         type: string
+      startZoom:
+        type: number
 
   legacy-audio-annotator-input:
     properties:

@@ -246,6 +246,7 @@ exports.up = knex => {
             table.text('instructions_url');
             table.dateTime('start');
             table.dateTime('end');
+            table.integer('start_zoom');
             table
                 .integer('annotation_set_id')
                 .unsigned()
