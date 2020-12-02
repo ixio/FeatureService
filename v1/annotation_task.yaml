@@ -344,6 +344,8 @@ definitions:
         type: string
       startZoom:
         type: number
+      filename:
+        type: string
 
   legacy-audio-annotator-input:
     properties:

@@ -159,6 +159,7 @@ class AnnotationTask {
                                 spectroUrls: allSpectroUrls,
                                 prevAnnotations: prevAnnotations,
                                 startZoom: annotationTask.startZoom,
+                                filename: annotationTask.filename
                             }
                         }
                     };
