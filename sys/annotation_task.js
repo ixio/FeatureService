@@ -162,6 +162,7 @@ class AnnotationTask {
                                 startZoom: annotationTask.startZoom,
                                 filename: annotationTask.filename,
                                 presenceTask: annotationTask.presenceTask,
+                                annotationSetId: annotationTask.annotation_set_id,
                             }
                         }
                     };

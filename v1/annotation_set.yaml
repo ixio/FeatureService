@@ -63,6 +63,51 @@ paths:
               uri: /{domain}/sys/annotation-set/list
       x-monitor: false
 
+  /{id}/add-tag:
+    post:
+      tags:
+        - ODE FeatureService annotation task audio annotator post
+      summary: Updates result for specified annotation task, will return next task ID
+      description: |
+        Updates result for specified annotation task with AudioAnnotator format, will return next task ID
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: Annotation Set ID
+          type: integer
+          required: true
+        - name: tag_name
+          in: formData
+          description: Tag name to be added
+          type: string
+          required: true
+      responses:
+        '200':
+          description: Success !
+        default:
+          description: Error
+          schema:
+            $ref: '#/definitions/problem'
+      x-request-handler:
+        - verify_token:
+            request:
+              method: 'get'
+              uri: /{domain}/sys/authentication/verify-token
+              headers: '{{request.headers}}'
+            return_if:
+              status: ['4xx', '5xx']
+        - post_to_backend:
+            request:
+              method: post
+              uri: /{domain}/sys/annotation-set/{id}/add-tag
+              headers:
+                content-type: multipart/form-data
+              body:
+                tag_name: '{{tag_name}}'
+      x-monitor: false
+
 definitions:
   # A https://tools.ietf.org/html/draft-nottingham-http-problem
   problem:

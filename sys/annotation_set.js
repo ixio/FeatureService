@@ -51,6 +51,22 @@ class AnnotationSet {
             });
         });
     }
+
+    addTag(hyper, req) {
+        let setId = req.params.id;
+        let tagName = req.body.tag_name;
+        // WARNING the following doesn't re-use tags already created
+        return db.AnnotationTag.query().insertGraph({
+            'name': tagName,
+            'annotation_sets': [
+                { 'id': setId }
+            ]
+        }, { relate: true }).then(() => {
+            return fsUtil.normalizeResponse({
+                status: 200
+            });
+        });
+    }
 }
 
 module.exports = function(options) {
@@ -59,7 +75,8 @@ module.exports = function(options) {
     return {
         spec: spec,
         operations: {
-            list: set.list.bind(set)
+            list: set.list.bind(set),
+            addTag: set.addTag.bind(set)
         }
     };
 };

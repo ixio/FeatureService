@@ -23,3 +23,7 @@ paths:
       get:
         summary: Returns a list of all annotation sets with tags
         operationId: list
+    /{id}/add-tag:
+      post:
+        summary: Add a new or existing tag to the annotation set
+        operationId: addTag

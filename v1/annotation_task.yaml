@@ -348,6 +348,8 @@ definitions:
         type: string
       presenceTask:
         type: boolean
+      annotationSetId:
+        type: number
 
   legacy-audio-annotator-input:
     properties:
